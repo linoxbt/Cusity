@@ -22,6 +22,7 @@
       <nav class="bar-nav">
         <a href="#how">How it works</a>
         <a href="#numbers">Numbers</a>
+        <a href="#faq">FAQ</a>
         <a href="https://github.com/linoxbt/cusity" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <a class="btn-cta mono" href="check.html">Open app</a>
@@ -74,8 +75,61 @@
       </div>
     </section>
 
+
+    <!-- ============ TICKER (real wallets, v1 verdicts) ============ -->
+    <div class="ticker" aria-label="Sample X Layer wallets and their verdicts"><div class="ticker-track mono" id="ticker"></div></div>
+
+    <!-- ============ PIPELINE ============ -->
+    <section class="block" id="pipeline">
+      <p class="tag mono" data-reveal><i></i>From wallet to verdict</p>
+      <h2 class="block-title" data-reveal>Four steps. All public.</h2>
+      <div class="steps">
+        <article class="step" data-reveal>
+          <span class="step-n mono">01</span><h3>Read</h3><p>Wallet → 64 bits</p>
+          <div class="viz viz-bits" id="viz-bits"></div>
+        </article>
+        <article class="step" data-reveal>
+          <span class="step-n mono">02</span><h3>Commit</h3><p>Hash on chain first</p>
+          <div class="viz viz-hash mono"><span>sha256</span><b>0x35ac…742a</b><span>block 76,254,000</span></div>
+        </article>
+        <article class="step" data-reveal>
+          <span class="step-n mono">03</span><h3>Evaluate</h3><p>807 NAND gates</p>
+          <div class="viz viz-gates" id="viz-gates"></div>
+        </article>
+        <article class="step" data-reveal>
+          <span class="step-n mono">04</span><h3>Prove</h3><p>Audited on chain</p>
+          <div class="viz viz-audit mono"><i></i><i></i><i></i><i class="x"></i><i></i><i></i><i></i><i></i><i class="x"></i><i></i><i></i><i></i><i></i><i></i><i class="x"></i><i></i></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ COUNTERS ============ -->
+    <section class="counters" data-reveal>
+      <div><b class="count" data-to="2425">0</b><span class="mono">labelled wallets</span></div>
+      <div><b class="count" data-to="807">0</b><span class="mono">NAND gates</span></div>
+      <div><b class="count" data-to="64">0</b><span class="mono">input bits</span></div>
+      <div><b class="count" data-to="0">0</b><span class="mono">parity mismatches</span></div>
+      <div><b><span class="count" data-to="65.6" data-dec="1">0</span>%</b><span class="mono">held-out accuracy</span></div>
+    </section>
+
+    <!-- ============ COMPARE ============ -->
+    <section class="block" id="compare">
+      <p class="tag mono" data-reveal><i></i>Why it's different</p>
+      <h2 class="block-title" data-reveal>Opaque filters vs Cusity</h2>
+      <div class="compare">
+        <div class="col-bad" data-reveal>
+          <h3 class="mono">Typical airdrop filter</h3>
+          <ul><li>Hidden rules</li><li>Changes after the snapshot</li><li>No reason given</li><li>Accuracy unknown</li><li>Appeal by complaint thread</li></ul>
+        </div>
+        <div class="col-good" data-reveal>
+          <h3 class="mono">Cusity</h3>
+          <ul><li>Public circuit</li><li>Hash committed before the snapshot</li><li>Deciding inputs shown</li><li>Scored on chain</li><li>Encrypted appeal, answered in public</li></ul>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ HOW IT WORKS ============ -->
-    <section class="sheet" id="how">
+    <section class="sheet" id="how" data-reveal>
       <div class="sheet-head"><p class="tag mono"><i></i>Overview</p></div>
       <div class="overview">
         <p class="statement"><span class="dim">Cusity is a bot filter for airdrops and campaigns</span> that is
@@ -100,7 +154,7 @@
     </section>
 
     <!-- ============ NUMBERS ============ -->
-    <section class="sheet" id="numbers">
+    <section class="sheet" id="numbers" data-reveal>
       <div class="sheet-head"><p class="tag mono"><i></i>Numbers</p>
         <div class="sheet-title"><h2>What the circuit is made of</h2><p>The v1 circuit, trained on 2,425 labelled X Layer wallets. Held-out test: 65.6% balanced accuracy.</p></div></div>
       <div class="tiles">
@@ -115,6 +169,25 @@
           </div></div>
         <div class="tile wide"><span class="k mono">Circuit depth profile · every NAND gate</span><div class="dither" id="dither"></div><span class="s mono" id="dither-note"></span></div>
       </div>
+    </section>
+
+
+    <!-- ============ FAQ ============ -->
+    <section class="block" id="faq">
+      <p class="tag mono" data-reveal><i></i>Questions</p>
+      <h2 class="block-title" data-reveal>Short answers</h2>
+      <div class="faq">
+        <details data-reveal><summary>Is a flag an accusation?</summary><p>No. It's a filter result, with the reason shown and an appeal path.</p></details>
+        <details data-reveal><summary>Can the filter change after the snapshot?</summary><p>No. Its netlist hash is on chain first, and binding fails if it differs.</p></details>
+        <details data-reveal><summary>Can bots study the circuit?</summary><p>Only after the snapshot. Tape-out happens after it, and each campaign retrains.</p></details>
+        <details data-reveal><summary>What does a check cost?</summary><p>Nothing. It's a read-only <code>eth_call</code>.</p></details>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" data-reveal>
+      <h2>See what the circuit<br />says about a wallet.</h2>
+      <a class="btn-cta mono" href="check.html">Open app</a>
     </section>
 
     <!-- ============ FOOTER ============ -->

@@ -5,6 +5,7 @@ import { CONFIG, LIVE } from "./config";
 import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, type CheckResult } from "./chain";
 import { decidingGates, flips, readings } from "./explain";
 import { $, bitsGrid, esc, marginBar, short } from "./ui";
+import { startMotion } from "./motion";
 
 type Page = "check" | "explain" | "audit" | "appeal";
 type Ok = Extract<CheckResult, { status: "ok" }>;
@@ -196,3 +197,4 @@ async function appealPage() {
 }
 
 ({ check: checkPage, explain: explainPage, audit: auditPage, appeal: appealPage })[page]();
+startMotion();
