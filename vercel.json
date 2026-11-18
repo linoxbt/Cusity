@@ -4,5 +4,31 @@
   "buildCommand": "npm run -w web build",
   "outputDirectory": "web/dist",
   "framework": null,
-  "cleanUrls": true
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/(check|explain|audit|appeal|campaign|model)",
+      "destination": "/$1.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(fonts|assets)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/snapshot/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
 }

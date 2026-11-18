@@ -2,7 +2,7 @@
 // The last checked wallet carries across pages (sessionStorage), and ?w=0x… makes any page shareable.
 import "./style.css";
 import { CONFIG, LIVE } from "./config";
-import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, type CheckResult } from "./chain";
+import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, snapshotIndex, type CheckResult } from "./chain";
 import { decidingGates, flips, readings } from "./explain";
 import { $, bitsGrid, esc, marginBar, short } from "./ui";
 import { startMotion } from "./motion";
@@ -81,7 +81,7 @@ function checkPage() {
     <div id="out" class="out"></div>`;
   const out = $("out");
   const go = async (w: string) => {
-    out.innerHTML = `<p class="muted mono">…</p>`;
+    out.innerHTML = `<div class="skeleton"><i></i><i></i><i></i></div>`;
     try {
       const r = await lookup(w);
       if (!r) return void (out.innerHTML = "");
@@ -215,7 +215,7 @@ async function appealPage() {
 async function campaignPage() {
   shell("Campaign");
   let vectorsRoot = "";
-  try { vectorsRoot = (await (await fetch(CONFIG.snapshotUrl)).json()).root; } catch { /* shown as pending */ }
+  try { vectorsRoot = (await snapshotIndex()).root; } catch { /* shown as pending */ }
   const steps: [string, string, string, boolean][] = [   // label, value, note, done on chain
     ["Test set committed", card.testRoot, `${card.testSize} rows`, LIVE],
     ["Filter hash committed", card.netlistSha256, "before snapshot", LIVE],
@@ -226,7 +226,7 @@ async function campaignPage() {
   ];
   $("page").innerHTML = `
     <ol class="timeline">${steps.map(([l, v, n, done], i) => `
-      <li class="${done ? "done" : ""}">
+      <li class="${done ? "done" : ""}" style="--i:${i}">
         <span class="tl-n mono">0${i + 1}</span>
         <div class="tl-body"><b>${l}</b><span class="mono muted">${n}</span></div>
         <span class="tl-val">${v && v.startsWith("0x") ? `<code class="mono" title="${esc(v)}">${short(v, 6)}</code><button class="ghost" data-copy="${esc(v)}">Copy</button>`

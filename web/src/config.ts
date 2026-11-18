@@ -13,7 +13,7 @@ export const CONFIG = {
   campaign: ZERO as `0x${string}`,
   campaignId: 0n,
   audit: ZERO as `0x${string}`,
-  snapshotUrl: "./snapshot_vectors.json",   // shipped inside the same DeWEB site
+  snapshotUrl: "./snapshot/",               // sharded snapshot (scripts/shard_snapshot.ts), shipped with the site
   testLeavesUrl: "./test_leaves.json",
   containerId: "",                          // the model's Circuit Container, for TapeSend appeals
 };

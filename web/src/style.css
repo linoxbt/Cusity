@@ -1,5 +1,5 @@
-@font-face { font-family: "Space Grotesk"; src: url("/fonts/SpaceGrotesk.ttf") format("truetype"); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url("/fonts/JetBrainsMono.ttf") format("truetype"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Space Grotesk"; src: url("/fonts/SpaceGrotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("/fonts/JetBrainsMono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
 
 /* Cusity: dark shell, paper sheets, one lime accent. Layout language: left rail, chamfered sheets,
    numbered layers, hairline frames, mono labels. */
@@ -409,4 +409,44 @@ a, button, summary { transition: color .2s, background-color .2s, border-color .
 @media (max-width: 640px) {
   .timeline li { grid-template-columns: 28px 1fr auto; row-gap: 10px; } .timeline .tl-state { grid-column: 3; grid-row: 1; } .timeline .tl-val { grid-column: 2 / 4; grid-row: 2; } .timeline .tl-val:empty { display: none; }
   .hashrow { grid-template-columns: 1fr auto; } .hashrow .k { grid-column: 1 / -1; }
+}
+
+/* ================= sleek: page transitions, press feedback, loading ================= */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; }
+.rail { view-transition-name: rail; }
+.app-bar { view-transition-name: appbar; }
+.app-sheet { view-transition-name: sheet; }
+::view-transition-old(sheet) { animation: vt-out .16s ease-in both; }
+::view-transition-new(sheet) { animation: vt-in .38s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
+
+html { -webkit-tap-highlight-color: transparent; }
+body { overscroll-behavior-y: none; }
+.btn-dark:active, .btn-cta:active, .btn-chamfer:active, .ghost:active, .samples button:active, .dl a:active, .rail-nav a:active { transform: scale(.97); }
+.samples button, .ghost, .dl a { transition: transform .12s, background-color .2s, color .2s; }
+
+.app-sheet { animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
+.out > *, #page > .card, #page > .stats, .timeline li { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; }
+.out > *:nth-child(2), #page > :nth-child(2) { animation-delay: .06s; }
+.out > *:nth-child(3), #page > :nth-child(3) { animation-delay: .12s; }
+#page > :nth-child(4) { animation-delay: .18s; }
+.timeline li:nth-child(n) { animation-delay: calc(var(--i, 0) * 50ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+
+.skeleton { display: grid; gap: 10px; }
+.skeleton i { display: block; height: 18px; background: var(--paper-3); animation: pulse 1s ease-in-out infinite alternate; }
+.skeleton i:nth-child(1) { width: 40%; height: 30px; } .skeleton i:nth-child(2) { width: 100%; } .skeleton i:nth-child(3) { width: 70%; }
+@keyframes pulse { to { opacity: .45; } }
+
+/* the gate visual: animate opacity (compositor) instead of background colour (repaint every frame) */
+.viz-gates i { animation: none; position: relative; }
+.viz-gates i::after { content: ""; position: absolute; inset: 0; background: var(--lime); opacity: 0; animation: gate2 2.4s ease-in-out infinite; animation-delay: calc(var(--d) * 90ms); }
+@keyframes gate2 { 0%, 70%, 100% { opacity: 0; } 80% { opacity: 1; } }
+[data-reveal].in { will-change: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(sheet), ::view-transition-new(sheet), ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  .app-sheet, .out > *, #page > *, .timeline li, .skeleton i, .viz-gates i::after { animation: none !important; }
 }

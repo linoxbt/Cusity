@@ -45,12 +45,17 @@ export function merkleRoot(leaf: Hex, proof: Hex[]): Hex {
 }
 const snapshotLeaf = (w: Hex, bits: Hex) => keccak256(encodePacked(["address", "bytes8"], [w, bits]));
 
-let snapshot: Snapshot | undefined;
-async function getSnapshot(): Promise<Snapshot> {
-  if (!snapshot) snapshot = await (await fetch(CONFIG.snapshotUrl)).json();
-  return snapshot!;
-}
-export const sampleWallets = async () => Object.keys((await getSnapshot()).wallets);
+// The snapshot is sharded by the address's first byte: one ~13 KB file per check instead of the whole set.
+type SnapIndex = { campaignId: number; block: number; root: Hex; extractorHash: Hex; count: number; samples: string[] };
+let index: Promise<SnapIndex> | undefined;
+export const snapshotIndex = (): Promise<SnapIndex> => (index ??= fetch(`${CONFIG.snapshotUrl}index.json`).then(r => r.json()));
+const shards = new Map<string, Promise<Snapshot["wallets"]>>();
+const shard = (w: string) => {
+  const k = w.slice(2, 4).toLowerCase();
+  if (!shards.has(k)) shards.set(k, fetch(`${CONFIG.snapshotUrl}${k}.json`).then(r => r.json() as Promise<Snapshot["wallets"]>));
+  return shards.get(k)!;
+};
+export const sampleWallets = async () => (await snapshotIndex()).samples;
 
 let net: Net | undefined;
 export async function loadNet(): Promise<Net> {
@@ -72,9 +77,9 @@ export type CheckResult =
 export async function checkWallet(input: string): Promise<CheckResult> {
   let wallet: Hex;
   try { wallet = getAddress(input.trim()); } catch { return { status: "invalid", input }; }
-  const snap = await getSnapshot(), entry = snap.wallets[wallet.toLowerCase()];
+  const [idx, ws] = await Promise.all([snapshotIndex(), shard(wallet)]), entry = ws[wallet.toLowerCase()];
   if (!entry) return { status: "not-in-snapshot", wallet };
-  let root = snap.root;
+  let root = idx.root;
   if (LIVE) root = (await client.readContract({ address: CONFIG.campaign, abi: campaignAbi, functionName: "campaign", args: [CONFIG.campaignId] })).vectorsRoot;
   if (merkleRoot(snapshotLeaf(wallet, entry.bits), entry.proof).toLowerCase() !== root.toLowerCase())
     throw new Error("Snapshot proof does not match the root on chain. Report this.");
