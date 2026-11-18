@@ -7,7 +7,7 @@
   "cleanUrls": false,
   "rewrites": [
     {
-      "source": "/(check|explain|audit|appeal|campaign|model)",
+      "source": "/(check|explain|cluster|audit|appeal|campaign|model|feature|stage|step)",
       "destination": "/$1.html"
     }
   ],

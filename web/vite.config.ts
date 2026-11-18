@@ -8,6 +8,6 @@ export default defineConfig({
   server: { fs: { allow: [".."] } }, // web imports ../data/features.ts and ../build artifacts
   build: {
     outDir: "dist", assetsInlineLimit: 0, chunkSizeWarningLimit: 800,
-    rollupOptions: { input: { index: page("index"), check: page("check"), explain: page("explain"), audit: page("audit"), appeal: page("appeal"), campaign: page("campaign"), model: page("model"), feature: page("feature") } },
+    rollupOptions: { input: { index: page("index"), check: page("check"), explain: page("explain"), audit: page("audit"), appeal: page("appeal"), campaign: page("campaign"), model: page("model"), feature: page("feature"), stage: page("stage"), cluster: page("cluster"), step: page("step") } },
   },
 });
