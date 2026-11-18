@@ -14,69 +14,198 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon-180.png" />
 </head>
 <body>
-  <header class="top">
-    <a class="brand" href="#check" aria-label="Cusity home"><img src="./logo.svg" alt="cusity" height="28" /></a>
-    <nav>
-      <a href="#check" data-view="check">Check</a>
-      <a href="#explain" data-view="explain">Explain</a>
-      <a href="#audit" data-view="audit">Audit</a>
-      <a href="#appeal" data-view="appeal">Appeal</a>
+  <!-- ============ LEFT RAIL ============ -->
+  <aside class="rail">
+    <a class="rail-tile" href="#top" aria-label="Cusity home"><img src="./mark.svg" alt="" width="34" height="34" /></a>
+    <nav class="rail-nav">
+      <a href="#check" data-view="check"><span>01</span>Check</a>
+      <a href="#explain" data-view="explain"><span>02</span>Explain</a>
+      <a href="#audit" data-view="audit"><span>03</span>Audit</a>
+      <a href="#appeal" data-view="appeal"><span>04</span>Appeal</a>
+      <a href="#how"><span>05</span>How it works</a>
     </nav>
-    <span id="mode" class="mode"></span>
-  </header>
+    <div class="rail-status mono">
+      <span class="lbl">Circuit</span>
+      <span id="rail-mode" class="val"></span>
+    </div>
+  </aside>
 
-  <main>
-    <!-- CHECK -->
-    <section id="view-check" class="view">
-      <h1>Check a wallet</h1>
-      <p class="lede">The filter is one logic circuit on X Layer. Paste an entrant's address: the page proves its
-        input bits were fixed at the snapshot, asks the circuit, and re-runs it in your browser.</p>
-      <form id="check-form" class="row">
-        <input id="wallet" class="mono" placeholder="0x… wallet address" autocomplete="off" spellcheck="false" />
-        <button type="submit" class="primary">Check</button>
-      </form>
-      <div id="samples" class="samples"></div>
-      <div id="check-out" class="out"></div>
+  <div class="shell" id="top">
+    <!-- ============ TOP BAR ============ -->
+    <header class="bar">
+      <a class="bar-brand" href="#top"><img src="./logo.svg" alt="cusity" height="24" /></a>
+      <nav class="bar-nav">
+        <a href="#how">How it works</a>
+        <a href="#numbers">Numbers</a>
+        <a href="https://github.com/linoxbt/cusity" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <a class="btn-cta mono" href="#check">Check a wallet</a>
+    </header>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero frame">
+      <div class="hero-copy">
+        <p class="tag mono"><i></i>Bot filtering, verifiable</p>
+        <h1>The bot filter<br />you can check.</h1>
+        <p class="lede">Cusity is one learned logic circuit, taped out on X Layer. No weights file, no server.
+          Every entrant can see the bits it read, why it decided, and how accurate it is on chain.</p>
+        <a class="btn-chamfer mono" href="#check">Check a wallet</a>
+
+        <ol class="layers">
+          <li class="open"><button type="button"><span class="num mono">01</span>Extract layer<span class="chev"></span></button>
+            <ul><li>Any X Layer wallet becomes 64 bits at a fixed snapshot block.</li><li>Open-source extractor, hash pinned on chain.</li><li>Every entrant's bits fixed by a Merkle root.</li></ul></li>
+          <li><button type="button"><span class="num mono">02</span>Commit layer<span class="chev"></span></button>
+            <ul><li>The circuit's netlist hash goes on chain before the snapshot.</li><li>Bound after tape-out only if the hashes match.</li><li>The filter can't change after the fact.</li></ul></li>
+          <li><button type="button"><span class="num mono">03</span>Circuit layer<span class="chev"></span></button>
+            <ul><li>A difflogic network compiled to NAND gates.</li><li>Evaluated by the TapeOut processor with <code>eval</code>.</li><li>Your browser re-runs every gate to confirm.</li></ul></li>
+          <li><button type="button"><span class="num mono">04</span>Audit layer<span class="chev"></span></button>
+            <ul><li>A future block hash picks test rows.</li><li>The contract scores the circuit on chain.</li><li>Abandoned rounds stay on record as expired.</li></ul></li>
+        </ol>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 560 620" class="stack">
+          <defs>
+            <pattern id="gates" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0.5 -1 0.5 0 0)">
+              <rect x="3" y="3" width="4" height="4" rx="1" fill="#F4F5F2" fill-opacity=".22" />
+            </pattern>
+          </defs>
+          <line x1="250" y1="40" x2="250" y2="560" class="spine" />
+          <!-- plates: centre x=250, rhombus half-width 150, half-height 75, thickness 16 -->
+          <g class="plate" transform="translate(0 70)"><path d="M250 0 L400 75 L250 150 L100 75 Z" class="top" /><path d="M100 75 L250 150 L250 166 L100 91 Z" class="l" /><path d="M400 75 L250 150 L250 166 L400 91 Z" class="r" />
+            <g id="plate-bits"></g></g>
+          <g class="plate" transform="translate(0 200)"><path d="M250 0 L400 75 L250 150 L100 75 Z" class="top" /><path d="M100 75 L250 150 L250 166 L100 91 Z" class="l" /><path d="M400 75 L250 150 L250 166 L400 91 Z" class="r" />
+            <path d="M205 75 L250 52 L295 75 L250 98 Z" class="seal" /></g>
+          <g class="plate" transform="translate(0 330)"><path d="M250 0 L400 75 L250 150 L100 75 Z" class="top grid" /><path d="M100 75 L250 150 L250 166 L100 91 Z" class="l" /><path d="M400 75 L250 150 L250 166 L400 91 Z" class="r" />
+            <circle cx="250" cy="75" r="9" class="lit" /></g>
+          <g class="plate" transform="translate(0 460)"><path d="M250 0 L400 75 L250 150 L100 75 Z" class="top" /><path d="M100 75 L250 150 L250 166 L100 91 Z" class="l" /><path d="M400 75 L250 150 L250 166 L400 91 Z" class="r" />
+            <path d="M190 90 L215 72 L240 82 L265 60 L290 70 L310 52" class="trace" /></g>
+          <g class="leaders mono">
+            <circle cx="250" cy="145" r="3" /><line x1="250" y1="145" x2="440" y2="145" /><text x="450" y="149">EXTRACT</text>
+            <circle cx="250" cy="275" r="3" /><line x1="250" y1="275" x2="440" y2="275" /><text x="450" y="279">COMMIT</text>
+            <circle cx="250" cy="405" r="3" /><line x1="250" y1="405" x2="440" y2="405" /><text x="450" y="409">EVALUATE</text>
+            <circle cx="250" cy="535" r="3" /><line x1="250" y1="535" x2="440" y2="535" /><text x="450" y="539">AUDIT</text>
+          </g>
+        </svg>
+      </div>
     </section>
 
-    <!-- EXPLAIN -->
-    <section id="view-explain" class="view" hidden>
-      <h1>Why this result</h1>
-      <p class="lede">Every answer below comes from re-running the circuit with one input changed. Changes stay
-        realistic: a feature moves to another threshold level, never to an impossible bit pattern.</p>
-      <div id="explain-out" class="out"><p class="muted">Check a wallet first.</p></div>
+    <!-- ============ CONSOLE (the app) ============ -->
+    <section class="sheet console" id="console">
+      <div class="sheet-head">
+        <p class="tag mono"><i></i><span id="mode"></span></p>
+        <div class="tabs" role="tablist">
+          <a href="#check" data-view="check" role="tab"><span class="mono">01</span>Check</a>
+          <a href="#explain" data-view="explain" role="tab"><span class="mono">02</span>Explain</a>
+          <a href="#audit" data-view="audit" role="tab"><span class="mono">03</span>Audit</a>
+          <a href="#appeal" data-view="appeal" role="tab"><span class="mono">04</span>Appeal</a>
+        </div>
+      </div>
+
+      <!-- CHECK -->
+      <div id="view-check" class="view">
+        <div class="view-head"><h2>Check a wallet</h2>
+          <p>Paste an entrant's address. The page proves its input bits were fixed at the snapshot, asks the circuit, and re-runs it in your browser.</p></div>
+        <form id="check-form" class="row">
+          <input id="wallet" class="mono" placeholder="0x… wallet address" autocomplete="off" spellcheck="false" />
+          <button type="submit" class="btn-dark mono">Check</button>
+        </form>
+        <div id="samples" class="samples mono"></div>
+        <div id="check-out" class="out"></div>
+      </div>
+
+      <!-- EXPLAIN -->
+      <div id="view-explain" class="view" hidden>
+        <div class="view-head"><h2>Why this result</h2>
+          <p>Each answer comes from re-running the circuit with one input changed. Changes stay realistic: a feature moves to another threshold level, never to an impossible bit pattern.</p></div>
+        <div id="explain-out" class="out"><p class="muted">Check a wallet first.</p></div>
+      </div>
+
+      <!-- AUDIT -->
+      <div id="view-audit" class="view" hidden>
+        <div class="view-head"><h2>Audit the model</h2>
+          <p>The test set was committed on chain before training ended. A future block hash picks rows, and the contract scores the circuit on them. Unfinished rounds stay on record as expired.</p></div>
+        <div id="audit-out" class="out"></div>
+        <div class="row"><button id="run-audit" class="btn-dark mono">Run audit</button></div>
+        <pre id="audit-log" class="log mono" hidden></pre>
+      </div>
+
+      <!-- APPEAL -->
+      <div id="view-appeal" class="view" hidden>
+        <div class="view-head"><h2>Appeal a result</h2>
+          <p>Think it's wrong? Send the wallet, its bits and a note to the model's Container through TapeSend. End-to-end encrypted. Answers are posted publicly by wallet prefix only.</p></div>
+        <form id="appeal-form" class="stack-form">
+          <label><span class="mono">Wallet</span><input id="ap-wallet" class="mono" placeholder="0x…" spellcheck="false" /></label>
+          <label><span class="mono">Bits sent to the circuit</span><input id="ap-bits" class="mono" placeholder="0x… (filled in after a check)" spellcheck="false" /></label>
+          <label><span class="mono">What looks wrong?</span><textarea id="ap-note" rows="4" maxlength="600" placeholder="e.g. my wallet is older than 90 days, but the bits say 30 to 90"></textarea></label>
+          <div class="row"><button type="submit" class="btn-dark mono">Prepare appeal</button></div>
+        </form>
+        <div id="appeal-out" class="out"></div>
+      </div>
     </section>
 
-    <!-- AUDIT -->
-    <section id="view-audit" class="view" hidden>
-      <h1>Audit the model</h1>
-      <p class="lede">The test set was committed on chain before training ended. Each audit round lets a future block
-        hash pick rows, and the contract scores the circuit on them. Unfinished rounds stay on record as expired.</p>
-      <div id="audit-out" class="out"></div>
-      <div class="row"><button id="run-audit" class="primary">Run audit</button></div>
-      <pre id="audit-log" class="log mono" hidden></pre>
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="sheet" id="how">
+      <div class="sheet-head"><p class="tag mono"><i></i>Overview</p></div>
+      <div class="overview">
+        <p class="statement"><span class="dim">Cusity is a bot filter for airdrops and campaigns</span> that is
+          committed before the snapshot, checkable by every entrant, and <span class="dim">audited on chain.</span>
+          A project commits the circuit, entrants check themselves, and disputes become <span class="dim">a lookup instead of an argument.</span></p>
+        <div class="flow">
+          <div class="flow-head mono"><span>Campaign</span><i></i><span class="dim">Workflow example</span></div>
+          <ol>
+            <li><span class="mono num">01</span><span class="mono">Commit netlist hash</span><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" /></svg></li>
+            <li><span class="mono num">02</span><span class="mono">Snapshot input bits</span><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="1" /><path d="M6 6h4M6 10h4" /></svg></li>
+            <li><span class="mono num">03</span><span class="mono">Tape out + bind</span><svg viewBox="0 0 16 16"><path d="M8 2l5 3v6l-5 3-5-3V5z" /></svg></li>
+            <li><span class="mono num">04</span><span class="mono">Check + appeal</span><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" /></svg></li>
+          </ol>
+        </div>
+      </div>
+      <div class="caps">
+        <div><h3 class="mono">Extractor</h3><p>Wallet to 64 bits at a fixed block. Sources and config hashed.</p></div>
+        <div><h3 class="mono">Circuit</h3><p>NAND netlist on a TapeOut processor. Free to query with <code>eth_call</code>.</p></div>
+        <div><h3 class="mono">Campaign commit</h3><p>Hash before the snapshot, bind after tape-out, no admin.</p></div>
+        <div><h3 class="mono">Accuracy audit</h3><p>Rows picked by a future block hash, scored on chain.</p></div>
+      </div>
     </section>
 
-    <!-- APPEAL -->
-    <section id="view-appeal" class="view" hidden>
-      <h1>Appeal a result</h1>
-      <p class="lede">Think the result is wrong? Send the wallet, its bits and a note to the model's Container through
-        TapeSend. Messages are end-to-end encrypted. Answers are posted publicly by wallet prefix only.</p>
-      <form id="appeal-form" class="stack">
-        <label>Wallet<input id="ap-wallet" class="mono" placeholder="0x…" spellcheck="false" /></label>
-        <label>Bits sent to the circuit<input id="ap-bits" class="mono" placeholder="0x… (filled in after a check)" spellcheck="false" /></label>
-        <label>What looks wrong?<textarea id="ap-note" rows="4" maxlength="600" placeholder="e.g. my wallet is older than 90 days, but the bits say 30 to 90"></textarea></label>
-        <div class="row"><button type="submit" class="primary">Prepare appeal</button></div>
-      </form>
-      <div id="appeal-out" class="out"></div>
+    <!-- ============ NUMBERS ============ -->
+    <section class="sheet" id="numbers">
+      <div class="sheet-head"><p class="tag mono"><i></i>Numbers</p>
+        <div class="sheet-title"><h2>What the circuit is made of</h2><p>Measured in this repository. The live model replaces the pipeline-proof circuit after its tape-out.</p></div></div>
+      <div class="tiles">
+        <div class="tile"><span class="k mono">Input</span><span class="v">64</span><span class="s">bits per wallet: 10 thermometer features + 4 flags</span></div>
+        <div class="tile"><span class="k mono">Circuit</span><span class="v" id="n-gates">251</span><span class="s">NAND gates in the pipeline-proof circuit</span></div>
+        <div class="tile"><span class="k mono">Parity</span><span class="v">0</span><span class="s">mismatches: PyTorch vs netlist vs live <code>eval</code></span></div>
+        <div class="tile wide"><span class="k mono">Training labels · X Layer wallets</span>
+          <div class="bars">
+            <div><i style="height:12%"></i><span class="mono">137</span><em>Hop sybils</em></div>
+            <div><i class="hi" style="height:100%"></i><span class="mono">1,200</span><em>LayerZero sybils</em></div>
+            <div><i style="height:91%"></i><span class="mono">1,088</span><em>Hop users</em></div>
+          </div></div>
+        <div class="tile wide"><span class="k mono">Circuit depth profile · every NAND gate</span><div class="dither" id="dither"></div><span class="s mono" id="dither-note"></span></div>
+      </div>
     </section>
-  </main>
 
-  <footer>
-    <p>A <strong>filter result</strong>, not an accusation. The circuit is only as honest as its inputs, which is why
-      they are fixed by a Merkle root and the extractor is open source with a pinned hash.</p>
-    <p class="muted mono" id="foot-ids"></p>
-  </footer>
+    <!-- ============ FOOTER ============ -->
+    <footer class="foot">
+      <div class="foot-top">
+        <div>
+          <p class="tag mono"><i></i>A filter result, not an accusation</p>
+          <h2>Commit the filter.<br /><span class="dim">Let entrants check it.</span></h2>
+          <p class="muted">The circuit is only as honest as its inputs. That's why they're fixed by a Merkle root, and the extractor is open source with a pinned hash.</p>
+        </div>
+        <div class="foot-links mono">
+          <div><span class="dim">Product</span><a href="#check">Check</a><a href="#explain">Explain</a><a href="#audit">Audit</a><a href="#appeal">Appeal</a></div>
+          <div><span class="dim">Built on</span><a href="https://web3.okx.com/xlayer" target="_blank" rel="noopener">X Layer</a><a href="https://x.com/TapeOutWorld" target="_blank" rel="noopener">TapeOut</a><a href="https://github.com/linoxbt/cusity" target="_blank" rel="noopener">GitHub</a></div>
+        </div>
+      </div>
+      <div class="band">
+        <div class="band-stats mono"><div><b id="band-mode">DEMO</b><span>Circuit status</span></div><div><b id="band-gates">251</b><span>NAND gates</span></div>
+          <p id="foot-ids" class="band-note"></p></div>
+        <div class="wordmark">cusity</div>
+      </div>
+    </footer>
+  </div>
   <script type="module" src="./src/main.ts"></script>
 </body>
 </html>

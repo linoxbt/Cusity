@@ -13,20 +13,69 @@ let last: Extract<CheckResult, { status: "ok" }> | undefined;
 // ------------------------------------------------------------------ routing
 
 const VIEWS = ["check", "explain", "audit", "appeal"] as const;
-function route() {
-  const v = (location.hash.slice(1) || "check") as (typeof VIEWS)[number];
+type View = (typeof VIEWS)[number];
+let current: View = "check";
+function show(v: View, scroll: boolean) {
+  current = v;
   for (const id of VIEWS) $(`view-${id}`).hidden = id !== v;
-  document.querySelectorAll<HTMLAnchorElement>("nav a").forEach(a => a.classList.toggle("on", a.dataset.view === v));
+  document.querySelectorAll<HTMLAnchorElement>("[data-view]").forEach(a => a.classList.toggle("on", a.dataset.view === v));
   if (v === "explain") renderExplain();
   if (v === "audit") renderAudit();
   if (v === "appeal") prefillAppeal();
+  if (scroll) $("console").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
-window.addEventListener("hashchange", route);
+function route(scroll = true) {
+  const h = location.hash.slice(1);
+  if ((VIEWS as readonly string[]).includes(h)) show(h as View, scroll);
+  else if (!h) show(current, false);
+}
+window.addEventListener("hashchange", () => route(true));
 
-$("mode").textContent = LIVE ? `Live · X Layer · model #${CONFIG.modelId}` : "Demo · toy circuit in your browser";
+// mode labels
+const modeText = LIVE ? `Live · X Layer · model #${CONFIG.modelId}` : "Demo · pipeline-proof circuit, evaluated in your browser";
+$("mode").textContent = modeText;
+$("rail-mode").textContent = LIVE ? `#${CONFIG.circuitId} live` : "demo";
+$("band-mode").textContent = LIVE ? "LIVE" : "DEMO";
 $("foot-ids").textContent = LIVE
   ? `processor ${CONFIG.processor} · circuit #${CONFIG.circuitId} · campaign #${CONFIG.campaignId}`
-  : "Demo mode: the pipeline-proof circuit (251 NAND gates) runs locally. Live addresses go in web/src/config.ts.";
+  : "Demo mode: the pipeline-proof circuit runs locally in your browser. Live addresses go in web/src/config.ts.";
+
+// hero: layer accordion
+document.querySelectorAll<HTMLButtonElement>(".layers > li > button").forEach(b => b.addEventListener("click", () => {
+  const li = b.parentElement!, open = li.classList.contains("open");
+  document.querySelectorAll(".layers > li").forEach(x => x.classList.remove("open"));
+  if (!open) li.classList.add("open");
+}));
+
+// hero: the top plate shows the 64 input bits (8 x 8, drawn isometrically)
+function drawPlate(bits: number[]) {
+  const g = document.getElementById("plate-bits"); if (!g) return;
+  const cx = 250, cy = 75, step = 14;   // plate-local coordinates
+  let out = "";
+  for (let i = 0; i < 64; i++) {
+    const u = (i & 7) - 3.5, v = (i >> 3) - 3.5;
+    const x = cx + (u - v) * step, y = cy + (u + v) * step / 2;
+    const h = step * 0.42;   // a small isometric square (rhombus) per bit
+    out += `<path d="M${x.toFixed(1)} ${(y - h / 2).toFixed(1)} l${h.toFixed(1)} ${(h / 2).toFixed(1)} l${(-h).toFixed(1)} ${(h / 2).toFixed(1)} l${(-h).toFixed(1)} ${(-h / 2).toFixed(1)} Z" class="${bits[i] ? "on" : ""}"/>`;
+  }
+  g.innerHTML = out;
+}
+drawPlate(Array.from({ length: 64 }, (_, i) => ((i * 37) % 5 === 0 ? 1 : 0)));
+
+// numbers: gate map of the real netlist
+loadNet().then(net => {
+  const n = net.a.length;
+  $("n-gates").textContent = String(n); $("band-gates").textContent = String(n);
+  // depth profile: logic level of each gate = 1 + deepest input; one column per level
+  const off = 2 + net.nIn, depth = new Uint16Array(n), cols: number[][] = [];
+  for (let g = 0; g < n; g++) {
+    const da = net.a[g] >= off ? depth[net.a[g] - off] : 0, db = net.b[g] >= off ? depth[net.b[g] - off] : 0;
+    depth[g] = 1 + Math.max(da, db); (cols[depth[g]] ??= []).push(g);
+  }
+  $("dither").innerHTML = cols.slice(1).map((c, i) => `<div class="col" title="level ${i + 1}: ${c?.length ?? 0} gates">${(c ?? [])
+    .map(g => `<i class="${g >= n - net.nOut ? "out" : "on"}"></i>`).join("")}</div>`).join("");
+  $("dither-note").textContent = `${n} gates across ${cols.length - 1} logic levels · outputs in lime`;
+}).catch(() => {});
 
 // ------------------------------------------------------------------ check
 
@@ -40,8 +89,8 @@ function bitsGrid(bits: number[]) {
 function marginBar(margin: number, flagged: boolean) {
   const pct = Math.min(Math.abs(margin), 16) / 16 * 50;
   const style = margin >= 0 ? `left:50%;width:${pct}%` : `left:${50 - pct}%;width:${pct}%`;
-  return `<div class="bar"><span class="fill ${flagged ? "flag" : ""}" style="${style}"></span></div>
-    <div class="bar-legend"><span>clearly human</span><span>margin ${margin > 0 ? "+" : ""}${margin}</span><span>clearly bot</span></div>`;
+  return `<div class="mbar"><span class="fill ${flagged ? "flag" : ""}" style="${style}"></span></div>
+    <div class="mbar-legend"><span>clearly human</span><span>margin ${margin > 0 ? "+" : ""}${margin}</span><span>clearly bot</span></div>`;
 }
 
 function renderCheck(r: CheckResult) {
@@ -52,6 +101,7 @@ function renderCheck(r: CheckResult) {
     return;
   }
   last = r;
+  drawPlate(r.bits);
   const agree = r.localVerdict === r.verdict;
   out.innerHTML = `
     <div class="card">
@@ -68,7 +118,7 @@ function renderCheck(r: CheckResult) {
       </dl>
     </div>
     <div class="card">
-      <h2 style="margin-top:0">The 64 bits the circuit saw</h2>
+      <h2>The 64 bits the circuit saw</h2>
       ${bitsGrid(r.bits)}
       <div class="hex">Exact input: <code class="mono">${r.bitsHex}</code><button class="ghost" id="copy-bits">Copy</button></div>
     </div>`;
@@ -106,17 +156,17 @@ async function renderExplain() {
       ${marginBar(r.margin, r.verdict)}
     </div>
     <div class="card">
-      <h2 style="margin-top:0">What would change the result</h2>
+      <h2>What would change the result</h2>
       ${fl.length ? `<ul class="reasons">${fl.map(c => `<li>If <strong>${esc(c.from)}</strong><br/>were instead <span class="to">${esc(c.to)}</span>, the result would flip.</li>`).join("")}</ul>`
         : `<p>No single realistic change flips this result. It is not a close call.</p>`}
     </div>
     <div class="card">
-      <h2 style="margin-top:0">What the circuit read</h2>
+      <h2>What the circuit read</h2>
       <table><tbody>${readings(r.bits).map(x => `<tr><td>${esc(x.text)}</td><td class="mono muted">${x.bits.join("")}</td></tr>`).join("")}</tbody></table>
     </div>
     <div class="card">
-      <h2 style="margin-top:0">Gate map</h2>
-      <p class="muted">${net.a.length} NAND gates. Flipping any one of the <span class="ok">${dg.length} highlighted</span> gates on its own
+      <h2>Gate map</h2>
+      <p class="muted">${net.a.length} NAND gates. Flipping any one of the <span class="hl">${dg.length} highlighted</span> gates on its own
         would change the verdict (computed in ${ms.toFixed(0)} ms in your browser).</p>
       <div class="gatemap">${Array.from(net.a, (_, g) => `<i class="${dg.includes(g) ? "d" : ""}" title="gate ${g}"></i>`).join("")}</div>
     </div>`;
@@ -133,7 +183,7 @@ async function renderAudit() {
     const done = a.rounds.filter(r => r.status === "done"), expired = a.rounds.filter(r => r.status === "expired").length;
     const c = done.reduce((s, r) => s + r.correct, 0), t = done.reduce((s, r) => s + r.total, 0);
     out.innerHTML = `
-      <div class="card"><dl class="kv" style="margin-top:0">
+      <div class="card"><dl class="kv">
         <dt>Test set root</dt><dd class="mono">${a.testRoot}</dd>
         <dt>Test set size</dt><dd>${a.testSize} rows · ${a.k} sampled per round</dd>
         ${LIVE ? `<dt>Committed netlist</dt><dd class="mono">${a.committedHash}</dd>
@@ -171,9 +221,9 @@ $("appeal-form").addEventListener("submit", e => {
   const w = $<HTMLInputElement>("ap-wallet").value.trim(), b = $<HTMLInputElement>("ap-bits").value.trim(), n = $<HTMLTextAreaElement>("ap-note").value.trim();
   const msg = `Cusity appeal\ncampaign: #${CONFIG.campaignId}\nwallet: ${w}\nbits: ${b}\nnote: ${n}`;
   const out = $("appeal-out");
-  out.innerHTML = `<div class="card"><h2 style="margin-top:0">Your appeal</h2><div class="msg mono" id="ap-msg"></div>
-    <div class="row" style="margin-top:14px"><button class="primary" id="ap-copy">Copy message</button>
-    ${CONFIG.containerId ? `<button id="ap-send">Open TapeSend</button>` : ""}</div>
+  out.innerHTML = `<div class="card"><h2>Your appeal</h2><div class="msg mono" id="ap-msg"></div>
+    <div class="row" style="margin-top:14px"><button class="btn-dark mono" id="ap-copy">Copy message</button>
+    ${CONFIG.containerId ? `<button class="ghost" id="ap-send">Open TapeSend</button>` : ""}</div>
     <p class="muted" style="margin-top:14px">${CONFIG.containerId
       ? `Send it to Container <span class="mono">${esc(CONFIG.containerId)}</span> in TapeSend.`
       : "TapeSend delivery is wired up once the model's Container is live. For now, copy the message."}</p></div>`;
@@ -181,4 +231,4 @@ $("appeal-form").addEventListener("submit", e => {
   $("ap-copy").onclick = () => navigator.clipboard.writeText(msg);
 });
 
-route();
+route(false);
