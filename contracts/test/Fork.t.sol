@@ -13,6 +13,11 @@ interface IProc {
     function TAPEOUT_FEE() external view returns (uint256);
 }
 
+interface IERC20Min {
+    function approve(address, uint256) external returns (bool);
+    function balanceOf(address) external view returns (uint256);
+}
+
 interface IFactory {
     function createCPU(string calldata name, string calldata symbol, string calldata story, uint256 supply, uint256 price) external payable returns (address);
     function deployFee() external view returns (uint256);
@@ -58,8 +63,14 @@ contract ForkTest is Test {
         vm.deal(ME, 1000 ether);
         uint256 before = ME.balance;
         vm.startPrank(ME);
+        // newer processors take the protocol fee in BEM (8 decimals) via transferFrom; give and approve some on the fork
+        address BEM = 0x60e62Efa9405d6873C5deaBD4E6CC91c25363952;
+        deal(BEM, ME, 1e8);   // 1 BEM
+        IERC20Min(BEM).approve(address(t), type(uint256).max);
+        uint256 bemBefore = IERC20Min(BEM).balanceOf(ME);
         // try price + protocol fee per transistor first, then price only
         try t.mint{value: gates * (price + pfee)}(0, gates) {} catch { t.mint{value: gates * price}(0, gates); }
+        console.log("  BEM spent (8 decimals):", bemBefore - IERC20Min(BEM).balanceOf(ME));
         console.log("  NAND transistors held:", t.balanceOf(ME, 0));
         uint256 id = proc.tapeout{value: tfee}(nl, 64, 7);
         vm.stopPrank();
@@ -86,6 +97,11 @@ contract ForkTest is Test {
 
     /// The real v1 bot-filter circuit (build/cusity.netlist.json) on the same live processor.
     function test_tapeoutV1OnFork_cpu300() public { _tapeoutOn(IProc(0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281), "../build/cusity.netlist.json", false); }
+
+    /// Cheapest processors found by scanning all 430 (mint price ~0): the v1 circuit for ~0.0013 OKB.
+    function test_tapeoutV1OnFork_cpu419() public { _tapeoutOn(IProc(0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e), "../build/cusity.netlist.json", false); }
+    function test_tapeoutV1OnFork_cpu180() public { _tapeoutOn(IProc(0x7335a50819d44402e3D5E00239bBB80A13E7308F), "../build/cusity.netlist.json", false); }
+    function test_tapeoutV1OnFork_cpu422() public { _tapeoutOn(IProc(0x550992f2dC407BfFDd82c516C0984dc5e00B37d3), "../build/cusity.netlist.json", false); }
 
     function test_tapeoutToyNetlistOnFork_cpu300() public { _tapeoutOn(IProc(0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281)); }
     /// Own processor: created through the live factory on the fork, at the current (near-zero) price cap.

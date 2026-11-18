@@ -40,6 +40,23 @@ scripts/phase0_check.sh     # read-only: processor ABI and evaluator vs chain
 **Budget advice:** keep the model small (the sweep already prefers the smallest circuit on ties). Tape out the toy circuit only once,
 and consider your own processor before the 1,000+ gate model.
 
+## Cheapest route (scan of all 430 processors, verified on a mainnet fork)
+
+`npx tsx build/tmp/scan_cpus.ts`-style scan + `FORK=1 forge test --match-test test_tapeoutV1OnFork -vv`:
+
+| Processor | Mint price | Fee | v1 (807 gates) total | Verified |
+|---|---|---|---|---|
+| **#419** `0xf70d…3c4e` / **#422** `0x5509…37d3` | 0 | 0.01 BEM (approve first) | **0.0013 OKB + 0.01 BEM** | ✅ fork |
+| #180 `0x7335…308F` | 0 | 0.00066 OKB per gate | 0.534 OKB | ✅ fork |
+| #300 `0x9b82…3281` | 0.00066 OKB | 0.00066 OKB per gate | 1.067 OKB | ✅ fork |
+
+Gas on X Layer (≈ 0.02 gwei) is negligible: deploying all three contracts plus a 16-row audit is under 0.001 OKB.
+The 0.08 OKB DeWEB container is optional (the site is already on Vercel and Netlify).
+
+**So a deployer wallet needs about 0.02 OKB plus 0.01 BEM on X Layer.** BEM's home chain is BNB Chain
+(`0x5ce0…695a`); the X Layer token (`0x60e6…3952`) is its LayerZero bridge copy. Before minting on #419/#422,
+approve the processor's transistor contract to spend BEM.
+
 ## Phase 1: hello-world tape-out (cheap, tells you the real price per gate)
 
 ```bash
