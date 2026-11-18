@@ -488,3 +488,4 @@ body.app:not(.rail-collapsed) .menu-btn { border-color: var(--lime); }
   .scrim { top: 60px; }
 }
 @media (prefers-reduced-motion: reduce) { body.app .rail, body.app .app-main { transition: none; } }
+body.app .menu-btn { margin-left: auto; }

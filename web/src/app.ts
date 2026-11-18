@@ -26,7 +26,6 @@ function shell(title: string) {
   document.body.innerHTML = `
     <header class="app-bar">
       <a class="bar-brand" href="index.html" aria-label="Cusity home"><img src="./logo.svg" alt="cusity" height="24" /></a>
-      <span class="chip mono">${LIVE ? "Live · X Layer" : "Demo"}</span>
       <button class="menu-btn" id="menu" aria-label="Toggle menu" aria-controls="rail" aria-expanded="true"><i></i><i></i><i></i></button>
     </header>
     <aside class="rail" id="rail">
