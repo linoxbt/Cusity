@@ -1,27 +1,42 @@
-// Wallet history from OKLink's explorer API: one paged request per wallet instead of scanning blocks.
-// The API key is injected by the session's network proxy (header Ok-Access-Key); none is stored here.
-// Raw pages are cached in data/raw/oklink/ so reruns are identical and cheap.
+// Wallet history from the OKX X Layer Data API (Onchain OS, formerly OKLink's explorer API):
+// one paged request per wallet instead of scanning blocks.
+//   GET https://web3.okx.com/api/v5/xlayer/address/normal-transaction-list   (max 50 rows/page)
+// Docs: https://web3.okx.com/onchainos/dev-docs/xlayer/developer/data/normal-transactions-by-address
+// Note: this endpoint covers about one year back from the wallet's latest transaction.
 //
-// VERIFY on first use: `npx tsx scripts/oklink_probe.ts <address>` prints a raw response. Field names
-// below follow OKLink's v5 explorer API; the mapper tolerates the variants we know of.
+// Auth: create a project and API key at https://web3.okx.com/onchainos/dev-portal, then set
+// OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE (e.g. in .env, run with `npx tsx --env-file=.env ...`).
+// Every request is signed: base64(HMAC-SHA256(timestamp + "GET" + path?query, secret)).
+// Raw pages are cached in data/raw/okx/ so reruns are identical and cheap.
+import { createHmac } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseUnits } from "viem";
 import type { Tx } from "./indexer";
 import type { History } from "./history";
 
-const BASE = process.env.OKLINK_BASE ?? "https://www.oklink.com/api/v5/explorer";
+const HOST = "https://web3.okx.com";
+const PATH = "/api/v5/xlayer/address/normal-transaction-list";
 const CHAIN = "XLAYER";
-const DIR = "data/raw/oklink";
-const LIMIT = 100;          // rows per page
-const MAX_PAGES = 100;      // 10,000 txs per wallet; beyond that a wallet is an exchange/bot-scale sender anyway
+const DIR = "data/raw/okx";
+const LIMIT = 50;           // the API's maximum rows per page
+const MAX_PAGES = 200;      // 10,000 txs per wallet; beyond that a wallet is an exchange/bot-scale sender anyway
 export const FUNDER_CAP = 501;   // funder counts above the top threshold (500) are all the same bit
 
 type Item = Record<string, string | undefined>;
-type Fetch = (url: string) => Promise<{ ok: boolean; status: number; json(): Promise<any> }>;
+type Fetch = (url: string, init?: { headers: Record<string, string> }) => Promise<{ ok: boolean; status: number; json(): Promise<any> }>;
+
+/** OK-ACCESS-* headers for a GET request. */
+export function signHeaders(pathWithQuery: string, env = process.env, now = new Date()): Record<string, string> {
+  const key = env.OKX_API_KEY, secret = env.OKX_SECRET_KEY, pass = env.OKX_PASSPHRASE;
+  if (!key || !secret || !pass) throw new Error("set OKX_API_KEY, OKX_SECRET_KEY and OKX_PASSPHRASE (see data/history_okx.ts)");
+  const ts = now.toISOString();
+  const sign = createHmac("sha256", secret).update(ts + "GET" + pathWithQuery).digest("base64");
+  return { "OK-ACCESS-KEY": key, "OK-ACCESS-SIGN": sign, "OK-ACCESS-PASSPHRASE": pass, "OK-ACCESS-TIMESTAMP": ts };
+}
 
 const units = (s: string | undefined) => { try { return s ? parseUnits(s, 18) : 0n; } catch { return 0n; } };
 
-/** OKLink row -> our Tx. Without per-tx gas fields, the fee stands in for "gas settings" (gasSame). */
+/** API row -> our Tx. normal-transaction-list carries gasPrice/gasLimit; if a row lacks them, the fee stands in. */
 export function toTx(it: Item): Tx {
   const ms = Number(it.transactionTime ?? it.blockTime ?? 0);
   return {
@@ -45,11 +60,11 @@ export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch 
   else {
     items = [];
     for (let page = 1; page <= MAX_PAGES; page++) {
-      const url = `${BASE}/address/transaction-list?chainShortName=${CHAIN}&address=${a}&protocolType=transaction&limit=${LIMIT}&page=${page}`;
-      const r = await fetchFn(url);
-      if (r.status === 429) { await new Promise(s => setTimeout(s, 1500)); page--; continue; }
+      const pq = `${PATH}?chainShortName=${CHAIN}&address=${a}&limit=${LIMIT}&page=${page}`;
+      const r = await fetchFn(HOST + pq, { headers: signHeaders(pq) });
+      if (r.status === 429) { await new Promise(s => setTimeout(s, 1500)); page--; continue; }   // rate limited: retry
       const j = await r.json();
-      if (!r.ok || String(j.code) !== "0") throw new Error(`OKLink ${r.status} ${j.code}: ${j.msg}`);
+      if (!r.ok || String(j.code) !== "0") throw new Error(`OKX Data API ${r.status} ${j.code}: ${j.msg}`);
       const d = j.data?.[0] ?? {};
       const rows: Item[] = d.transactionLists ?? d.transactionList ?? [];
       items.push(...rows);
@@ -66,7 +81,7 @@ export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch 
 }
 
 /** Prefetch every wallet and its first funder, then answer the History interface synchronously. */
-export async function oklinkHistory(addresses: string[], toBlock: number, fetchFn?: Fetch, log = (_: string) => {}): Promise<History> {
+export async function okxHistory(addresses: string[], toBlock: number, fetchFn?: Fetch, log = (_: string) => {}): Promise<History> {
   const by = new Map<string, Tx[]>(), funder = new Map<string, string | null>(), fCount = new Map<string, number>();
   let i = 0;
   for (const a0 of addresses) {

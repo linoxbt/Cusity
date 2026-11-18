@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 export const EXTRACTOR_FILES = ["data/chain.ts", "data/extract.ts", "data/extractor.config.json",
-  "data/features.ts", "data/history.ts", "data/history_oklink.ts", "data/indexer.ts"];
+  "data/features.ts", "data/history.ts", "data/history_okx.ts", "data/indexer.ts"];
 
 export function extractorHash(files = EXTRACTOR_FILES): `0x${string}` {
   const h = createHash("sha256");

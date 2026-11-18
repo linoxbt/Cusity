@@ -42,6 +42,14 @@ test("funder cluster does not depend on who else is in the input list", () => {
   assert.equal(f.counterparties, 2);
 });
 
+test("OKX request signing matches the documented recipe", async () => {
+  const { signHeaders } = await import("./history_okx");
+  const { createHmac } = await import("node:crypto");
+  const h = signHeaders("/api/v5/xlayer/address/normal-transaction-list?a=1", { OKX_API_KEY: "k", OKX_SECRET_KEY: "s", OKX_PASSPHRASE: "p" } as any, new Date("2026-11-18T09:00:00.000Z"));
+  assert.equal(h["OK-ACCESS-TIMESTAMP"], "2026-11-18T09:00:00.000Z");
+  assert.equal(h["OK-ACCESS-SIGN"], createHmac("sha256", "s").update("2026-11-18T09:00:00.000ZGET/api/v5/xlayer/address/normal-transaction-list?a=1").digest("base64"));
+});
+
 test("merkle trees are deterministic and proofs line up", () => {
   const rows = [{ bits: "0x0102030405060708" as const, label: 1 }, { bits: "0x1112131415161718" as const, label: 0 }];
   const a = testTree(rows), b = testTree(rows);
@@ -52,9 +60,9 @@ test("merkle trees are deterministic and proofs line up", () => {
 
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { oklinkHistory, toTx } from "./history_oklink";
+import { okxHistory, toTx } from "./history_okx";
 
-test("OKLink rows map to Tx (units, ms timestamps, fee as gas proxy)", () => {
+test("OKX Data API rows map to Tx (units, ms timestamps, fee as gas proxy)", () => {
   const t = toTx({ txId: "0xabc", height: "100", transactionTime: "1700000000000", from: "0xAA", to: "0xBB",
     amount: "1.5", txFee: "0.0001", methodId: "0xa9059cbb" });
   assert.equal(t.block, 100); assert.equal(t.time, 1700000000);
@@ -62,8 +70,9 @@ test("OKLink rows map to Tx (units, ms timestamps, fee as gas proxy)", () => {
   assert.equal(t.from, "0xaa"); assert.ok(t.hasData);
 });
 
-test("OKLink history: paging, snapshot cut-off, population-independent funder count", async () => {
-  process.chdir(mkdtempSync(`${tmpdir()}/okl-`));   // cache goes to a scratch dir
+test("OKX history: paging, snapshot cut-off, population-independent funder count", async () => {
+  process.chdir(mkdtempSync(`${tmpdir()}/okx-`));   // cache goes to a scratch dir
+  process.env.OKX_API_KEY = "k"; process.env.OKX_SECRET_KEY = "s"; process.env.OKX_PASSPHRASE = "p";
   const W = "0x00000000000000000000000000000000000000a1", F = "0x00000000000000000000000000000000000000f0";
   const row = (h: string, height: number, from: string, to: string, amount: string) =>
     ({ txId: h, height: String(height), transactionTime: String(height * 1000), from, to, amount, txFee: "0.00001", methodId: "" });
@@ -75,7 +84,7 @@ test("OKLink history: paging, snapshot cut-off, population-independent funder co
     const a = new URL(url).searchParams.get("address")!;
     return { ok: true, status: 200, json: async () => ({ code: "0", msg: "", data: [{ totalPage: "1", transactionLists: pages[a] ?? [] }] }) };
   };
-  const h = await oklinkHistory([W], 500, fake);
+  const h = await okxHistory([W], 500, fake);
   assert.equal(h.txsOf(W).length, 2);           // block 999 is after the snapshot
   assert.equal(h.funderOf(W), F);
   assert.equal(h.funderCount(F), 3);            // F funded a1, b2, b3, wherever they are in the input list
