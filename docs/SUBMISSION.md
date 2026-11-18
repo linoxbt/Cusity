@@ -1,56 +1,36 @@
-# Cusity: TapeOut Accelerate submission answers
+# Cusity: TapeOut Accelerate registration form
 
-Official form: https://forms.gle/EoDNbxQ65dev1wFd9, which redirects to
-`docs.google.com/forms/d/e/1FAIpQLScyVnDmyzxRyBxszLUWbwV5kVbpmZJ3JS6oyOxqjALRvhR1kg`. The form needs a Google sign-in.
+Form: "OKX X Layer TapeOut Accelerate: Tapeout Registration" (https://forms.gle/EoDNbxQ65dev1wFd9).
+It needs a Google sign-in. The form says you can register early and update your entry later, and that
+judging uses the version in place at the deadline (Dec 7, 23:59 UTC).
 
-These answers follow what the hackathon page asks for. Every `[[…]]` is a value that only exists after
-the build, the tape-out and the campaign. Don't submit until none are left.
+| # | Field (required unless noted) | Answer |
+|---|---|---|
+| 1 | Full Name | *you* |
+| 2 | Nationality (used to pick the offline finale venue) | *you* |
+| 3 | Project name | Cusity |
+| 4 | Project logo (256×256, ≤10 MB, file upload) | *upload a 256×256 PNG* |
+| 5 | Telegram handle | *you* |
+| 6 | Project X Account | *the project's X handle* |
+| 7 | Team contact email | *you* |
+| 8 | Team size (max 4) | *you* |
+| 9 | Team background | *you* |
+| 10 | Elevator pitch | see below |
+| 11 | GitHub repo | https://github.com/linoxbt/cusity (make it public first) |
+| 12 | Demo video (≤3 min; longer may be disqualified) | *until it exists, put "Coming before Dec 7" and update the entry later* |
+| 13 | Project website (optional) | *DeWEB link once the site is live; leave blank for now* |
 
-## Project name
-Cusity
+## Elevator pitch (field 10)
 
-## One-line summary
-A bot filter for airdrops and campaigns, built as a learned logic-gate circuit taped out on X Layer. Anyone can check a wallet for free, see why, audit the model's accuracy on chain, and appeal.
+Cusity is a bot filter for airdrops and campaigns on X Layer that lets people check why a wallet was flagged, addressing the lack of transparency that causes public disputes each airdrop season. It compiles a trained logic gate network into a single TapeOut circuit, with no weights file or server. Unlike existing filters, its netlist hash is committed on chain before the campaign snapshot, wallet inputs are fixed by a Merkle root, and accuracy is scored on chain using randomly sampled rows from a test set committed in advance. Anyone can check a wallet for free via eth_call, inspect a gate-level explanation in their browser, and appeal through TapeSend. We’ll run our own giveaway first, then offer campaign-specific retraining to X Layer projects running quests and airdrops, which pay to commission and commit each filter.
 
-## Project description
+## Not on this form, but required by the hackathon page
 
-**Product.** Cusity runs AI models made only of logic gates as TapeOut circuits on X Layer. The first model is a bot filter for airdrops and campaigns. It is trained with difflogic, compiled to [[N]] NAND gates, and taped out as a single circuit. The circuit has no weights file and no server. Anyone can check a wallet for free with `eth_call`, see which inputs decided the result, check the model's accuracy on chain against a test set committed in advance, and appeal through TapeSend.
+Circuit projects must provide the **processor contract address and circuit ID**, and sites must give
+a link and name the TapeOut features they use. This form has no fields for them, so put them in the
+repo README and the demo video, and ask in the Telegram group where they should go.
 
-**Target users.** Projects and creators who run campaigns, quests and airdrops on X Layer, and the users those campaigns filter.
-
-**How we reach them.** We start with our own giveaway, run on Cusity, with [[N entrants]] entrants. We then offer the filter to X Layer projects running quests, and publish each campaign's commit and bind transactions as public proof.
-
-**Revenue model.** Projects pay to commission a filter for a campaign and to have it committed on chain before the snapshot. Checks through `eth_call` stay free for users.
-
-**Why users pay and keep using it.** Every campaign needs a bot filter, and every opaque filter causes public disputes. A filter that is committed in advance, checkable by every user, and audited on chain removes most of those disputes. Each new campaign means a new commission.
-
-**What's new.** Cusity takes a trained ML model and turns it into a TapeOut circuit. It adds a gate-level explanation of each verdict in the browser, accuracy scored on chain from randomly sampled test rows, and a netlist hash committed before the campaign snapshot, so the filter can't be changed after the fact.
-
-## Processor contract address
-[[0x… processor]]
-
-## Circuit ID
-[[circuit id]]
-
-## Access link (live site)
-[[DeWEB link]]
-
-## TapeOut ecosystem projects and features used
-- Processor, NAND transistors, tape-out, `eval`, `netlist`, `circuitInfo`
-- Circuit Container: hosts the site and receives appeals
-- DeWEB (Website Repository) and TapeKit: the site, with no backend
-- TapeSend: encrypted appeals to the model's Container
-- TapeSynth: Verilog to verified NAND netlist, plus tape-out
-- Contracts on X Layer: CusityRegistry [[0x…]], CampaignCommit [[0x…]], AccuracyAudit [[0x…]]
-
-## Proof (campaign results)
-Commit transaction [[link]] before snapshot block [[#]]. Bind transaction [[link]]. Audit score [[x/16]] on chain. [[N]] wallets checked, [[M]] appeals handled, [[0]] results overturned.
-
-## Demo video (3 minutes or less)
-[[video link]]
-
-## Code repository
-https://github.com/linoxbt/cusity (make sure it's public before submitting)
-
-## Contact and team details
-Fill these in yourself on the form.
+- Processor: [[0x…]] · Circuit ID: [[#]]
+- CusityRegistry [[0x…]] · CampaignCommit [[0x…]] · AccuracyAudit [[0x…]]
+- TapeOut features used: Processor, NAND transistors, tape-out, `eval`, `netlist`, `circuitInfo`, Circuit Container, DeWEB (Website Repository), TapeKit, TapeSend; built with TapeSynth
+- Campaign proof: commit tx [[link]] before snapshot block [[#]], bind tx [[link]], audit score [[x/16]], [[N]] wallets checked, [[M]] appeals handled
