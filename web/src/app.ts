@@ -7,8 +7,12 @@ import { decidingGates, flips, readings } from "./explain";
 import { $, bitsGrid, esc, marginBar, short } from "./ui";
 import { startMotion } from "./motion";
 import card from "../public/model/model_card.json";
+import fstats from "../public/model/feature_stats.json";
+import { runStages, layerSizes, GROUP } from "./stages";
+import { decide } from "./tap02";
+import { SLOTS, levelOf, withLevel, describeLevel, type Slot } from "../../data/features";
 
-type Page = "check" | "explain" | "audit" | "appeal" | "campaign" | "model";
+type Page = "check" | "explain" | "audit" | "appeal" | "campaign" | "model" | "feature";
 type Ok = Extract<CheckResult, { status: "ok" }>;
 const PAGES: [Page, string][] = [["check", "Check"], ["explain", "Explain"], ["audit", "Audit"], ["appeal", "Appeal"], ["campaign", "Campaign"], ["model", "Model"]];
 const page = (document.body.dataset.page ?? "check") as Page;
@@ -22,7 +26,7 @@ const link = (p: Page, w = wallet()) => `${p}.html${w ? `?w=${encodeURIComponent
 
 function shell(title: string) {
   const nav = PAGES.map(([p, label], i) =>
-    `<a href="${link(p)}" class="${p === page ? "on" : ""}"><span>0${i + 1}</span>${label}</a>`).join("");
+    `<a href="${link(p)}" class="${p === page || (page === "feature" && p === "check") ? "on" : ""}"><span>0${i + 1}</span>${label}</a>`).join("");
   document.body.innerHTML = `
     <header class="app-bar">
       <a class="bar-brand" href="index.html" aria-label="Cusity home"><img src="./logo.svg" alt="cusity" height="24" /></a>
@@ -76,6 +80,87 @@ function needWallet(el: HTMLElement) {
   el.innerHTML = `<div class="empty"><a class="btn-dark mono" href="check.html">Check a wallet first</a></div>`;
 }
 
+
+// ------------------------------------------------------------------ stages + inputs
+
+const featParam = (s: Slot) => s.kind === "flag" ? s.name : s.feature.name;
+const slotLabel = (s: Slot) => s.kind === "flag" ? s.label : s.feature.label;
+
+function inputRows(bits: number[], w: string) {
+  return `<div class="bits">${SLOTS.map(s => `
+    <a class="feat feat-link" href="feature.html?f=${featParam(s)}&w=${encodeURIComponent(w)}">
+      <span class="name">${esc(slotLabel(s))}</span>
+      <span class="cells">${bits.slice(s.start, s.start + s.count).map((b, j) =>
+        `<span class="cell ${b ? "on" : ""}" title="bit ${s.start + j}">${b}</span>`).join("")}</span>
+      <span class="go" aria-hidden="true">→</span></a>`).join("")}</div>`;
+}
+
+function stagesCard(bits: number[]) {
+  const st = runStages(bits), sizes = layerSizes(), last = st.layers[st.layers.length - 1];
+  const grid = (arr: ArrayLike<number>, cls = "") => `<div class="sg ${cls}">${Array.from(arr, v => `<i class="${v ? "on" : ""}"></i>`).join("")}</div>`;
+  const on = (a: Uint8Array) => a.reduce((x, y) => x + y, 0);
+  const stage = (n: string, title: string, body: string, foot: string) =>
+    `<div class="stage"><span class="mono st-n">${n}</span><b>${title}</b>${body}<span class="mono st-f">${foot}</span></div>`;
+  const parts = [
+    stage("01", "Read", grid(bits, "s-in"), `${bits.reduce((a, b) => a + b, 0)}/64 on`),
+    ...st.layers.slice(0, -1).map((l, i) => stage(`0${i + 2}`, `Layer ${i + 1}`, grid(l), `${on(l)}/${sizes[i]} fired`)),
+    stage(`0${st.layers.length + 1}`, "Vote", `<div class="vote">
+        <div><span class="mono">human</span>${grid(last.slice(0, GROUP), "s-vote")}<b>${st.human}</b></div>
+        <div><span class="mono">bot</span>${grid(last.slice(GROUP), "s-vote bot")}<b>${st.bot}</b></div></div>`,
+      `${st.bot} − ${st.human} = ${st.margin > 0 ? "+" : ""}${st.margin}`),
+    stage(`0${st.layers.length + 2}`, "Verdict", `<div class="st-verdict ${st.verdict ? "flag" : ""}"><span class="dot"></span>${st.verdict ? "Flagged" : "Passed"}</div>`, "bot > human"),
+  ];
+  return `<div class="card"><h2>Filter stages <span class="count mono">scroll →</span></h2><div class="stages">${parts.join('<span class="arrow mono">→</span>')}</div></div>`;
+}
+
+// ------------------------------------------------------------------ feature detail
+
+async function featurePage() {
+  const f = new URLSearchParams(location.search).get("f") ?? "";
+  const slot = SLOTS.find(s => featParam(s) === f);
+  shell(slot ? slotLabel(slot) : "Input");
+  const el = $("page");
+  if (!slot) return needWallet(el);
+  try {
+    const r = await lookup(wallet());
+    if (!r || r.status !== "ok") return needWallet(el);
+    const net = await loadNet(), isFlag = slot.kind === "flag";
+    const cur = isFlag ? r.bits[slot.start] : levelOf(r.bits, slot), levels = isFlag ? 2 : slot.count + 1;
+    const fmtT = (x: number) => slot.kind === "feature"
+      ? (slot.feature.unit === "%" ? `${x}%` : slot.feature.unit === "USD" ? `$${x.toLocaleString("en-US")}` : x.toLocaleString("en-US")) : String(x);
+    const rangeOf = (L: number) => slot.kind === "flag" ? (L ? "yes" : "no")
+      : L === 0 ? `≤ ${fmtT(slot.feature.thresholds[0])}`
+      : L === slot.count ? `> ${fmtT(slot.feature.thresholds[L - 1])}`
+      : `${fmtT(slot.feature.thresholds[L - 1])}–${fmtT(slot.feature.thresholds[L])}`;
+    const whatIf = Array.from({ length: levels }, (_, L) => {
+      const b = isFlag ? (() => { const x = r.bits.slice(); x[slot.start] = L; return x; })() : withLevel(r.bits, slot, L);
+      return { L, ...decide(net, b) };
+    });
+    const st = (fstats.features as Record<string, { readers: number; bot: number[]; human: number[] }>)[featParam(slot)];
+    const botN = st.bot.reduce((a, b) => a + b, 0), humN = st.human.reduce((a, b) => a + b, 0);
+    const maxShare = Math.max(...st.bot.map(v => v / botN), ...st.human.map(v => v / humN), 0.01);
+    el.innerHTML = `
+      <div class="card"><div class="verdict">${pill(r)}<span class="mono muted">${short(r.wallet)}</span>
+        <span class="actions"><a href="${link("check", r.wallet)}">← Back</a></span></div>
+        <p class="now">${esc(slot.kind === "flag" ? `${slot.label}: ${cur ? "yes" : "no"}` : describeLevel(slot.feature, cur))}</p>
+        ${slot.kind === "flag" ? "" : `<div class="ladder">${slot.feature.thresholds.map((t, i) => `<div class="rung ${i < cur ? "on" : ""}"><i></i><span class="mono">&gt; ${fmtT(t)}</span></div>`).join("")}</div>`}
+      </div>
+      <div class="card">
+        <h2>What if <span class="count mono">everything else unchanged</span></h2>
+        <div class="whatif">${whatIf.map(w => `<div class="wi ${w.L === cur ? "cur" : ""} ${w.verdict ? "flag" : "pass"}">
+          <span class="mono lvl">${esc(rangeOf(w.L))}</span><span class="dot"></span><b>${w.verdict ? "Flagged" : "Passed"}</b><span class="mono m">${w.margin > 0 ? "+" : ""}${w.margin}</span></div>`).join("")}</div>
+      </div>
+      <div class="card">
+        <h2>Labelled wallets <span class="count mono">${botN} bots · ${humN} humans</span></h2>
+        <div class="dist">${Array.from({ length: levels }, (_, L) => `<div class="dl-col ${L === cur ? "cur" : ""}">
+          <div class="bars2"><i class="b" style="height:${(st.bot[L] / botN / maxShare * 100).toFixed(1)}%"></i><i class="h" style="height:${(st.human[L] / humN / maxShare * 100).toFixed(1)}%"></i></div>
+          <span class="mono">${esc(rangeOf(L))}</span></div>`).join("")}</div>
+        <div class="legend mono"><span><i class="b"></i>bots</span><span><i class="h"></i>humans</span><span>share of each class</span></div>
+      </div>
+      <div class="card"><h2>Wiring</h2><div class="facts mono"><span>${st.readers} first-stage gates read this</span><span>bits ${slot.start}–${slot.start + slot.count - 1}</span></div></div>`;
+  } catch (e) { fail(el, e); }
+}
+
 // ------------------------------------------------------------------ check
 
 function checkPage() {
@@ -108,9 +193,10 @@ function checkPage() {
             <span>${LIVE ? "eth_call" : "local"}</span>
           </div>
         </div>
+        ${stagesCard(r.bits)}
         <div class="card">
-          <h2>64 inputs</h2>
-          ${bitsGrid(r.bits)}
+          <h2>64 inputs <span class="count mono">tap a row</span></h2>
+          ${inputRows(r.bits, r.wallet)}
           <div class="hex"><code class="mono">${r.bitsHex}</code><button class="ghost" id="copy">Copy</button></div>
         </div>`;
       $("copy").onclick = () => navigator.clipboard.writeText(r.bitsHex);
@@ -288,5 +374,5 @@ function modelPage() {
   wireCopy();
 }
 
-({ check: checkPage, explain: explainPage, audit: auditPage, appeal: appealPage, campaign: campaignPage, model: modelPage })[page]();
+({ check: checkPage, explain: explainPage, audit: auditPage, appeal: appealPage, campaign: campaignPage, model: modelPage, feature: featurePage })[page]();
 startMotion();
