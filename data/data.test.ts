@@ -49,3 +49,34 @@ test("merkle trees are deterministic and proofs line up", () => {
   const s = snapshotTree([{ address: "0x00000000000000000000000000000000000000aa", bits: "0x0102030405060708", block: 5 }], 3, "0x00");
   assert.equal(s.campaignId, 3); assert.ok(s.wallets["0x00000000000000000000000000000000000000aa"]);
 });
+
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { oklinkHistory, toTx } from "./history_oklink";
+
+test("OKLink rows map to Tx (units, ms timestamps, fee as gas proxy)", () => {
+  const t = toTx({ txId: "0xabc", height: "100", transactionTime: "1700000000000", from: "0xAA", to: "0xBB",
+    amount: "1.5", txFee: "0.0001", methodId: "0xa9059cbb" });
+  assert.equal(t.block, 100); assert.equal(t.time, 1700000000);
+  assert.equal(t.value, 1500000000000000000n); assert.equal(t.gasPrice, 100000000000000n);
+  assert.equal(t.from, "0xaa"); assert.ok(t.hasData);
+});
+
+test("OKLink history: paging, snapshot cut-off, population-independent funder count", async () => {
+  process.chdir(mkdtempSync(`${tmpdir()}/okl-`));   // cache goes to a scratch dir
+  const W = "0x00000000000000000000000000000000000000a1", F = "0x00000000000000000000000000000000000000f0";
+  const row = (h: string, height: number, from: string, to: string, amount: string) =>
+    ({ txId: h, height: String(height), transactionTime: String(height * 1000), from, to, amount, txFee: "0.00001", methodId: "" });
+  const pages: Record<string, any[]> = {
+    [W]: [row("0x1", 10, F, W, "1"), row("0x2", 20, W, F, "0.5"), row("0x9", 999, W, F, "9")],
+    [F]: [row("0x1", 10, F, W, "1"), row("0x3", 11, F, "0xb2", "1"), row("0x4", 12, F, "0xb3", "1"), row("0x5", 13, F, "0xb3", "1")],
+  };
+  const fake = async (url: string) => {
+    const a = new URL(url).searchParams.get("address")!;
+    return { ok: true, status: 200, json: async () => ({ code: "0", msg: "", data: [{ totalPage: "1", transactionLists: pages[a] ?? [] }] }) };
+  };
+  const h = await oklinkHistory([W], 500, fake);
+  assert.equal(h.txsOf(W).length, 2);           // block 999 is after the snapshot
+  assert.equal(h.funderOf(W), F);
+  assert.equal(h.funderCount(F), 3);            // F funded a1, b2, b3, wherever they are in the input list
+});

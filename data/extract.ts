@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { client } from "./chain";
 import { toBits, pack, type RawFeatures } from "./features";
 import { historyFromIndex, type History } from "./history";
+import { oklinkHistory } from "./history_oklink";
 
 export type Config = { chainId: number; scanFromBlock: number; windowStart: number; windowEnd: number;
   okbUsd: number; usdt0: `0x${string}`; usdt0Decimals: number; exchanges: string[] };
@@ -69,9 +70,13 @@ async function main() {
   const cfg = loadConfig(arg("config"));
   const block = BigInt(arg("block")!);
   const { timestamp } = await client.getBlock({ blockNumber: block });
-  const h = historyFromIndex(cfg.scanFromBlock, Number(block));
+  const wallets = readWallets(arg("wallets")!);
+  // --history index (default): our own block index; --history oklink: OKLink explorer API (needs the key)
+  const h: History = arg("history") === "oklink"
+    ? await oklinkHistory(wallets.map(w => w.address), Number(block), undefined, console.log)
+    : historyFromIndex(cfg.scanFromBlock, Number(block));
   const lines: string[] = [];
-  for (const w of readWallets(arg("wallets")!)) {
+  for (const w of wallets) {
     const f = { ...historyFeatures(w.address, h, cfg, Number(timestamp)), ...(await stateFeatures(w.address, block, cfg)) };
     lines.push(JSON.stringify({ address: w.address, bits: pack(toBits(f)), ...(w.label !== undefined ? { label: w.label } : {}), block: Number(block) }));
   }
