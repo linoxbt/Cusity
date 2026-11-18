@@ -23,7 +23,8 @@ wallet ──extractor──▶ 64 bits ──▶ [ NAND circuit on X Layer ] �
 | Contracts: Registry, CampaignCommit, AccuracyAudit | ✅ 20 Foundry tests incl. fuzz, real netlist, TS↔Solidity Merkle |
 | Web: Check, Explain, Audit, Appeal | ✅ builds, runs in demo mode, desktop and mobile |
 | Tape-out, deploy, campaign | ⏳ needs your key and OKB: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
-| Real bot-filter training data | ⏳ labels (Plan A or B) still to collect |
+| Plan A labels | ✅ 2,425 X Layer wallets (1,337 bot, 1,088 human), `data/labels_public.csv` |
+| Real model (Phase 4) | ⏳ needs OKX Data API keys for wallet histories, then `scripts/phase4.sh <block>` |
 
 ## Layout
 

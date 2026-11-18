@@ -37,6 +37,26 @@ def export_gates(model, group):
                            "op": m.weights.argmax(-1).tolist()})
     return {"nIn": 64, "group": group, "tau": float(model[-1].tau), "layers": layers}
 
+def fit(train_path, val_path, widths, group=16, tau=0, epochs=200, batch=256, lr=0.01, seed=0, log=print):
+    """Train; return (best discrete model by val accuracy, best val accuracy)."""
+    torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
+    Xtr, ytr = load(train_path); Xva, yva = load(val_path)
+    model = build(list(widths), group, tau or group / 4)
+    counts = torch.bincount(ytr, minlength=2).float()
+    loss_fn = torch.nn.CrossEntropyLoss(weight=counts.sum() / (2 * counts.clamp(min=1)))   # balances bots vs humans
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    best, best_model = -1.0, None
+    for ep in range(epochs):
+        perm = torch.randperm(len(Xtr))
+        for i in range(0, len(Xtr), batch):
+            idx = perm[i:i + batch]
+            loss = loss_fn(model(Xtr[idx]), ytr[idx]); opt.zero_grad(); loss.backward(); opt.step()
+        acc = accuracy(model, Xva, yva)
+        if acc > best: best, best_model = acc, copy.deepcopy(model)
+        if log and ep % 10 == 0: log(f"epoch {ep}  discrete val acc {acc:.4f}  best {best:.4f}")
+    return best_model, best
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--train", required=True); p.add_argument("--val", required=True)
@@ -46,21 +66,7 @@ if __name__ == "__main__":
     p.add_argument("--lr", type=float, default=0.01); p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", required=True)
     a = p.parse_args()
-    torch.manual_seed(a.seed); np.random.seed(a.seed); random.seed(a.seed)
-    Xtr, ytr = load(a.train); Xva, yva = load(a.val)
-    model = build([int(w) for w in a.widths.split(",")], a.group, a.tau or a.group / 4)
-    counts = torch.bincount(ytr, minlength=2).float()
-    loss_fn = torch.nn.CrossEntropyLoss(weight=counts.sum() / (2 * counts.clamp(min=1)))   # balances bots vs humans
-    opt = torch.optim.Adam(model.parameters(), lr=a.lr)
-    best, best_model = -1.0, None
-    for ep in range(a.epochs):
-        perm = torch.randperm(len(Xtr))
-        for i in range(0, len(Xtr), a.batch):
-            idx = perm[i:i + a.batch]
-            loss = loss_fn(model(Xtr[idx]), ytr[idx]); opt.zero_grad(); loss.backward(); opt.step()
-        acc = accuracy(model, Xva, yva)
-        if acc > best: best, best_model = acc, copy.deepcopy(model)
-        if ep % 10 == 0: print(f"epoch {ep}  discrete val acc {acc:.4f}  best {best:.4f}")
-    torch.save(best_model, a.out)   # whole module: keeps connection indices
-    json.dump(export_gates(best_model, a.group), open(a.out.replace(".pt", ".gates.json"), "w"))
+    model, best = fit(a.train, a.val, [int(w) for w in a.widths.split(",")], a.group, a.tau, a.epochs, a.batch, a.lr, a.seed)
+    torch.save(model, a.out)   # whole module: keeps connection indices
+    json.dump(export_gates(model, a.group), open(a.out.replace(".pt", ".gates.json"), "w"))
     print("best discrete val acc", best)
