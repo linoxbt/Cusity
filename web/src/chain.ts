@@ -1,11 +1,11 @@
 // Two back ends behind one interface: LIVE reads X Layer (eth_call, no backend server), DEMO evaluates
-// the v1 circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
+// the circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
 import { concat, toHex, createPublicClient, createWalletClient, custom, defineChain, encodePacked, fallback, getAddress,
   http, keccak256, parseAbi, type Hex } from "viem";
 import { CONFIG, LIVE } from "./config";
 import { decide, parse, type Net } from "./tap02";
 import { unpack } from "../../data/features";
-import v1Netlist from "../../build/cusity.netlist.json";   // demo mode evaluates the real v1 circuit locally
+import netlistJson from "../../build/cusity.netlist.json";   // demo mode evaluates the real circuit locally
 
 export const xlayer = defineChain({ id: 196, name: "X Layer", nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
   rpcUrls: { default: { http: CONFIG.rpc } }, blockExplorers: { default: { name: "OKLink", url: CONFIG.explorer } } });
@@ -60,7 +60,7 @@ export const sampleWallets = async () => (await snapshotIndex()).samples;
 let net: Net | undefined;
 export async function loadNet(): Promise<Net> {
   if (net) return net;
-  if (!LIVE) return (net = parse(v1Netlist.netlist as Hex, v1Netlist.nIn, v1Netlist.nOut));
+  if (!LIVE) return (net = parse(netlistJson.netlist as Hex, netlistJson.nIn, netlistJson.nOut));
   const [nIn, nOut] = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "circuitInfo", args: [CONFIG.circuitId] });
   const hex = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "netlist", args: [CONFIG.circuitId] });
   return (net = parse(hex, nIn, nOut));

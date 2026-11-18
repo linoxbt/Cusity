@@ -437,7 +437,7 @@ async function clusterPage() {
       el.innerHTML = `
         <div class="stats">
           <div><span class="k mono">Wallets</span><span class="v">${s.size}</span><span class="s mono">cluster #${s.id}</span></div>
-          <div><span class="k mono">Flagged</span><span class="v">${s.flagged}</span><span class="s mono">by the v1 circuit</span></div>
+          <div><span class="k mono">Flagged</span><span class="v">${s.flagged}</span><span class="s mono">by the circuit</span></div>
           <div><span class="k mono">Labelled bots</span><span class="v">${s.bots}</span><span class="s mono">from Sybil lists</span></div>
           <div><span class="k mono">Funded in 24 h</span><span class="v">${s.window24h}</span><span class="s mono">of ${s.size} wallets</span></div>
         </div>
@@ -579,7 +579,7 @@ async function stepPage() {
         ${verify("Verify on X Layer", "Read the block")}
         <div class="card"><h2>Frozen inputs</h2><table><tbody>
           <tr><td>USDT0</td><td class="mono">${short(extCfg.usdt0, 8)}</td></tr>
-          <tr><td>Exchange list</td><td class="mono">${extCfg.exchanges.length ? extCfg.exchanges.length + " addresses" : "empty in v1"}</td></tr>
+          <tr><td>Exchange list</td><td class="mono">${extCfg.exchanges.length ? extCfg.exchanges.length + " addresses" : "none listed"}</td></tr>
           <tr><td>Extractor hash</td><td class="mono">${short(card.extractorSha256, 8)}</td></tr></tbody></table></div>`;
       runner(async () => {
         const [b, head] = await Promise.all([client.getBlock({ blockNumber: SNAP_BLOCK }), client.getBlockNumber()]);

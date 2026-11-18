@@ -1,5 +1,5 @@
 // Fill in after deployment (scripts/onchain.md). While `campaign` is the zero address the site runs
-// in demo mode: the v1 circuit (build/cusity.netlist.json) is evaluated in the browser on the labelled wallets.
+// in demo mode: the current circuit (build/cusity.netlist.json) is evaluated in the browser on the labelled wallets.
 export const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
 export const CONFIG = {

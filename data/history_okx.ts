@@ -12,7 +12,7 @@ import { createHmac } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseUnits } from "viem";
 import type { Tx } from "./indexer";
-import type { History } from "./history";
+import { burstAround, mainRecipient, HUB_TXS, type History } from "./history";
 
 const HOST = "https://web3.okx.com";
 const PATH = "/api/v5/xlayer/address/normal-transaction-list";
@@ -34,6 +34,7 @@ export function signHeaders(pathWithQuery: string, env = process.env, now = new 
   return { "OK-ACCESS-KEY": key, "OK-ACCESS-SIGN": sign, "OK-ACCESS-PASSPHRASE": pass, "OK-ACCESS-TIMESTAMP": ts };
 }
 
+const flag = (v: unknown) => v === true || v === "true";
 const units = (s: string | undefined) => { try { return s ? parseUnits(s, 18) : 0n; } catch { return 0n; } };
 
 /** API row -> our Tx. normal-transaction-list carries gasPrice/gasLimit; if a row lacks them, the fee stands in. */
@@ -49,19 +50,21 @@ export function toTx(it: Item): Tx {
     gasPrice: it.gasPrice !== undefined ? BigInt(it.gasPrice) : units(it.txFee),
     gasLimit: it.gasLimit !== undefined ? BigInt(it.gasLimit) : 0n,
     hasData: !!it.methodId && it.methodId !== "0x" && it.methodId !== "0x00000000",
+    toContract: flag(it.isToContract), fromContract: flag(it.isFromContract),
   };
 }
 
 export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch = fetch as unknown as Fetch,
-  opts: { fromOnly?: boolean; maxPages?: number } = {}): Promise<{ txs: Tx[]; capped: boolean }> {
-  const a = address.toLowerCase(), cache = `${DIR}/${a}${opts.fromOnly ? ".from" : ""}.json`, maxPages = opts.maxPages ?? MAX_PAGES;
+  opts: { fromOnly?: boolean; toOnly?: boolean; maxPages?: number } = {}): Promise<{ txs: Tx[]; capped: boolean }> {
+  const dir = opts.fromOnly ? "from" : opts.toOnly ? "to" : "both";
+  const a = address.toLowerCase(), cache = `${DIR}/${a}${dir === "both" ? "" : "." + dir}.json`, maxPages = opts.maxPages ?? MAX_PAGES;
   let items: Item[];
   let capped = false;
   if (existsSync(cache)) ({ items, capped } = JSON.parse(readFileSync(cache, "utf8")));
   else {
     items = [];
     for (let page = 1, tries = 0; page <= maxPages; page++) {
-      const pq = `${PATH}?chainShortName=${CHAIN}&address=${a}${opts.fromOnly ? "&isFromOrTo=from" : ""}&endBlockHeight=${toBlock}&limit=${LIMIT}&page=${page}`;
+      const pq = `${PATH}?chainShortName=${CHAIN}&address=${a}${dir === "both" ? "" : "&isFromOrTo=" + dir}&endBlockHeight=${toBlock}&limit=${LIMIT}&page=${page}`;
       const r = await fetchFn(HOST + pq, { headers: signHeaders(pq) });
       const j = await r.json().catch(() => ({}));
       if ((r.status === 429 || ["50011", "50061", "50013"].includes(String(j.code))) && tries++ < 8) {   // rate limited / busy: back off
@@ -84,31 +87,53 @@ export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch 
   return { txs, capped };
 }
 
-/** Prefetch every wallet and its first funder, then answer the History interface synchronously. */
+/** Prefetch every wallet, its first funder and its main recipient, then answer the History interface synchronously. */
 export async function okxHistory(addresses: string[], toBlock: number, fetchFn?: Fetch, log = (_: string) => {}): Promise<History> {
-  const by = new Map<string, Tx[]>(), funder = new Map<string, string | null>(), fCount = new Map<string, number>();
+  const by = new Map<string, Tx[]>(), first = new Map<string, Tx | null>(), coll = new Map<string, string | null>();
+  const fCount = new Map<string, number>(), fTxs = new Map<string, Tx[]>(), cCount = new Map<string, number>(), hubs = new Set<string>();
   let i = 0;
   for (const a0 of addresses) {
     const a = a0.toLowerCase();
     const { txs } = await fetchTxs(a, toBlock, fetchFn);
     by.set(a, txs);
-    const first = txs.find(t => t.to === a && t.value > 0n);
-    funder.set(a, first ? first.from : null);
+    const f = txs.find(t => t.to === a && t.value > 0n) ?? null;
+    first.set(a, f);
+    if (f?.fromContract) hubs.add(f.from);
+    coll.set(a, mainRecipient(a, txs, t => !!t.toContract));
     if (++i % 50 === 0) log(`history ${i}/${addresses.length}`);
   }
-  // Funder cluster: how many distinct wallets the funder ever sent value to (population-independent).
-  // Outgoing txs only, at most 20 pages (1,000 txs): a funder beyond that is exchange-scale, i.e. the top bit.
-  const funders = [...new Set([...funder.values()].filter(Boolean) as string[])];
+  // Funder: how many distinct wallets it ever sent value to (population-independent), and when.
+  // Outgoing txs only, at most 20 pages (1,000 txs): a funder beyond that is exchange-scale, i.e. a hub.
+  const funders = [...new Set([...first.values()].filter(Boolean).map(t => t!.from))];
   let k = 0;
   for (const f of funders) {
     if (++k % 50 === 0) log(`funders ${k}/${funders.length}`);
     const { txs, capped } = await fetchTxs(f, toBlock, fetchFn, { fromOnly: true, maxPages: 20 });
     const n = new Set(txs.filter(t => t.from === f && t.to && t.value > 0n).map(t => t.to)).size;
     fCount.set(f, capped ? FUNDER_CAP : Math.min(n, FUNDER_CAP));
+    fTxs.set(f, txs);
+    if (capped) hubs.add(f);
   }
+  // Collector: how many distinct wallets ever sent value to it. Incoming txs only, same 20-page cap.
+  const collectors = [...new Set([...coll.values()].filter(Boolean) as string[])];
+  k = 0;
+  for (const c of collectors) {
+    if (++k % 50 === 0) log(`collectors ${k}/${collectors.length}`);
+    const { txs, capped } = await fetchTxs(c, toBlock, fetchFn, { toOnly: true, maxPages: 20 });
+    cCount.set(c, new Set(txs.filter(t => t.to === c && t.value > 0n).map(t => t.from)).size);
+    if (capped || txs.length >= HUB_TXS) hubs.add(c);
+  }
+  const isHub = (x: string) => hubs.has(x.toLowerCase());
   return {
     txsOf: a => by.get(a.toLowerCase()) ?? [],
-    funderOf: a => funder.get(a.toLowerCase()) ?? null,
+    funderOf: a => first.get(a.toLowerCase())?.from ?? null,
     funderCount: f => fCount.get(f) ?? 0,
+    isHub,
+    funderBurst: a0 => {
+      const a = a0.toLowerCase(), f = first.get(a);
+      return !f || isHub(f.from) ? 0 : burstAround(fTxs.get(f.from) ?? [], f.from, a, f.time);
+    },
+    collectorOf: a => coll.get(a.toLowerCase()) ?? null,
+    collectorCount: c => cCount.get(c) ?? 0,
   };
 }

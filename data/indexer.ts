@@ -10,7 +10,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { client } from "./chain";
 
 export type Tx = { hash: string; block: number; time: number; from: string; to: string | null;
-  value: bigint; gasPrice: bigint; gasLimit: bigint; hasData: boolean };
+  value: bigint; gasPrice: bigint; gasLimit: bigint; hasData: boolean;
+  toContract?: boolean; fromContract?: boolean };   // set when the source knows (OKX); undefined from the block index
 
 const DIR = "data/raw/blocks";
 const CHUNK = 1000;

@@ -1,0 +1,40 @@
+{
+ "name": "Cusity bot filter v1",
+ "processor": "",
+ "circuitId": 0,
+ "netlistSha256": "0x35ac968403ba1c43baf923cb36808c390bb4e40c3855e41eab590d0d5c7a742a",
+ "nIn": 64,
+ "nOut": 7,
+ "gates": 807,
+ "outputs": {
+  "verdict": 0,
+  "marginBits": [
+   1,
+   6
+  ],
+  "marginOffset": 32
+ },
+ "architecture": {
+  "widths": [
+   256,
+   256,
+   128,
+   64
+  ],
+  "group": 16,
+  "library": "difflogic 0.1.0"
+ },
+ "features": "data/features.ts",
+ "extractorSha256": "0x1c43f6ee462d8b7c5c03b43fd05f6496cabc5290a4925de0c4d662d055121711",
+ "testRoot": "0x4d69aaf631f3ce95e1b5eae00efa7478d859f4887b17c30c0ac7632d167a2218",
+ "testSize": 364,
+ "test": {
+  "accuracy": 0.6565934065934066,
+  "balanced_accuracy": 0.6555010150592371,
+  "bot_precision": 0.6770833333333334,
+  "bot_recall": 0.6735751295336787,
+  "n": 364
+ },
+ "trainedOn": "Plan A labels: Hop airdrop sybils and bridge users (ISC), LayerZero initial sybil list; wallets active on X Layer",
+ "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited."
+}

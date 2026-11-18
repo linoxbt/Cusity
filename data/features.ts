@@ -11,17 +11,20 @@ export const FEATURES: Feature[] = [
   { name: "funderCluster",  label: "wallets sharing its first funder",  unit: "",      thresholds: [1, 2, 5, 10, 25, 50, 100, 500] },
   { name: "amountRepeat",   label: "transfers with repeated amounts",   unit: "%",     thresholds: [10, 25, 40, 60, 80, 95] },
   { name: "hourSpread",     label: "distinct active hours of the day",  unit: "",      thresholds: [1, 2, 4, 8, 12, 18] },
-  { name: "gasSame",        label: "txs with identical gas settings",   unit: "%",     thresholds: [50, 80, 95, 99] },
-  { name: "burstShare",     label: "activity inside the campaign window", unit: "%",   thresholds: [10, 25, 50, 75, 90, 99] },
+  { name: "gasSame",        label: "txs with identical gas settings",   unit: "%",     thresholds: [80, 99] },
+  { name: "burstShare",     label: "activity inside the campaign window", unit: "%",   thresholds: [10, 50] },
   { name: "balanceUsd",     label: "balance",                           unit: "USD",   thresholds: [0.01, 1, 10, 100, 1000, 10000] },
+  // v2, after the LayerZero / Hop Sybil hunts: funding bursts and shared collection addresses
+  { name: "funderBurst",    label: "wallets its funder funded within 24 h of it", unit: "", thresholds: [1, 3, 10] },
+  { name: "collectorShared", label: "other wallets paying its main recipient", unit: "", thresholds: [1, 3, 10, 50] },
 ];
 export const FLAGS = [
-  { name: "isContract",         label: "is a contract (has code)" },
-  { name: "hasName",            label: "has a name (not used in v1, always 0)" },
-  { name: "fundedFromExchange", label: "first funded from a known exchange" },
-  { name: "sweptToFunder",      label: "sent funds back to its funder" },
+  { name: "isContract",    label: "is a contract (has code)" },
+  { name: "fundedFromHub", label: "first funded by an exchange-scale address or a contract" },
+  { name: "sweptToFunder", label: "sent funds back to its funder" },
 ] as const;
-export const N_BITS = 64; // 60 threshold bits + 4 flags
+export const N_BITS = 64; // 61 threshold bits + 3 flags
+export const LAYOUT_VERSION = 2;
 
 export type RawFeatures = { [k: string]: number | boolean };
 export type Hex = `0x${string}`;

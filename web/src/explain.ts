@@ -17,7 +17,6 @@ export function flips(net: Net, bits: number[]): Change[] {
   const base = decide(net, bits).verdict, out: Change[] = [];
   for (const s of SLOTS) {
     if (s.kind === "flag") {
-      if (s.name === "hasName") continue;   // constant in v1
       const b = bits.slice(); b[s.start] ^= 1;
       if (decide(net, b).verdict !== base)
         out.push({ slot: s, from: `${s.label}: ${bits[s.start] ? "yes" : "no"}`, to: `${s.label}: ${b[s.start] ? "yes" : "no"}`, steps: 1 });

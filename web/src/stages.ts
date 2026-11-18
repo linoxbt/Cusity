@@ -1,7 +1,7 @@
-// Stage-by-stage view of the v1 circuit: the same logic network as the NAND netlist, evaluated layer
+// Stage-by-stage view of the circuit: the same logic network as the NAND netlist, evaluated layer
 // by layer from the trained gate list (difflogic ops), so each stage's activations can be shown.
 // Checked bit-for-bit against the NAND netlist on all 2,425 wallets (build/tmp/check_stages.ts).
-import gates from "../public/model/v1.gates.json";
+import gates from "../public/model/gates.json";
 
 type Layer = { in: number; out: number; a: number[]; b: number[]; op: number[] };
 const L = gates.layers as Layer[];

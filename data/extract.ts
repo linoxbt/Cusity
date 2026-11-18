@@ -7,7 +7,8 @@
 // Needs: the block index covering [scanFromBlock, block] (data/indexer.ts), and an RPC that serves
 // state at `block` (an archive node once the block is more than ~128 blocks old).
 import { erc20Abi, getAddress } from "viem";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { client } from "./chain";
 import { toBits, pack, type RawFeatures } from "./features";
 import { historyFromIndex, type History } from "./history";
@@ -36,15 +37,23 @@ export function historyFeatures(addr: string, h: History, cfg: Config, snapshotT
     hourSpread: new Set(out.map(t => new Date(t.time * 1000).getUTCHours())).size,
     gasSame: pct(Math.max(0, ...gasCounts.values()), out.length),
     burstShare: pct(txs.filter(t => t.time >= cfg.windowStart && t.time <= cfg.windowEnd).length, txs.length),
-    hasName: false, // no name-service lookup in v1
-    fundedFromExchange: !!funder && exchanges.has(funder),
+    funderBurst: h.funderBurst(a),
+    collectorShared: (() => { const c = h.collectorOf(a); return c && !h.isHub(c) ? Math.max(0, h.collectorCount(c) - 1) : 0; })(),
+    fundedFromHub: !!funder && (exchanges.has(funder) || h.isHub(funder)),
     sweptToFunder: !!funder && out.some(t => t.to === funder),
   };
 }
 
 /** State at the snapshot block, read over RPC. */
 export async function stateFeatures(addr: string, block: bigint, cfg: Config): Promise<RawFeatures> {
-  const A = getAddress(addr);
+  const A = getAddress(addr), cache = `data/raw/state/${block}/${addr.toLowerCase()}.json`;   // archive reads, cached: reruns are identical
+  if (existsSync(cache)) return JSON.parse(readFileSync(cache, "utf8"));
+  const f = await readState(A, block, cfg);
+  mkdirSync(dirname(cache), { recursive: true }); writeFileSync(cache, JSON.stringify(f));
+  return f;
+}
+
+async function readState(A: `0x${string}`, block: bigint, cfg: Config): Promise<RawFeatures> {
   const [nonce, okbWei, usdt, code] = await Promise.all([
     client.getTransactionCount({ address: A, blockNumber: block }),
     client.getBalance({ address: A, blockNumber: block }),

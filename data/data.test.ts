@@ -16,7 +16,7 @@ test("pack/unpack round trip, LSB first", () => {
 
 test("layout is 64 bits and thermometer-valid", () => {
   const f: any = { ageDays: 45, txCount: 12, contracts: 4, counterparties: 30, funderCluster: 3, amountRepeat: 50,
-    hourSpread: 5, gasSame: 85, burstShare: 20, balanceUsd: 250, isContract: false, hasName: false, fundedFromExchange: true, sweptToFunder: false };
+    hourSpread: 5, gasSame: 85, burstShare: 20, balanceUsd: 250, funderBurst: 2, collectorShared: 4, isContract: false, fundedFromHub: true, sweptToFunder: false };
   const b = toBits(f);
   assert.equal(b.length, N_BITS); assert.ok(isValid(b));
   assert.equal(levelOf(b, SLOTS[0]), 3);   // 45 days > 1, 7, 30
@@ -40,6 +40,22 @@ test("funder cluster does not depend on who else is in the input list", () => {
   assert.equal(f.funderCluster, 3);   // counts all three wallets funded by F, from the whole index
   assert.equal(f.contracts, 1);
   assert.equal(f.counterparties, 2);
+});
+
+test("v2: funding burst within 24 h and shared collector, hubs excluded", () => {
+  const F = "0xf0", C = "0xcc", D = 86400;
+  const txs = [tx(F, "0xa1", 5n, D), tx(F, "0xa2", 5n, D + 3600), tx(F, "0xa3", 5n, 3 * D),   // a3 is 2 days later: outside
+    tx("0xa1", C, 4n, 4 * D), tx("0xa2", C, 4n, 4 * D), tx("0xa3", C, 4n, 4 * D), tx("0xa1", "0xdd", 1n, 4 * D)];
+  const h = buildHistory(txs);
+  const cfg: Config = { chainId: 196, scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const f = historyFeatures("0xa1", h, cfg, 10 * D);
+  assert.equal(f.funderBurst, 1);       // a2, funded 1 h later
+  assert.equal(h.collectorOf("0xa1"), C);   // most value went to C
+  assert.equal(f.collectorShared, 2);   // a2 and a3 also pay C
+  assert.equal(f.fundedFromHub, false);
+  const hubbed = buildHistory([...txs, ...Array.from({ length: 1001 }, (_, i) => tx(F, `0xe${i}`, 1n, D))]);
+  const g = historyFeatures("0xa1", hubbed, cfg, 10 * D);
+  assert.equal(g.funderBurst, 0); assert.equal(g.fundedFromHub, true);   // an exchange-scale funder links nobody
 });
 
 test("OKX request signing matches the documented recipe", async () => {
@@ -78,14 +94,18 @@ test("OKX history: paging, snapshot cut-off, population-independent funder count
     ({ txId: h, height: String(height), transactionTime: String(height * 1000), from, to, amount, txFee: "0.00001", methodId: "" });
   const pages: Record<string, any[]> = {
     [W]: [row("0x1", 10, F, W, "1"), row("0x2", 20, W, F, "0.5"), row("0x9", 999, W, F, "9")],
+    [`${F}:to`]: [row("0x2", 20, W, F, "0.5"), row("0x6", 21, "0xb2", F, "1")],
     [F]: [row("0x1", 10, F, W, "1"), row("0x3", 11, F, "0xb2", "1"), row("0x4", 12, F, "0xb3", "1"), row("0x5", 13, F, "0xb3", "1")],
   };
   const fake = async (url: string) => {
-    const a = new URL(url).searchParams.get("address")!;
-    return { ok: true, status: 200, json: async () => ({ code: "0", msg: "", data: [{ totalPage: "1", transactionLists: pages[a] ?? [] }] }) };
+    const q = new URL(url).searchParams, a = q.get("address")!, dir = q.get("isFromOrTo");
+    return { ok: true, status: 200, json: async () => ({ code: "0", msg: "", data: [{ totalPage: "1", transactionLists: pages[dir === "to" ? `${a}:to` : a] ?? [] }] }) };
   };
   const h = await okxHistory([W], 500, fake);
   assert.equal(h.txsOf(W).length, 2);           // block 999 is after the snapshot
   assert.equal(h.funderOf(W), F);
   assert.equal(h.funderCount(F), 3);            // F funded a1, b2, b3, wherever they are in the input list
+  assert.equal(h.funderBurst(W), 2);            // b2 and b3 within 24 h
+  assert.equal(h.collectorOf(W), F);            // W's main recipient
+  assert.equal(h.collectorCount(F), 2);         // W and b2 pay F
 });
