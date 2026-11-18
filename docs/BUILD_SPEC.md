@@ -4,7 +4,9 @@ Nov 18, 2026 · @Lino
 
 > Renamed from the "Weightless: Build Spec" PDF. Only the name changed: Weightless → Cusity,
 > `weightless` → `cusity` (folders, files, Verilog module), `WeightlessRegistry` → `CusityRegistry`.
-> Technical content is otherwise as written. Review notes are in [`SPEC_REVIEW.md`](./SPEC_REVIEW.md).
+> Technical content is otherwise as written, except for the three blocker fixes listed in
+> [`SPEC_REVIEW.md`](./SPEC_REVIEW.md) §1: tapered layer widths, vendored difflogic for CPU, and a
+> local `./tapesynth` wrapper instead of `./tapesynth`.
 
 Cusity ships one logic-gate bot filter, taped out on X Layer and checkable from a DeWEB page, by the TapeOut Accelerate deadline on **Dec 7, 2026**.
 
@@ -69,7 +71,7 @@ You need two wallets, a little OKB on X Layer, and five tools installed before w
 |---|---|---|
 | Node.js | 22 (TapeSynth requires it) | `nvm install 22` |
 | Python | 3.10 or newer | System or pyenv |
-| PyTorch + difflogic | torch 1.9 or newer | `pip install torch difflogic scikit-learn numpy pandas` |
+| PyTorch + difflogic | torch 1.13 or newer; difflogic 0.1.0 (vendored) | `pip install torch scikit-learn numpy pandas`, then `python model/vendor_difflogic.py` (see Bootstrap) |
 | Foundry | Latest | `curl -L https://foundry.paradigm.xyz` then `foundryup` |
 | TapeSynth | Latest main | `git clone --recurse-submodules https://github.com/Cheeeeez/tapesynth` |
 
@@ -83,9 +85,23 @@ mkdir -p data model compiler contracts web build
 git clone --recurse-submodules https://github.com/Cheeeeez/tapesynth ../tapesynth
 cd ../tapesynth && npm install && npm run build:libs && cd ../cusity
 
+# Call TapeSynth through a local wrapper, never `npx tapesynth`: the CLI is a private
+# workspace package (@tapesynth/cli), and the name "tapesynth" is unclaimed on npm, so
+# npx outside the TapeSynth repo would download whatever package holds that name,
+# with PRIVATE_KEY in the environment.
+cat > tapesynth <<'EOF'
+#!/usr/bin/env sh
+exec node "$(dirname "$0")/../tapesynth/packages/cli/dist/index.js" "$@"
+EOF
+chmod +x tapesynth && ./tapesynth --help
+
 # Python env
 python -m venv .venv && source .venv/bin/activate
-pip install torch difflogic scikit-learn numpy pandas
+pip install torch scikit-learn numpy pandas
+# difflogic from PyPI always compiles a CUDA extension and imports it on load, so it
+# can't install or import on a CPU-only machine. Vendor its pure-Python modules into
+# model/difflogic/ with the CUDA import made optional (code in A7), and commit them.
+python model/vendor_difflogic.py
 
 # Contracts
 cd contracts && forge init --no-git --force . && forge install OpenZeppelin/openzeppelin-contracts --no-git && cd ..
@@ -168,8 +184,8 @@ The extractor is a deterministic TypeScript script that reads X Layer RPC (chain
 
 **Training.**
 
-- **Library:** `pip install difflogic`. Use `implementation='python'` on CPU for a model this small, or a free GPU notebook for faster sweeps. The CUDA build needs the CUDA toolkit (difflogic).
-- **Architecture:** `Sequential(LogicLayer(64, W), LogicLayer(W, W), …, LogicLayer(W, 2·G), GroupSum(k=2, tau))`. Start at W = 256 with 3 to 4 layers and G = 16 output neurons per class.
+- **Library:** difflogic 0.1.0, vendored into `model/difflogic/` by `model/vendor_difflogic.py` (A7), with `implementation='python'` on CPU. A model this small trains in seconds to minutes on a laptop. The PyPI package can't be used on CPU: it always builds a CUDA extension and imports it when loaded. On a CUDA machine you can instead `pip install --no-build-isolation difflogic` after installing torch, but CPU training is enough here.
+- **Architecture:** `Sequential(LogicLayer(64, w1), LogicLayer(w1, w2), …, LogicLayer(wk, 2·G), GroupSum(k=2, tau))`. difflogic asserts `out_dim * 2 >= in_dim` for every layer, so **each layer must be at least half the width of the one before it**, and the last hidden width must be at most 4·G. Start at widths 256, 128, 64 with G = 16 output neurons per class (64 → 256 → 128 → 64 → 32). A flat `W, W, …, 2·G` stack fails that assertion.
 - **Training settings:** `CrossEntropyLoss`, Adam at a learning rate of 0.01 (the library's recommendation), and `grad_factor` 1.1, raised to about 2 for deeper nets (difflogic).
 - **Class imbalance:** weight the loss, or oversample bots.
 - **Discretize:** `model.eval()` gives the hard gate network.
@@ -252,16 +268,16 @@ module cusity (input [63:0] x, output verdict, output [5:0] margin);
 endmodule
 ```
 
-The usual difflogic order for the 16 ops is 0 FALSE, 1 AND, 2 A AND NOT B, 3 A, 4 NOT A AND B, 5 B, 6 XOR, 7 OR, 8 NOR, 9 XNOR, 10 NOT B, 11 A OR NOT B, 12 NOT A, 13 NOT A OR B, 14 NAND, 15 TRUE. The README doesn't list them, so confirm this order against the library source before trusting the export.
+The usual difflogic order for the 16 ops is 0 FALSE, 1 AND, 2 A AND NOT B, 3 A, 4 NOT A AND B, 5 B, 6 XOR, 7 OR, 8 NOR, 9 XNOR, 10 NOT B, 11 A OR NOT B, 12 NOT A, 13 NOT A OR B, 14 NAND, 15 TRUE. The README doesn't list them; this order has been checked against `bin_op` in difflogic 0.1.0's `functional.py` and matches.
 
 **Step 2: check the export against PyTorch.** Run the Verilog through TapeSynth's simulator, and the discretized model through PyTorch, on the whole test set. The bits must match exactly. If even one row differs, the export has a bug.
 
 **Step 3: synthesize to NAND.** TapeSynth runs Yosys and ABC to map logic to NAND gates and keeps the best of several ABC flows by area, depth or PoD cost (TapeSynth). Every netlist is simulated against the pre-ABC design. Designs with more than 16 inputs get 4,096 random vectors, and a netlist that fails is never returned (TapeSynth).
 
 ```bash
-npx tapesynth synth model/cusity.v --top cusity --objective area --out build/cusity.tsyn.json
-npx tapesynth info build/cusity.tsyn.json
-npx tapesynth sim build/cusity.tsyn.json --inputs 0x<64-bit vector>
+./tapesynth synth model/cusity.v --top cusity --objective area --out build/cusity.tsyn.json
+./tapesynth info build/cusity.tsyn.json
+./tapesynth sim build/cusity.tsyn.json --inputs 0x<64-bit vector>
 ```
 
 Input bits follow the module's declaration order, LSB first (TapeSynth). Your extractor has to pack bits in that same order.
@@ -279,9 +295,9 @@ The model circuit is the source of truth. Three small contracts sit around it to
 **Tape-out flow.**
 
 1. Choose a processor. One whose transistors are sold out can't mint, so you would have to buy on its market (TapeSynth). The other option is to create your own with `processor create --name --symbol --story --supply --price`. Its settings are fixed forever, so pick them carefully (TapeSynth).
-2. Tape out with `npx tapesynth tapeout build/cusity.tsyn.json --processor <address|number> --mint`. It reads fees live, mints missing transistors, simulates the call, prints the plan for you to confirm, then sends and verifies `circuitInfo`, the netlist bytes and `eval`/`step` on chain (TapeSynth).
+2. Tape out with `./tapesynth tapeout build/cusity.tsyn.json --processor <address|number> --mint`. It reads fees live, mints missing transistors, simulates the call, prints the plan for you to confirm, then sends and verifies `circuitInfo`, the netlist bytes and `eval`/`step` on chain (TapeSynth).
 3. Record the processor address and circuit ID. The submission form requires both.
-4. Run `npx tapesynth verify <processor> <id> --against build/cusity.tsyn.json` (TapeSynth).
+4. Run `./tapesynth verify <processor> <id> --against build/cusity.tsyn.json` (TapeSynth).
 
 **Calling the model.** For a user's check, the page calls the processor's `eval(uint256 id, bytes inputs)` with `eth_call` and gets back the packed outputs (TAP-02). A read-only evaluation needs no transaction or signature (CircuitDesk). Contracts call the same function. All processor calls go through one interface, so only one file changes if X Layer differs:
 
@@ -353,8 +369,9 @@ Use one monorepo. Each folder maps to one stage of the pipeline.
 
 ```
 cusity/
+  tapesynth   # wrapper script that runs ../tapesynth's CLI (see Bootstrap)
   data/       # extractor (TS), raw pulls, labels, train/val/test splits, test-set Merkle tree
-  model/      # train.py, prune.py, configs, checkpoints (Python, PyTorch, difflogic)
+  model/      # train.py, prune.py, vendor_difflogic.py + vendored difflogic/, configs, checkpoints
   compiler/   # export_verilog.py, parity tests vs PyTorch, tapesynth scripts
   contracts/  # Foundry: CusityRegistry, CampaignCommit, AccuracyAudit, ITapeOutProcessor adapter
   web/        # Vite + TypeScript + viem: Check, Explain, Audit, Appeal; tap02.ts evaluator
@@ -418,9 +435,9 @@ There are ten phases, and each one ends with a check you can run. Don't start a 
 ### Phase 1: Hello-world tape-out (Nov 18–19)
 
 1. Write `build/xor.v`: `module xor2(input a, input b, output y); assign y = a ^ b; endmodule`.
-2. `npx tapesynth synth build/xor.v --top xor2 --objective area --out build/xor.tsyn.json`
-3. `npx tapesynth tapeout build/xor.tsyn.json --processor $PROCESSOR --mint` without `--yes`. Read the printed fee plan, note the per-transistor price, then confirm.
-4. `npx tapesynth verify $PROCESSOR <id> --against build/xor.tsyn.json`
+2. `./tapesynth synth build/xor.v --top xor2 --objective area --out build/xor.tsyn.json`
+3. `./tapesynth tapeout build/xor.tsyn.json --processor $PROCESSOR --mint` without `--yes`. Read the printed fee plan, note the per-transistor price, then confirm.
+4. `./tapesynth verify $PROCESSOR <id> --against build/xor.tsyn.json`
 5. Call `eval(id, 0x01)` and `eval(id, 0x03)` with `cast`, and expect `0x01` and `0x00`.
 
 **Check:** XOR answers correctly from chain. You now know the real cost per gate, so fill in the cost formula.
@@ -428,9 +445,9 @@ There are ten phases, and each one ends with a check you can run. Don't start a 
 ### Phase 2: Toy model end to end (Nov 20–22)
 
 1. `python model/toy_data.py` loads scikit-learn's breast cancer dataset and thermometer-encodes 8 features × 8 thresholds = 64 bits, the same input shape as the real model. It writes `data/toy_train.jsonl`, `data/toy_val.jsonl` and `data/toy_test.jsonl`.
-2. `python model/train.py --train data/toy_train.jsonl --val data/toy_val.jsonl --width 64 --layers 2 --group 8 --out model/toy.pt`
+2. `python model/train.py --train data/toy_train.jsonl --val data/toy_val.jsonl --widths 64,32 --group 8 --out model/toy.pt`
 3. `python compiler/export_verilog.py --gates model/toy.gates.json --out build/toy.v`
-4. `npx tapesynth synth build/toy.v --top cusity --objective area --out build/toy.tsyn.json`
+4. `./tapesynth synth build/toy.v --top cusity --objective area --out build/toy.tsyn.json`
 5. `python compiler/parity.py --ckpt model/toy.pt --tsyn build/toy.tsyn.json --data data/toy_test.jsonl`. This must report 0 mismatches.
 6. Tape out, verify, and call `eval` from a plain HTML page using viem.
 
@@ -448,8 +465,8 @@ There are ten phases, and each one ends with a check you can run. Don't start a 
 
 ### Phase 4: Train the real model (Nov 25–29)
 
-1. `python model/train.py --train data/train.jsonl --val data/val.jsonl --width 256 --layers 3 --group 16 --epochs 200 --out model/v1.pt`
-2. Sweep width (128, 256, 512) and layers (2, 3, 4). Keep the best validation accuracy that fits under 3,000 NAND after synthesis.
+1. `python model/train.py --train data/train.jsonl --val data/val.jsonl --widths 256,128,64 --group 16 --epochs 200 --out model/v1.pt`
+2. Sweep `--widths` over tapered stacks such as `128,64`, `256,128,64`, `256,256,128,64` and `512,256,128,64` (each layer at least half the one before; last hidden width at most 4·G). Keep the best validation accuracy that fits under 3,000 NAND after synthesis.
 3. Export, synthesize, and run parity on the test set.
 4. Record test accuracy, precision on the bot class, and the gate count in `build/model_card.json`.
 
@@ -467,7 +484,7 @@ There are ten phases, and each one ends with a check you can run. Don't start a 
 ### Phase 6: Tape out and register the model (by Nov 29 for a test campaign; by Dec 1 for the live one)
 
 1. If this is for a campaign, run `CampaignCommit.commit(netlistHash, extractorHash, snapshotBlock)` first. Compute `netlistHash` from the synthesized netlist bytes.
-2. `npx tapesynth tapeout build/cusity.tsyn.json --processor $PROCESSOR --mint`, then `verify`.
+2. `./tapesynth tapeout build/cusity.tsyn.json --processor $PROCESSOR --mint`, then `verify`.
 3. `CusityRegistry.register(processor, circuitId, extractorHash, testCommitId, cardURI)`
 4. `AccuracyAudit.requestAudit(modelId)`, then `finalizeAudit` with the sampled rows from `data/test_leaves.json`.
 
@@ -502,7 +519,7 @@ The main cost is minting one transistor per gate. Because the price isn't confir
 
 - **Mint price:** the only figure I found is 0.000066 OKB per unit, and it was only a proposal in one builder's repo (CircuitDesk). Treat it as unconfirmed.
 - **Container fee for DeWEB:** 0.08 OKB one-time (Fusebox).
-- **Real numbers:** `tapesynth tapeout` reads fees live and prints the plan with a total before sending anything (TapeSynth). Run it once without `--yes` to get the true cost.
+- **Real numbers:** `./tapesynth tapeout` reads fees live and prints the plan with a total before sending anything (TapeSynth). Run it once without `--yes` to get the true cost.
 
 **Gates you will tape out.**
 
@@ -872,12 +889,49 @@ for name, part in (("train", rows[:int(.7 * n)]), ("val", rows[int(.7 * n):int(.
     with open(f"data/{name}.jsonl", "w") as f: f.writelines(json.dumps(r) + "\n" for r in part)
 ```
 
-### A7. `model/train.py`: difflogic training, saves the gate list
+### A7. `model/vendor_difflogic.py` and `model/train.py`: difflogic on CPU, training, gate list
+
+Run `python model/vendor_difflogic.py` once and commit the resulting `model/difflogic/`. It downloads the pinned difflogic 0.1.0 sdist, checks its SHA-256, copies the five pure-Python modules, and makes `import difflogic_cuda` optional. `train.py` and `parity.py` both find it because they run with `model/` on `sys.path`.
+
+```python
+"""Vendor difflogic 0.1.0 into model/difflogic/ so it imports on CPU-only machines.
+
+The PyPI package always compiles a CUDA extension when installed and imports it
+(`import difflogic_cuda`) when loaded, so `implementation="python"` alone does not
+avoid needing a GPU toolchain. This copies the pure-Python modules from the pinned
+sdist and makes that import optional. difflogic is MIT-licensed (Felix Petersen).
+"""
+import hashlib, io, pathlib, tarfile, urllib.request
+
+URL = ("https://files.pythonhosted.org/packages/9c/18/"
+       "e7ee8ec8a895f000411853174636f6a90480076da43ca3df40e1e4875fcc/difflogic-0.1.0.tar.gz")
+SHA256 = "979ce845a494bdf8ebeeb94d61f3bbf1ae018257ee5b048f936567b53fc115a1"
+DEST = pathlib.Path(__file__).resolve().parent / "difflogic"
+GUARD = ("try:\n    import difflogic_cuda\n"
+         "except ImportError:   # CPU-only machine: implementation='python' still works\n"
+         "    difflogic_cuda = None\n")
+
+data = urllib.request.urlopen(URL).read()
+assert hashlib.sha256(data).hexdigest() == SHA256, "difflogic sdist hash mismatch"
+DEST.mkdir(exist_ok=True)
+with tarfile.open(fileobj=io.BytesIO(data)) as tar:
+    for m in tar.getmembers():
+        p = pathlib.PurePosixPath(m.name)          # difflogic-0.1.0/difflogic/<file>.py
+        if m.isfile() and len(p.parts) == 3 and p.parts[1] == "difflogic" and p.suffix == ".py":
+            src = tar.extractfile(m).read().decode()
+            src = src.replace("import difflogic_cuda\n", GUARD, 1)
+            # forward_python prints the index dtype on every call; drop that noise
+            src = "\n".join(l for l in src.split("\n") if "print(self.indices" not in l)
+            (DEST / p.name).write_text(src)
+print("vendored difflogic 0.1.0 into", DEST)
+```
+
+`--widths` replaces `--width`/`--layers`. `build()` checks each step against difflogic's rule before creating the layer, so a bad stack fails with a clear message instead of difflogic's assertion.
 
 ```python
 import argparse, copy, json, random
 import numpy as np, torch
-from difflogic import LogicLayer, GroupSum
+from difflogic import LogicLayer, GroupSum   # vendored in model/difflogic/ (see model/vendor_difflogic.py)
 
 def unpack(h, n=64):
     b = bytes.fromhex(h[2:])
@@ -890,11 +944,13 @@ def load(path):
             r = json.loads(line); X.append(unpack(r["bits"])); y.append(int(r["label"]))
     return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.long)
 
-def build(width, layers, group, tau):
+def build(widths, group, tau):
+    # difflogic asserts out_dim * 2 >= in_dim for every layer, so widths must shrink
+    # by at most half per layer, and the last hidden width must be <= 4 * group.
     mods, d = [], 64
-    for _ in range(layers - 1):
-        mods.append(LogicLayer(d, width, device="cpu", implementation="python", connections="random", grad_factor=1.1)); d = width
-    mods.append(LogicLayer(d, 2 * group, device="cpu", implementation="python", connections="random", grad_factor=1.1))
+    for w in widths + [2 * group]:
+        assert 2 * w >= d, f"layer {d} -> {w}: difflogic needs each layer >= half the previous one"
+        mods.append(LogicLayer(d, w, device="cpu", implementation="python", connections="random", grad_factor=1.1)); d = w
     return torch.nn.Sequential(*mods, GroupSum(k=2, tau=tau))   # neurons [0,G) = class 0 (human), [G,2G) = class 1 (bot)
 
 def accuracy(model, X, y):
@@ -907,7 +963,7 @@ def export_gates(model, group):
     layers = []
     for m in model:
         if isinstance(m, LogicLayer):
-            a, b = m.indices         # VERIFY attribute name in difflogic/difflogic.py (python implementation)
+            a, b = m.indices
             layers.append({"in": m.in_dim, "out": m.out_dim, "a": a.tolist(), "b": b.tolist(),
                            "op": m.weights.argmax(-1).tolist()})
     return {"nIn": 64, "group": group, "tau": float(model[-1].tau), "layers": layers}
@@ -915,7 +971,7 @@ def export_gates(model, group):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--train", required=True); p.add_argument("--val", required=True)
-    p.add_argument("--width", type=int, default=256); p.add_argument("--layers", type=int, default=3)
+    p.add_argument("--widths", default="256,128,64", help="hidden layer widths, comma-separated")
     p.add_argument("--group", type=int, default=16); p.add_argument("--tau", type=float, default=0)
     p.add_argument("--epochs", type=int, default=200); p.add_argument("--batch", type=int, default=256)
     p.add_argument("--lr", type=float, default=0.01); p.add_argument("--seed", type=int, default=0)
@@ -923,7 +979,7 @@ if __name__ == "__main__":
     a = p.parse_args()
     torch.manual_seed(a.seed); np.random.seed(a.seed); random.seed(a.seed)
     Xtr, ytr = load(a.train); Xva, yva = load(a.val)
-    model = build(a.width, a.layers, a.group, a.tau or a.group / 4)
+    model = build([int(w) for w in a.widths.split(",")], a.group, a.tau or a.group / 4)
     counts = torch.bincount(ytr, minlength=2).float()
     loss_fn = torch.nn.CrossEntropyLoss(weight=counts.sum() / (2 * counts.clamp(min=1)))   # balances bots vs humans
     opt = torch.optim.Adam(model.parameters(), lr=a.lr)
@@ -945,7 +1001,7 @@ if __name__ == "__main__":
 
 ```python
 import argparse, json
-# difflogic's 16 ops. VERIFY this order against bin_op in difflogic/functional.py before trusting the export.
+# difflogic's 16 ops, in the order of bin_op in difflogic/functional.py (checked against 0.1.0).
 OPS = {0: "1'b0", 1: "{a} & {b}", 2: "{a} & ~{b}", 3: "{a}", 4: "~{a} & {b}", 5: "{b}", 6: "{a} ^ {b}",
        7: "{a} | {b}", 8: "~({a} | {b})", 9: "~({a} ^ {b})", 10: "~{b}", 11: "{a} | ~{b}", 12: "~{a}",
        13: "~{a} | {b}", 14: "~({a} & {b})", 15: "1'b1"}
@@ -981,7 +1037,7 @@ open(a.out, "w").write("\n".join(v) + "\n")
 print(sum(len(k) for k in keep), "neurons kept of", sum(l["out"] for l in L))
 ```
 
-After synthesis, run `npx tapesynth info` and check the pins map. Output bit 0 must be `verdict` and bits 1 to 6 must be `margin`, LSB first. If not, reorder the output ports until it is. The contracts read the outputs that way.
+After synthesis, run `./tapesynth info` and check the pins map. Output bit 0 must be `verdict` and bits 1 to 6 must be `margin`, LSB first. If not, reorder the output ports until it is. The contracts read the outputs that way.
 
 ### A9. `compiler/tap02.py`: bit-exact TAP-02 evaluator (NAND only)
 
@@ -990,7 +1046,7 @@ import hashlib, json
 
 def load_netlist_hex(tsyn_path):
     t = json.load(open(tsyn_path))
-    for k in ("netlist", "netlistHex", "bytes", "hex"):   # VERIFY the field name with `npx tapesynth info`
+    for k in ("netlist", "netlistHex", "bytes", "hex"):   # VERIFY the field name with `./tapesynth info`
         if k in t: return t[k]
     raise KeyError("netlist bytes not found in .tsyn.json")
 
@@ -1500,11 +1556,11 @@ The biggest risk is data, not code. Settle the dataset before you write anything
 **Verify on days 1 and 2:**
 
 - A labeled bot or sybil dataset you're allowed to use (Plan A), or a commitment to label your own (Plan B).
-- Real mint price and fees: run `tapesynth tapeout` without `--yes` and read the plan.
+- Real mint price and fees: run `./tapesynth tapeout` without `--yes` and read the plan.
 - Which processor to use: an existing one with mintable supply, or your own.
 - The processor's exact `eval` signature and input encoding, read from TapeSynth or Fusebox source.
 - A function that reads netlist bytes from chain, which `CampaignCommit.bind` and the Explain view need.
-- The difflogic 16-gate op order, checked in the library source.
+- ~~The difflogic 16-gate op order, checked in the library source.~~ Done: it matches difflogic 0.1.0.
 - The DeWEB publish path (TapeKit or TapeCode) and the TapeSend client to use.
 - Gas for `eval` from a contract at around 3,000 gates, which sets the audit sample size.
 - Where the offline Demo Day is held, and whether remote finalists can still win.

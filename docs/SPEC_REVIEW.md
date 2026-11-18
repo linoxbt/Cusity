@@ -9,7 +9,16 @@ supports doesn't hold) · **🟡 inconsistency or gap** · **⚪ minor**.
 
 ---
 
-## 1. Blockers: the build fails as written
+## 1. Blockers: the build fails as written. ✅ All three fixed in `BUILD_SPEC.md`
+
+**Status (Nov 18).** All three are fixed in the spec. I tested 1.1 and 1.2 end to end on a CPU-only Linux box (Python 3.13, torch 2.15 CPU):
+
+- The spec's original layer stacks hit difflogic's `AssertionError` exactly as described.
+- The vendored difflogic imports, and the tapered toy model (`--widths 64,32 --group 8`) trains in about 7 s to 94.1% discrete validation accuracy on breast-cancer.
+- `export_verilog.py` → Yosys/ABC NAND mapping (`abc -g NAND`, standing in for TapeSynth) → **0 mismatches against PyTorch on all 86 test rows**. That is about 149 NAND plus 107 NOT gates, so roughly 256 NAND-equivalents, inside the 150–300 toy target.
+- The real-size stack (`--widths 256,128,64 --group 16`) builds, trains, and also passes parity with 0 mismatches, at roughly 560 NAND-equivalents. That was on toy data, so real data will differ, but it suggests the 3,000 budget has room.
+
+For 1.3, I couldn't build TapeSynth in this environment. The wrapper path comes from TapeSynth's own `package.json`: `@tapesynth/cli` has `"bin": {"tapesynth": "./dist/index.js"}`, and `build:libs` builds it. Run `./tapesynth --help` once after bootstrap to confirm.
 
 ### 🔴 1.1 The training architecture fails difflogic's own check (verified)
 
@@ -24,7 +33,7 @@ supports doesn't hold) · **🟡 inconsistency or gap** · **⚪ minor**.
 
 The Nov 22 gate (Phase 2) fails at `model = build(...)`.
 
-**Fix:** taper so that each layer is at least half the one before it, for example
+**Fixed:** `train.py` now takes `--widths` (A7) and checks the rule itself. The fix is to taper so that each layer is at least half the one before it, for example
 `64 → 256 → 128 → 64 → 32` (G=16), or `64 → 64 → 32 → 16` for the toy (G=8). Change `build()` to take
 a list of widths instead of one `--width`.
 
@@ -34,7 +43,7 @@ a list of widths instead of one `--width`.
 - `difflogic/difflogic.py` starts with `import difflogic_cuda`, so **`implementation='python'` doesn't avoid the problem**. The import fails before you can choose the implementation.
 - `parity.py` reloads the whole pickled module with `torch.load`, which imports difflogic again. That means parity checks fail on CPU-only machines too.
 
-**Fix:** pick one on day 1:
+**Fixed with (b):** `model/vendor_difflogic.py` (A7) downloads the pinned sdist, checks its SHA-256, and makes the CUDA import optional. It also removes a debug `print` that fires on every forward pass. Options considered:
 (a) train in a GPU notebook and run parity there as well;
 (b) vendor `difflogic.py` and `functional.py` into `model/` and wrap the import in `try: import difflogic_cuda except ImportError: difflogic_cuda = None`;
 (c) save only `gates.json` plus a `state_dict`, and make parity rebuild the model from the gate list in pure numpy, which removes torch from the parity step.
@@ -45,8 +54,10 @@ The bootstrap clones TapeSynth into `../tapesynth`. Running `npx tapesynth …` 
 looks in the npm registry for a package named `tapesynth`. The best case is "not found". The worst
 case runs whatever package has that name, while `PRIVATE_KEY` is in your environment.
 
-**Fix:** use `npm link` from the clone, or call it directly (`node ../tapesynth/<bin> …`), and
-check that the path resolves before setting `PRIVATE_KEY`.
+**Fixed:** the bootstrap now writes a `./tapesynth` wrapper that runs
+`../tapesynth/packages/cli/dist/index.js`, and every `npx tapesynth` in the spec is now `./tapesynth`.
+I confirmed that `tapesynth` is **unclaimed on npm** (the registry returns 404), so the original risk was real: anyone
+could publish a package under that name.
 
 ---
 
@@ -159,7 +170,7 @@ campaign.commitBlock` in `bind`. Either way, the model card should say this reli
 ## 6. What's solid
 
 - Bit packing (LSB-first, byte 0 = bits 0–7) is consistent across `features.ts`, `toy_data.py`, `train.py`, `tap02.*` and the contracts.
-- The difflogic op order in A8 matches `bin_op` in `functional.py` exactly (**verified**), and so does `m.indices` (**verified**). Those two VERIFY tags can be removed.
+- The difflogic op order in A8 matches `bin_op` in `functional.py` exactly (**verified**), and so does `m.indices` (**verified**). The spec's VERIFY tags for both have been removed.
 - The Merkle leaf encodings match between `merkle.ts` and the contracts (13 and 28 bytes, so they can't be confused with 64-byte internal nodes), and `SimpleMerkleTree` sorted pairs are compatible with `MerkleProof`.
 - The margin fits: with G=16 the range is 16..48 in 6 bits. The tie-break (`c1 > c0`) matches `argmax`.
 - The order commit → snapshot → publish vectors → tape-out → register → bind is sound. Having the registry compute the netlist hash on chain is a good choice.
@@ -167,8 +178,8 @@ campaign.commitBlock` in `bind`. Either way, the model card should say this reli
 
 ## Priority fixes before Nov 22
 
-1. Taper the architecture (1.1) and fix how difflogic is installed (1.2). Without these, Phase 2 can't run.
-2. Run TapeSynth through `npm link` or a direct path (1.3).
+1. ~~Taper the architecture (1.1) and fix how difflogic is installed (1.2).~~ Done.
+2. ~~Run TapeSynth through a local path (1.3).~~ Done; confirm with `./tapesynth --help`.
 3. Swap the Step 1 snippet's groups to match A8 (3.1).
 4. Decide on Plan A or B today. If it's B, open sign-ups now (§4).
 5. Before deploying contracts: make audits atomic (2.1), make K configurable (3.10), and put extractor parameters in the hash (2.2).
