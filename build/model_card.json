@@ -1,11 +1,12 @@
 {
- "name": "Cusity bot filter v1",
+ "name": "Cusity bot filter v2",
+ "version": 2,
  "processor": "",
  "circuitId": 0,
- "netlistSha256": "0x35ac968403ba1c43baf923cb36808c390bb4e40c3855e41eab590d0d5c7a742a",
+ "netlistSha256": "0x9268d5e500e13f2c51dee1b61ca1365e45a5534684aad5cf91a0eef703ae78f5",
  "nIn": 64,
  "nOut": 7,
- "gates": 807,
+ "gates": 646,
  "outputs": {
   "verdict": 0,
   "marginBits": [
@@ -16,8 +17,6 @@
  },
  "architecture": {
   "widths": [
-   256,
-   256,
    128,
    64
   ],
@@ -25,16 +24,29 @@
   "library": "difflogic 0.1.0"
  },
  "features": "data/features.ts",
- "extractorSha256": "0x1c43f6ee462d8b7c5c03b43fd05f6496cabc5290a4925de0c4d662d055121711",
- "testRoot": "0x4d69aaf631f3ce95e1b5eae00efa7478d859f4887b17c30c0ac7632d167a2218",
+ "extractorSha256": "0x4ad8aeeb368be4d32e123884f8e4130eedb32a7fbc80972ddae94fa25cc752b6",
+ "testRoot": "0x60bbb5fea6fcc1591ea7a7e3e6d177ecbb1bb76cf2c9dc218913a91b625ec07a",
  "testSize": 364,
  "test": {
-  "accuracy": 0.6565934065934066,
-  "balanced_accuracy": 0.6555010150592371,
-  "bot_precision": 0.6770833333333334,
-  "bot_recall": 0.6735751295336787,
+  "accuracy": 0.6840659340659341,
+  "balanced_accuracy": 0.6784080235130139,
+  "bot_precision": 0.6772727272727272,
+  "bot_recall": 0.772020725388601,
   "n": 364
  },
  "trainedOn": "Plan A labels: Hop airdrop sybils and bridge users (ISC), LayerZero initial sybil list; wallets active on X Layer",
- "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited."
+ "changes": "v2 adds two Sybil-hunt features (LayerZero 24 h funding bursts, Hop shared collection addresses) and an exchange-scale funder flag; exchanges and contracts link nobody.",
+ "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited.",
+ "previous": {
+  "name": "Cusity bot filter v1",
+  "gates": 807,
+  "netlistSha256": "0x35ac968403ba1c43baf923cb36808c390bb4e40c3855e41eab590d0d5c7a742a",
+  "test": {
+   "accuracy": 0.6565934065934066,
+   "balanced_accuracy": 0.6555010150592371,
+   "bot_precision": 0.6770833333333334,
+   "bot_recall": 0.6735751295336787,
+   "n": 364
+  }
+ }
 }

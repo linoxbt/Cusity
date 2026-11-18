@@ -44,11 +44,11 @@ and consider your own processor before the 1,000+ gate model.
 
 `npx tsx build/tmp/scan_cpus.ts`-style scan + `FORK=1 forge test --match-test test_tapeoutV1OnFork -vv`:
 
-| Processor | Mint price | Fee | v1 (807 gates) total | Verified |
+| Processor | Mint price | Fee | v2 (646 gates) total | Verified |
 |---|---|---|---|---|
 | **#419** `0xf70d…3c4e` / **#422** `0x5509…37d3` | 0 | 0.01 BEM (approve first) | **0.0013 OKB + 0.01 BEM** | ✅ fork |
-| #180 `0x7335…308F` | 0 | 0.00066 OKB per gate | 0.534 OKB | ✅ fork |
-| #300 `0x9b82…3281` | 0.00066 OKB | 0.00066 OKB per gate | 1.067 OKB | ✅ fork |
+| #180 `0x7335…308F` | 0 | 0.00066 OKB per gate | 0.428 OKB | ✅ fork |
+| #300 `0x9b82…3281` | 0.00066 OKB | 0.00066 OKB per gate | 0.854 OKB | ✅ fork |
 
 Gas on X Layer (≈ 0.02 gwei) is negligible: deploying all three contracts plus a 16-row audit is under 0.001 OKB.
 The 0.08 OKB DeWEB container is optional (the site is already on Vercel and Netlify).

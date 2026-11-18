@@ -3,12 +3,12 @@ import { CONFIG, LIVE } from "./config";
 import { loadNet } from "./chain";
 import { $, drawPlate, esc } from "./ui";
 import { explodeStack, startMotion } from "./motion";
-import sample from "./sample.json";   // 24 test-split wallets with verdicts from the v1 netlist
+import sample from "./sample.json";   // 24 test-split wallets with verdicts from the current netlist
 
 $("band-mode").textContent = LIVE ? "LIVE" : "DEMO";
 $("foot-ids").textContent = LIVE
   ? `processor ${CONFIG.processor} · circuit #${CONFIG.circuitId} · campaign #${CONFIG.campaignId}`
-  : "Demo mode: the v1 circuit runs locally in your browser on real X Layer wallets.";
+  : "Demo mode: the circuit runs locally in your browser on real X Layer wallets.";
 
 // hero: layer accordion
 document.querySelectorAll<HTMLButtonElement>(".layers > li > button").forEach(b => b.addEventListener("click", () => {

@@ -621,11 +621,11 @@ async function stepPage() {
       const opts: [string, string, string, string][] = [
         ["#419", "0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e", "0.0013 OKB + 0.01 BEM", "cheapest"],
         ["#422", "0x550992f2dC407BfFDd82c516C0984dc5e00B37d3", "0.0013 OKB + 0.01 BEM", "cheapest"],
-        ["#180", "0x7335a50819d44402e3D5E00239bBB80A13E7308F", "0.534 OKB", "OKB only"],
-        ["#300", "0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281", "1.067 OKB", ""],
+        ["#180", "0x7335a50819d44402e3D5E00239bBB80A13E7308F", "0.428 OKB", "OKB only"],
+        ["#300", "0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281", "0.854 OKB", ""],
       ];
       el.innerHTML = head + `<div class="stats">${tile("Transistors", String(card.gates), "one per NAND gate")}${tile("Netlist", `${(card.gates * 7).toLocaleString("en-US")} B`, "7 bytes per gate")}
-        ${tile("Eval gas", "1.85M", "mainnet fork")}${tile("Circuit", LIVE ? `#${CONFIG.circuitId}` : "—", LIVE ? "bound" : "not yet")}</div>
+        ${tile("Eval gas", "1.49M", "mainnet fork")}${tile("Circuit", LIVE ? `#${CONFIG.circuitId}` : "—", LIVE ? "bound" : "not yet")}</div>
         <div class="card"><h2>Sequence</h2><ol class="seq">
           <li><b>Mint</b><span>${card.gates} NAND transistors on the processor</span></li>
           <li><b>Tape out</b><span>upload the netlist, pay the tape-out fee</span></li>
@@ -658,6 +658,21 @@ async function stepPage() {
 
 // ------------------------------------------------------------------ model
 
+function prevCard() {
+  const c = card as typeof card & { previous?: { name: string; gates: number; test: typeof card.test }; changes?: string };
+  if (!c.previous) return "";
+  const p = c.previous, row = (k: string, a: string, b: string, better: boolean) =>
+    `<tr><td>${k}</td><td class="mono">${a}</td><td class="mono ${better ? "ok" : ""}">${b}</td></tr>`;
+  const pc = (x: number) => `${(x * 100).toFixed(1)}%`;
+  return `<div class="card"><h2>${esc(p.name.replace("Cusity bot filter ", ""))} → ${esc(c.name.replace("Cusity bot filter ", ""))} <span class="count mono">same 364 held-out wallets</span></h2>
+    <table><thead><tr><th></th><th>${esc(p.name.replace("Cusity bot filter ", ""))}</th><th>${esc(c.name.replace("Cusity bot filter ", ""))}</th></tr></thead><tbody>
+    ${row("Balanced accuracy", pc(p.test.balanced_accuracy), pc(c.test.balanced_accuracy), c.test.balanced_accuracy > p.test.balanced_accuracy)}
+    ${row("Bot recall", pc(p.test.bot_recall), pc(c.test.bot_recall), c.test.bot_recall > p.test.bot_recall)}
+    ${row("Bot precision", pc(p.test.bot_precision), pc(c.test.bot_precision), c.test.bot_precision > p.test.bot_precision + 0.0005)}
+    ${row("NAND gates", String(p.gates), String(c.gates), c.gates < p.gates)}</tbody></table>
+    ${c.changes ? `<p class="muted note">${esc(c.changes)}</p>` : ""}</div>`;
+}
+
 function modelPage() {
   shell("Model");
   const t = card.test;
@@ -675,6 +690,7 @@ function modelPage() {
       ${copyRow("Extractor sha256", card.extractorSha256)}
       ${copyRow("Test-set root", card.testRoot)}
     </div>
+    ${prevCard()}
     <div class="card">
       <h2>Architecture</h2>
       <div class="facts mono"><span>difflogic</span><span>${card.architecture.widths.join(" → ")} → ${card.architecture.group * 2}</span><span>verdict + 6-bit margin</span></div>

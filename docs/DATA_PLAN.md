@@ -41,6 +41,32 @@ boosting). The labels carry real but weak signal on X Layer without history. Thi
 the full 64-bit model has to beat; the history features (funder clusters, timing, repeated amounts,
 gas sameness) are the ones expected to carry most of the signal.
 
+## v2 model (Nov 19)
+
+Two inputs from past Sybil hunts, in bits freed from near-constant ones (the empty name flag, thinner gas and campaign-window bands):
+
+- **funderBurst** (LayerZero/Chaos Labs): other wallets the same funder paid within 24 h of this one.
+- **collectorShared** (Hop): other wallets that pay this wallet's main non-contract recipient.
+- **fundedFromHub** replaces the always-zero exchange flag: first funder is exchange-scale (1,000+ value txs) or a contract.
+  Hubs link nobody, as Arbitrum removed exchanges, bridges and contracts before clustering.
+
+Both counts come from the funder's and collector's own histories (OKX Data API, 20 pages), so they don't depend on who else is
+in the input list. Distributions: funderBurst > 3 in 8% of bots vs 3% of humans; collectorShared > 3 in 6% vs 1%.
+
+| Same 364 held-out wallets | v1 (807 gates) | **v2 (646 gates)** |
+|---|---|---|
+| Balanced accuracy | 65.6% | **67.8%** |
+| Bot recall | 67.4% | **77.2%** |
+| Bot precision | 67.7% | 67.7% |
+| 5 seeds, (128, 64) widths | 65.9% ± 2.2 | **67.1% ± 1.1** |
+| 5 seeds, (256, 256, 128, 64) | 65.8% ± 0.8 | 65.8% ± 1.2 |
+
+Honest read: a modest gain. The new inputs fire on only 5–13% of wallets because X Layer histories are thin; where they fire they
+are strong. v2 is also 20% smaller, so tape-out and audit gas are cheaper.
+
+Test-set root `0x60bbb5fea6fcc1591ea7a7e3e6d177ecbb1bb76cf2c9dc218913a91b625ec07a` (same wallets as v1, new bits).
+Netlist sha256 `0x9268d5e500e13f2c51dee1b61ca1365e45a5534684aad5cf91a0eef703ae78f5`, extractor `0x4ad8aeeb368be4d32e123884f8e4130eedb32a7fbc80972ddae94fa25cc752b6`.
+
 ## v1 model (Nov 18)
 
 Snapshot block 76,254,000; histories from the OKX X Layer Data API; split 1,697 / 364 / 364.

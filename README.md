@@ -26,7 +26,8 @@ wallet ──extractor──▶ 64 bits ──▶ [ NAND circuit on X Layer ] �
 | Site | ✅ live at https://cusity.vercel.app (demo mode until contracts are deployed) |
 | Tape-out, deploy, campaign on mainnet | ⏳ needs your key and OKB: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
 | Plan A labels | ✅ 2,425 X Layer wallets (1,337 bot, 1,088 human), `data/labels_public.csv` |
-| Real model v1 | ✅ 807 NAND gates, trained on real X Layer histories (OKX Data API, snapshot block 76,254,000). Held-out test: **65.6% balanced accuracy** (bot precision 67.7%, recall 67.4%). Parity 0 mismatches on 2,061 wallets. Tapes out on a live processor (fork) for 1.07 OKB |
+| Real model v2 | ✅ 646 NAND gates. Adds LayerZero-style 24 h funding bursts, Hop-style shared collectors and an exchange-scale funder flag. Held-out test (same wallets): **67.8% balanced accuracy** (precision 67.7%, recall 77.2%). Over 5 seeds: 67.1% vs v1's 65.9% at the same size. Parity 0 mismatches on 2,425; tapes out on a mainnet fork (#419/#422: 0.0013 OKB + 0.01 BEM; eval 1.49M gas) |
+| Real model v1 (kept in `build/v1/`) | ✅ 807 NAND gates, trained on real X Layer histories (OKX Data API, snapshot block 76,254,000). Held-out test: **65.6% balanced accuracy** (bot precision 67.7%, recall 67.4%). Parity 0 mismatches on 2,061 wallets. Tapes out on a live processor (fork) for 1.07 OKB |
 
 ## Layout
 
