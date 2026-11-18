@@ -13,22 +13,7 @@
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="./apple-touch-icon-180.png" />
 </head>
-<body>
-  <!-- ============ LEFT RAIL ============ -->
-  <aside class="rail">
-    <a class="rail-tile" href="#top" aria-label="Cusity home"><img src="./mark.svg" alt="" width="34" height="34" /></a>
-    <nav class="rail-nav">
-      <a href="#check" data-view="check"><span>01</span>Check</a>
-      <a href="#explain" data-view="explain"><span>02</span>Explain</a>
-      <a href="#audit" data-view="audit"><span>03</span>Audit</a>
-      <a href="#appeal" data-view="appeal"><span>04</span>Appeal</a>
-      <a href="#how"><span>05</span>How it works</a>
-    </nav>
-    <div class="rail-status mono">
-      <span class="lbl">Circuit</span>
-      <span id="rail-mode" class="val"></span>
-    </div>
-  </aside>
+<body class="landing">
 
   <div class="shell" id="top">
     <!-- ============ TOP BAR ============ -->
@@ -39,7 +24,7 @@
         <a href="#numbers">Numbers</a>
         <a href="https://github.com/linoxbt/cusity" target="_blank" rel="noopener">GitHub</a>
       </nav>
-      <a class="btn-cta mono" href="#check">Check a wallet</a>
+      <a class="btn-cta mono" href="check.html">Open app</a>
     </header>
 
     <!-- ============ HERO ============ -->
@@ -49,7 +34,7 @@
         <h1>The bot filter<br />you can check.</h1>
         <p class="lede">Cusity is one learned logic circuit, taped out on X Layer. No weights file, no server.
           Every entrant can see the bits it read, why it decided, and how accurate it is on chain.</p>
-        <a class="btn-chamfer mono" href="#check">Check a wallet</a>
+        <a class="btn-chamfer mono" href="check.html">Check a wallet</a>
 
         <ol class="layers">
           <li class="open"><button type="button"><span class="num mono">01</span>Extract layer<span class="chev"></span></button>
@@ -86,60 +71,6 @@
             <circle cx="250" cy="535" r="3" /><line x1="250" y1="535" x2="440" y2="535" /><text x="450" y="539">AUDIT</text>
           </g>
         </svg>
-      </div>
-    </section>
-
-    <!-- ============ CONSOLE (the app) ============ -->
-    <section class="sheet console" id="console">
-      <div class="sheet-head">
-        <p class="tag mono"><i></i><span id="mode"></span></p>
-        <div class="tabs" role="tablist">
-          <a href="#check" data-view="check" role="tab"><span class="mono">01</span>Check</a>
-          <a href="#explain" data-view="explain" role="tab"><span class="mono">02</span>Explain</a>
-          <a href="#audit" data-view="audit" role="tab"><span class="mono">03</span>Audit</a>
-          <a href="#appeal" data-view="appeal" role="tab"><span class="mono">04</span>Appeal</a>
-        </div>
-      </div>
-
-      <!-- CHECK -->
-      <div id="view-check" class="view">
-        <div class="view-head"><h2>Check a wallet</h2>
-          <p>Paste an entrant's address. The page proves its input bits were fixed at the snapshot, asks the circuit, and re-runs it in your browser.</p></div>
-        <form id="check-form" class="row">
-          <input id="wallet" class="mono" placeholder="0x… wallet address" autocomplete="off" spellcheck="false" />
-          <button type="submit" class="btn-dark mono">Check</button>
-        </form>
-        <div id="samples" class="samples mono"></div>
-        <div id="check-out" class="out"></div>
-      </div>
-
-      <!-- EXPLAIN -->
-      <div id="view-explain" class="view" hidden>
-        <div class="view-head"><h2>Why this result</h2>
-          <p>Each answer comes from re-running the circuit with one input changed. Changes stay realistic: a feature moves to another threshold level, never to an impossible bit pattern.</p></div>
-        <div id="explain-out" class="out"><p class="muted">Check a wallet first.</p></div>
-      </div>
-
-      <!-- AUDIT -->
-      <div id="view-audit" class="view" hidden>
-        <div class="view-head"><h2>Audit the model</h2>
-          <p>The test set was committed on chain before training ended. A future block hash picks rows, and the contract scores the circuit on them. Unfinished rounds stay on record as expired.</p></div>
-        <div id="audit-out" class="out"></div>
-        <div class="row"><button id="run-audit" class="btn-dark mono">Run audit</button></div>
-        <pre id="audit-log" class="log mono" hidden></pre>
-      </div>
-
-      <!-- APPEAL -->
-      <div id="view-appeal" class="view" hidden>
-        <div class="view-head"><h2>Appeal a result</h2>
-          <p>Think it's wrong? Send the wallet, its bits and a note to the model's Container through TapeSend. End-to-end encrypted. Answers are posted publicly by wallet prefix only.</p></div>
-        <form id="appeal-form" class="stack-form">
-          <label><span class="mono">Wallet</span><input id="ap-wallet" class="mono" placeholder="0x…" spellcheck="false" /></label>
-          <label><span class="mono">Bits sent to the circuit</span><input id="ap-bits" class="mono" placeholder="0x… (filled in after a check)" spellcheck="false" /></label>
-          <label><span class="mono">What looks wrong?</span><textarea id="ap-note" rows="4" maxlength="600" placeholder="e.g. my wallet is older than 90 days, but the bits say 30 to 90"></textarea></label>
-          <div class="row"><button type="submit" class="btn-dark mono">Prepare appeal</button></div>
-        </form>
-        <div id="appeal-out" class="out"></div>
       </div>
     </section>
 
@@ -195,7 +126,7 @@
           <p class="muted">The circuit is only as honest as its inputs. That's why they're fixed by a Merkle root, and the extractor is open source with a pinned hash.</p>
         </div>
         <div class="foot-links mono">
-          <div><span class="dim">Product</span><a href="#check">Check</a><a href="#explain">Explain</a><a href="#audit">Audit</a><a href="#appeal">Appeal</a></div>
+          <div><span class="dim">App</span><a href="check.html">Check</a><a href="explain.html">Explain</a><a href="audit.html">Audit</a><a href="appeal.html">Appeal</a></div>
           <div><span class="dim">Built on</span><a href="https://web3.okx.com/xlayer" target="_blank" rel="noopener">X Layer</a><a href="https://x.com/TapeOutWorld" target="_blank" rel="noopener">TapeOut</a><a href="https://github.com/linoxbt/cusity" target="_blank" rel="noopener">GitHub</a></div>
         </div>
       </div>
@@ -206,6 +137,6 @@
       </div>
     </footer>
   </div>
-  <script type="module" src="./src/main.ts"></script>
+  <script type="module" src="./src/landing.ts"></script>
 </body>
 </html>

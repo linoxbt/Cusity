@@ -1,6 +1,6 @@
 // Two back ends behind one interface: LIVE reads X Layer (eth_call, no backend server), DEMO evaluates
 // the toy circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
-import { concat, createPublicClient, createWalletClient, custom, defineChain, encodePacked, fallback, getAddress,
+import { concat, toHex, createPublicClient, createWalletClient, custom, defineChain, encodePacked, fallback, getAddress,
   http, keccak256, parseAbi, type Hex } from "viem";
 import { CONFIG, LIVE } from "./config";
 import { decide, parse, type Net } from "./tap02";
@@ -124,7 +124,7 @@ export async function runAudit(log: (s: string) => void): Promise<Round> {
     const seed = crypto.getRandomValues(new Uint8Array(32)), k = 16, id = demoRounds.length;
     let correct = 0;
     for (let j = 0; j < k; j++) {
-      const h = keccak256(concat([seed, encodePacked(["uint256", "uint256"], [BigInt(id), BigInt(j)])]));
+      const h = keccak256(concat([toHex(seed), encodePacked(["uint256", "uint256"], [BigInt(id), BigInt(j)])]));
       const row = t.leaves[Number(BigInt(h) % BigInt(t.size))];
       if (merkleRoot(row.leaf, row.proof) !== t.root) throw new Error("bad test proof");
       const ok = decide(n, unpack(row.bits)).verdict === (row.label === 1);
