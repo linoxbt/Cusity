@@ -21,3 +21,6 @@ contracts/broadcast/
 build/*.blif
 build/tmp/
 contracts/lib/
+
+# netlify link state
+.netlify/

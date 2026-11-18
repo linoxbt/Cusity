@@ -1,0 +1,12 @@
+# Netlify: build the web workspace (Vite) and publish its static output.
+[build]
+  command = "npm run -w web build"
+  publish = "web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
