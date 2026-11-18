@@ -24,29 +24,38 @@ function shell(title: string) {
   const nav = PAGES.map(([p, label], i) =>
     `<a href="${link(p)}" class="${p === page ? "on" : ""}"><span>0${i + 1}</span>${label}</a>`).join("");
   document.body.innerHTML = `
+    <header class="app-bar">
+      <a class="bar-brand" href="index.html" aria-label="Cusity home"><img src="./logo.svg" alt="cusity" height="24" /></a>
+      <span class="chip mono">${LIVE ? "Live · X Layer" : "Demo"}</span>
+      <button class="menu-btn" id="menu" aria-label="Toggle menu" aria-controls="rail" aria-expanded="true"><i></i><i></i><i></i></button>
+    </header>
     <aside class="rail" id="rail">
-      <a class="rail-tile" href="index.html" aria-label="Cusity home"><img src="./mark.svg" alt="" width="34" height="34" /></a>
       <nav class="rail-nav">${nav}</nav>
       <a class="rail-home mono" href="index.html">← Home</a>
       <div class="rail-status mono"><span class="lbl">Circuit</span><span class="val">${LIVE ? `#${CONFIG.circuitId} live` : "demo"}</span></div>
     </aside>
     <div class="app-main">
-      <header class="app-bar">
-        <button class="menu-btn" id="menu" aria-label="Open menu" aria-controls="rail" aria-expanded="false"><i></i><i></i><i></i></button>
-        <a class="bar-brand" href="index.html"><img src="./logo.svg" alt="cusity" height="22" /></a>
-        <span class="chip mono">${LIVE ? "Live · X Layer" : "Demo"}</span>
-      </header>
       <section class="sheet app-sheet">
         <h1 class="app-title">${title}</h1>
         <div id="page"></div>
       </section>
     </div>
     <div class="scrim" id="scrim"></div>`;
-  // phone: the sidebar slides in as a drawer
-  const open = (v: boolean) => { document.body.classList.toggle("drawer-open", v); $("menu").setAttribute("aria-expanded", String(v)); };
-  $("menu").onclick = () => open(!document.body.classList.contains("drawer-open"));
-  $("scrim").onclick = () => open(false);
-  addEventListener("keydown", e => { if (e.key === "Escape") open(false); });
+  // ☰ toggles the sidebar: on desktop it collapses/expands (remembered), on phones it slides over as a drawer
+  const phone = () => matchMedia("(max-width: 980px)").matches;
+  const KEY_RAIL = "cusity:rail";
+  if (localStorage.getItem(KEY_RAIL) === "closed") document.body.classList.add("rail-collapsed");
+  const sync = () => $("menu").setAttribute("aria-expanded", String(phone()
+    ? document.body.classList.contains("drawer-open") : !document.body.classList.contains("rail-collapsed")));
+  const drawer = (v: boolean) => { document.body.classList.toggle("drawer-open", v); sync(); };
+  $("menu").onclick = () => {
+    if (phone()) return drawer(!document.body.classList.contains("drawer-open"));
+    const closed = document.body.classList.toggle("rail-collapsed");
+    localStorage.setItem(KEY_RAIL, closed ? "closed" : "open"); sync();
+  };
+  $("scrim").onclick = () => drawer(false);
+  addEventListener("keydown", e => { if (e.key === "Escape") drawer(false); });
+  sync();
 }
 
 const copyRow = (label: string, v: string) =>
