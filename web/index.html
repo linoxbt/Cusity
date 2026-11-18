@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cusity · the bot filter you can check</title>
+  <meta name="description" content="A bot filter for X Layer campaigns, taped out as a single TapeOut circuit. Check any entrant, see why, audit the model on chain, and appeal." />
+  <meta property="og:title" content="Cusity · the bot filter you can check" />
+  <meta property="og:description" content="64 bits in · 1 NAND circuit · verdict on X Layer" />
+  <meta property="og:image" content="./og-image-1200x630.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0B0D10" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon-180.png" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#check" aria-label="Cusity home"><img src="./logo.svg" alt="cusity" height="28" /></a>
+    <nav>
+      <a href="#check" data-view="check">Check</a>
+      <a href="#explain" data-view="explain">Explain</a>
+      <a href="#audit" data-view="audit">Audit</a>
+      <a href="#appeal" data-view="appeal">Appeal</a>
+    </nav>
+    <span id="mode" class="mode"></span>
+  </header>
+
+  <main>
+    <!-- CHECK -->
+    <section id="view-check" class="view">
+      <h1>Check a wallet</h1>
+      <p class="lede">The filter is one logic circuit on X Layer. Paste an entrant's address: the page proves its
+        input bits were fixed at the snapshot, asks the circuit, and re-runs it in your browser.</p>
+      <form id="check-form" class="row">
+        <input id="wallet" class="mono" placeholder="0x… wallet address" autocomplete="off" spellcheck="false" />
+        <button type="submit" class="primary">Check</button>
+      </form>
+      <div id="samples" class="samples"></div>
+      <div id="check-out" class="out"></div>
+    </section>
+
+    <!-- EXPLAIN -->
+    <section id="view-explain" class="view" hidden>
+      <h1>Why this result</h1>
+      <p class="lede">Every answer below comes from re-running the circuit with one input changed. Changes stay
+        realistic: a feature moves to another threshold level, never to an impossible bit pattern.</p>
+      <div id="explain-out" class="out"><p class="muted">Check a wallet first.</p></div>
+    </section>
+
+    <!-- AUDIT -->
+    <section id="view-audit" class="view" hidden>
+      <h1>Audit the model</h1>
+      <p class="lede">The test set was committed on chain before training ended. Each audit round lets a future block
+        hash pick rows, and the contract scores the circuit on them. Unfinished rounds stay on record as expired.</p>
+      <div id="audit-out" class="out"></div>
+      <div class="row"><button id="run-audit" class="primary">Run audit</button></div>
+      <pre id="audit-log" class="log mono" hidden></pre>
+    </section>
+
+    <!-- APPEAL -->
+    <section id="view-appeal" class="view" hidden>
+      <h1>Appeal a result</h1>
+      <p class="lede">Think the result is wrong? Send the wallet, its bits and a note to the model's Container through
+        TapeSend. Messages are end-to-end encrypted. Answers are posted publicly by wallet prefix only.</p>
+      <form id="appeal-form" class="stack">
+        <label>Wallet<input id="ap-wallet" class="mono" placeholder="0x…" spellcheck="false" /></label>
+        <label>Bits sent to the circuit<input id="ap-bits" class="mono" placeholder="0x… (filled in after a check)" spellcheck="false" /></label>
+        <label>What looks wrong?<textarea id="ap-note" rows="4" maxlength="600" placeholder="e.g. my wallet is older than 90 days, but the bits say 30 to 90"></textarea></label>
+        <div class="row"><button type="submit" class="primary">Prepare appeal</button></div>
+      </form>
+      <div id="appeal-out" class="out"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>A <strong>filter result</strong>, not an accusation. The circuit is only as honest as its inputs, which is why
+      they are fixed by a Merkle root and the extractor is open source with a pinned hash.</p>
+    <p class="muted mono" id="foot-ids"></p>
+  </footer>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

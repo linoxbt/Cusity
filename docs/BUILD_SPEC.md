@@ -261,8 +261,8 @@ module cusity (input [63:0] x, output verdict, output [5:0] margin);
   assign l1[0] = x[12] & ~x[40];   // op 2: A and not B
   assign l1[1] = ~(x[3] & x[7]);   // op 14: NAND
   // ... one line per surviving neuron
-  wire [4:0] bot   = l3[0]+l3[1]+...+l3[15];   // popcount, group 1
-  wire [4:0] human = l3[16]+...+l3[31];        // popcount, group 0
+  wire [4:0] human = l3[0]+l3[1]+...+l3[15];   // popcount, class 0: GroupSum's first group
+  wire [4:0] bot   = l3[16]+...+l3[31];        // popcount, class 1 (fixed: was swapped, review 3.1)
   assign verdict = bot > human;
   assign margin  = 6'd32 + bot - human;
 endmodule

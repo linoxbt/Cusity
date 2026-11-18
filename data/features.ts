@@ -58,7 +58,8 @@ export const SLOTS: Slot[] = (() => {
 })();
 
 const fmt = (x: number, unit: string) =>
-  unit === "%" ? `${x}%` : unit === "USD" ? `$${x.toLocaleString("en-US")}` : unit ? `${x.toLocaleString("en-US")} ${unit}` : x.toLocaleString("en-US");
+  unit === "%" ? `${x}%` : unit === "USD" ? `$${x.toLocaleString("en-US")}`
+  : unit ? `${x.toLocaleString("en-US")} ${x === 1 ? unit.replace(/s$/, "") : unit}` : x.toLocaleString("en-US");
 
 /** Thermometer level (number of thresholds exceeded) for a feature slot. */
 export const levelOf = (bits: number[], s: Slot) => bits.slice(s.start, s.start + s.count).reduce((a, b) => a + b, 0);
