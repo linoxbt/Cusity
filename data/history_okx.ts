@@ -52,24 +52,28 @@ export function toTx(it: Item): Tx {
   };
 }
 
-export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch = fetch as unknown as Fetch): Promise<{ txs: Tx[]; capped: boolean }> {
-  const a = address.toLowerCase(), cache = `${DIR}/${a}.json`;
+export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch = fetch as unknown as Fetch,
+  opts: { fromOnly?: boolean; maxPages?: number } = {}): Promise<{ txs: Tx[]; capped: boolean }> {
+  const a = address.toLowerCase(), cache = `${DIR}/${a}${opts.fromOnly ? ".from" : ""}.json`, maxPages = opts.maxPages ?? MAX_PAGES;
   let items: Item[];
   let capped = false;
   if (existsSync(cache)) ({ items, capped } = JSON.parse(readFileSync(cache, "utf8")));
   else {
     items = [];
-    for (let page = 1; page <= MAX_PAGES; page++) {
-      const pq = `${PATH}?chainShortName=${CHAIN}&address=${a}&limit=${LIMIT}&page=${page}`;
+    for (let page = 1, tries = 0; page <= maxPages; page++) {
+      const pq = `${PATH}?chainShortName=${CHAIN}&address=${a}${opts.fromOnly ? "&isFromOrTo=from" : ""}&endBlockHeight=${toBlock}&limit=${LIMIT}&page=${page}`;
       const r = await fetchFn(HOST + pq, { headers: signHeaders(pq) });
-      if (r.status === 429) { await new Promise(s => setTimeout(s, 1500)); page--; continue; }   // rate limited: retry
-      const j = await r.json();
+      const j = await r.json().catch(() => ({}));
+      if ((r.status === 429 || ["50011", "50061", "50013"].includes(String(j.code))) && tries++ < 8) {   // rate limited / busy: back off
+        await new Promise(s => setTimeout(s, 1000 * 2 ** Math.min(tries, 5))); page--; continue;
+      }
+      tries = 0;
       if (!r.ok || String(j.code) !== "0") throw new Error(`OKX Data API ${r.status} ${j.code}: ${j.msg}`);
       const d = j.data?.[0] ?? {};
       const rows: Item[] = d.transactionLists ?? d.transactionList ?? [];
       items.push(...rows);
       if (page >= Number(d.totalPage ?? 1) || rows.length < LIMIT) break;
-      if (page === MAX_PAGES) capped = true;
+      if (page === maxPages) capped = true;
     }
     mkdirSync(DIR, { recursive: true });
     writeFileSync(cache, JSON.stringify({ items, capped }));
@@ -93,8 +97,12 @@ export async function okxHistory(addresses: string[], toBlock: number, fetchFn?:
     if (++i % 50 === 0) log(`history ${i}/${addresses.length}`);
   }
   // Funder cluster: how many distinct wallets the funder ever sent value to (population-independent).
-  for (const f of new Set([...funder.values()].filter(Boolean) as string[])) {
-    const { txs, capped } = await fetchTxs(f, toBlock, fetchFn);
+  // Outgoing txs only, at most 20 pages (1,000 txs): a funder beyond that is exchange-scale, i.e. the top bit.
+  const funders = [...new Set([...funder.values()].filter(Boolean) as string[])];
+  let k = 0;
+  for (const f of funders) {
+    if (++k % 50 === 0) log(`funders ${k}/${funders.length}`);
+    const { txs, capped } = await fetchTxs(f, toBlock, fetchFn, { fromOnly: true, maxPages: 20 });
     const n = new Set(txs.filter(t => t.from === f && t.to && t.value > 0n).map(t => t.to)).size;
     fCount.set(f, capped ? FUNDER_CAP : Math.min(n, FUNDER_CAP));
   }
