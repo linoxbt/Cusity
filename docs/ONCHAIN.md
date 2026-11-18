@@ -15,6 +15,31 @@ git clone --recurse-submodules https://github.com/Cheeeeez/tapesynth ../tapesynt
 scripts/phase0_check.sh     # read-only: processor ABI and evaluator vs chain
 ```
 
+## Measured on an X Layer mainnet fork (Nov 18, nothing broadcast)
+
+`FORK=1 forge test --match-contract ForkTest -vv` (contracts/test/Fork.t.sol) runs these against live contracts:
+
+- **Our toy netlist tapes out on a live processor** (#300, `0x9b82…3281`): circuit info, netlist bytes and sha256 match
+  `build/toy.netlist.json`, and the live `eval` returns the same verdict and margin as `compiler/tap02.py` on all fixture vectors.
+- **Real prices on processor #300:** mint price 0.00066 OKB plus protocol fee 0.00066 OKB per transistor, and `TAPEOUT_FEE` 0.0013 OKB.
+  The 251-gate toy cost **0.3326 OKB** on the fork. The spec's 0.000066 figure was 10× too low.
+
+  | Gates | Cost on #300 | At OKB ≈ $86 |
+  |---|---|---|
+  | 251 (toy) | 0.33 OKB | ≈ $29 |
+  | 1,000 | 1.32 OKB | ≈ $114 |
+  | 3,000 | 3.96 OKB | ≈ $341 |
+
+- **Gas:** the live `eval` costs ≈ 599k gas for 251 gates (≈ 2,400 per gate), so ≈ 7.2M at 3,000 gates. The X Layer block gas limit is 210M,
+  so a K = 16 audit (≈ 115M) fits in one transaction.
+- **Prices vary by processor.** #0 and #400 are sold out; #427 lists a near-zero price but its older transistor contract rejects mints.
+- **Your own processor** is the cheap route: the factory now caps the mint price at 1e12 wei and charges a tiny protocol fee. Its deploy
+  fee is paid in the **BEM** token (`0x60e6…3952`, 8 decimals), so you'd need some BEM first; `createCPU` with OKB alone reverts.
+  TapeSynth's `processor create` handles this. Settings are permanent, so pick name, supply and price carefully.
+
+**Budget advice:** keep the model small (the sweep already prefers the smallest circuit on ties). Tape out the toy circuit only once,
+and consider your own processor before the 1,000+ gate model.
+
 ## Phase 1: hello-world tape-out (cheap, tells you the real price per gate)
 
 ```bash

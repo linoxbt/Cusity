@@ -22,7 +22,9 @@ wallet ──extractor──▶ 64 bits ──▶ [ NAND circuit on X Layer ] �
 | Extractor on live X Layer data | ✅ deterministic, byte-identical reruns |
 | Contracts: Registry, CampaignCommit, AccuracyAudit | ✅ 20 Foundry tests incl. fuzz, real netlist, TS↔Solidity Merkle |
 | Web: Check, Explain, Audit, Appeal | ✅ builds, runs in demo mode, desktop and mobile |
-| Tape-out, deploy, campaign | ⏳ needs your key and OKB: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
+| Tape-out on a live processor | ✅ on an X Layer mainnet fork: netlist, hash and `eval` match; real cost 0.33 OKB for 251 gates |
+| Site | ✅ live at https://cusity.vercel.app (demo mode until contracts are deployed) |
+| Tape-out, deploy, campaign on mainnet | ⏳ needs your key and OKB: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
 | Plan A labels | ✅ 2,425 X Layer wallets (1,337 bot, 1,088 human), `data/labels_public.csv` |
 | Real model (Phase 4) | ⏳ needs OKX Data API keys for wallet histories, then `scripts/phase4.sh <block>` |
 
