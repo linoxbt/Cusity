@@ -1,0 +1,4 @@
+torch>=1.13
+numpy
+scikit-learn
+yowasp-yosys    # local NAND synthesis for tests (TapeSynth does the real tape-out)

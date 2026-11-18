@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.*
+!.env.example
+# private data
+data/raw/
+data/labels.csv
+# python
+.venv/
+__pycache__/
+*.pyc
+model/*.pt
+# node
+node_modules/
+web/dist/
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+# synthesis scratch
+build/*.blif
+build/tmp/
+contracts/lib/

@@ -1,0 +1,21 @@
+{
+  "name": "cusity",
+  "private": true,
+  "type": "module",
+  "workspaces": ["web"],
+  "scripts": {
+    "test": "tsx --test data/*.test.ts",
+    "extract": "tsx data/extract.ts",
+    "merkle": "tsx data/merkle.ts",
+    "extractor-hash": "tsx data/extractor_hash.ts"
+  },
+  "dependencies": {
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

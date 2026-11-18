@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Runs the TapeSynth CLI from the sibling clone (../tapesynth). Never use `npx tapesynth`:
+# the name is unclaimed on npm, so npx outside the TapeSynth repo would fetch a stranger's package.
+CLI="$(dirname "$0")/../tapesynth/packages/cli/dist/index.js"
+[ -f "$CLI" ] || { echo "TapeSynth not built: git clone --recurse-submodules https://github.com/Cheeeeez/tapesynth ../tapesynth && (cd ../tapesynth && npm install && npm run build:libs)" >&2; exit 1; }
+exec node "$CLI" "$@"

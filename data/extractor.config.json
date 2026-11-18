@@ -1,0 +1,11 @@
+{
+  "comment": "Everything that changes the bits, besides the code. Hashed into extractorHash with the sources (data/extractor_hash.ts). Freeze before the campaign commit.",
+  "chainId": 196,
+  "scanFromBlock": 0,
+  "windowStart": 0,
+  "windowEnd": 0,
+  "okbUsd": 0,
+  "usdt0": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+  "usdt0Decimals": 6,
+  "exchanges": []
+}
