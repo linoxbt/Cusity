@@ -6,7 +6,7 @@ import { $, drawPlate } from "./ui";
 $("band-mode").textContent = LIVE ? "LIVE" : "DEMO";
 $("foot-ids").textContent = LIVE
   ? `processor ${CONFIG.processor} · circuit #${CONFIG.circuitId} · campaign #${CONFIG.campaignId}`
-  : "Demo mode: the pipeline-proof circuit runs locally in your browser.";
+  : "Demo mode: the v1 circuit runs locally in your browser on real X Layer wallets.";
 
 // hero: layer accordion
 document.querySelectorAll<HTMLButtonElement>(".layers > li > button").forEach(b => b.addEventListener("click", () => {

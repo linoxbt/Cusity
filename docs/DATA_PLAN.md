@@ -40,3 +40,19 @@ All four together reach **62–64% balanced accuracy** (5-fold logistic regressi
 boosting). The labels carry real but weak signal on X Layer without history. This is the baseline
 the full 64-bit model has to beat; the history features (funder clusters, timing, repeated amounts,
 gas sameness) are the ones expected to carry most of the signal.
+
+## v1 model (Nov 18)
+
+Snapshot block 76,254,000; histories from the OKX X Layer Data API; split 1,697 / 364 / 364.
+Test-set root `0x4d69aaf631f3ce95e1b5eae00efa7478d859f4887b17c30c0ac7632d167a2218` (commit it on chain before the campaign).
+
+| Model | Balanced accuracy |
+|---|---|
+| RPC-only signals (4 features, gradient boosting, 5-fold) | 62–64% |
+| 64 bits, logistic regression / gradient boosting (5-fold) | 65.1% / 67.4% |
+| **Cusity v1 circuit, 807 NAND gates, held-out test** | **65.6%** (precision 67.7%, recall 67.4%) |
+| Ceiling: majority label per identical 64-bit vector | 83.3% accuracy (only 945 distinct vectors) |
+
+Sweep (validation accuracy / gates): 192 → 68.4%, 303 → 65.7%, 471 → 67.9%, 633 → 68.7%, 906 → 67.9%, **807 → 72.3%**, 935 → 72.5%.
+The 807-gate model was chosen on validation only: within noise of the best and 14% cheaper to tape out.
+Bits 0 (age > 1 day), 61 (hasName) and 62 (fundedFromExchange) are constant in this data; filling the exchange list is the cheapest next gain.

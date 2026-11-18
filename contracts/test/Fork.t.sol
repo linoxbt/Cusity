@@ -45,8 +45,10 @@ contract ForkTest is Test {
         assertEq(P.eval(1, hex"03"), hex"00");
     }
 
-    function _tapeoutOn(IProc proc) internal {
-        bytes memory nl = vm.parseJsonBytes(vm.readFile("../build/toy.netlist.json"), ".netlist");
+    function _tapeoutOn(IProc proc) internal { _tapeoutOn(proc, "../build/toy.netlist.json", true); }
+
+    function _tapeoutOn(IProc proc, string memory path, bool checkFixture) internal {
+        bytes memory nl = vm.parseJsonBytes(vm.readFile(path), ".netlist");
         uint256 gates = nl.length / 7;
         ITransistors t = ITransistors(proc.transistorsContract());
         uint256 price = t.mintPrice(); uint256 pfee = t.protocolFee(); uint256 tfee = proc.TAPEOUT_FEE();
@@ -66,7 +68,11 @@ contract ForkTest is Test {
         (uint32 nIn, uint32 nOut, uint32 nState, uint32 g) = proc.circuitInfo(id);
         assertEq(nIn, 64); assertEq(nOut, 7); assertEq(nState, 0); assertEq(g, gates);
         assertEq(proc.netlist(id), nl, "on-chain netlist bytes differ from ours");
-        assertEq(sha256(proc.netlist(id)), vm.parseJsonBytes32(vm.readFile("../build/toy.netlist.json"), ".netlistSha256"));
+        assertEq(sha256(proc.netlist(id)), vm.parseJsonBytes32(vm.readFile(path), ".netlistSha256"));
+        if (!checkFixture) {
+            uint256 g1 = gasleft(); proc.eval(id, hex"c00f00003f10ff01"); console.log("  live eval gas:", g1 - gasleft());
+            return;
+        }
         string memory fx = vm.readFile("../build/fixture.json");
         for (uint256 i; i < 3; ++i) {
             string memory k = string.concat(".vectors[", vm.toString(i), "]");
@@ -77,6 +83,9 @@ contract ForkTest is Test {
             assertEq((uint8(out[0]) >> 1) & 0x3f, vm.parseJsonUint(fx, string.concat(k, ".margin")), "margin");
         }
     }
+
+    /// The real v1 bot-filter circuit (build/cusity.netlist.json) on the same live processor.
+    function test_tapeoutV1OnFork_cpu300() public { _tapeoutOn(IProc(0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281), "../build/cusity.netlist.json", false); }
 
     function test_tapeoutToyNetlistOnFork_cpu300() public { _tapeoutOn(IProc(0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281)); }
     /// Own processor: created through the live factory on the fork, at the current (near-zero) price cap.

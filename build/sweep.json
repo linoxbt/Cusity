@@ -1,0 +1,100 @@
+{
+ "budget": 3000,
+ "results": [
+  {
+   "widths": [
+    32,
+    16
+   ],
+   "group": 8,
+   "val_accuracy": 0.6841,
+   "nand_gates": 192,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    64,
+    32
+   ],
+   "group": 8,
+   "val_accuracy": 0.6566,
+   "nand_gates": 303,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    64,
+    32
+   ],
+   "group": 16,
+   "val_accuracy": 0.6786,
+   "nand_gates": 471,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    128,
+    64
+   ],
+   "group": 16,
+   "val_accuracy": 0.6868,
+   "nand_gates": 633,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    256,
+    128,
+    64
+   ],
+   "group": 16,
+   "val_accuracy": 0.6786,
+   "nand_gates": 906,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    256,
+    256,
+    128,
+    64
+   ],
+   "group": 16,
+   "val_accuracy": 0.7225,
+   "nand_gates": 807,
+   "fits_budget": true
+  },
+  {
+   "widths": [
+    512,
+    256,
+    128,
+    64
+   ],
+   "group": 16,
+   "val_accuracy": 0.7253,
+   "nand_gates": 935,
+   "fits_budget": true
+  }
+ ],
+ "chosen": {
+  "widths": [
+   256,
+   256,
+   128,
+   64
+  ],
+  "group": 16,
+  "val_accuracy": 0.7225,
+  "nand_gates": 807,
+  "fits_budget": true
+ },
+ "test": {
+  "accuracy": 0.6565934065934066,
+  "balanced_accuracy": 0.6555010150592371,
+  "bot_precision": 0.6770833333333334,
+  "bot_recall": 0.6735751295336787,
+  "n": 364
+ },
+ "selection": "807-gate model: within 0.3 pt of the best validation accuracy (935 gates), 14% fewer gates"
+}

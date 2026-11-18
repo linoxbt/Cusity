@@ -1,13 +1,11 @@
 // Two back ends behind one interface: LIVE reads X Layer (eth_call, no backend server), DEMO evaluates
-// the toy circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
+// the v1 circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
 import { concat, toHex, createPublicClient, createWalletClient, custom, defineChain, encodePacked, fallback, getAddress,
   http, keccak256, parseAbi, type Hex } from "viem";
 import { CONFIG, LIVE } from "./config";
 import { decide, parse, type Net } from "./tap02";
 import { unpack } from "../../data/features";
-import toyNetlist from "../../build/toy.netlist.json";
-import demoSnapshot from "../../build/demo_snapshot.json";
-import toyTestLeaves from "../../build/toy_test_leaves.json";
+import v1Netlist from "../../build/cusity.netlist.json";   // demo mode evaluates the real v1 circuit locally
 
 export const xlayer = defineChain({ id: 196, name: "X Layer", nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
   rpcUrls: { default: { http: CONFIG.rpc } }, blockExplorers: { default: { name: "OKLink", url: CONFIG.explorer } } });
@@ -49,7 +47,7 @@ const snapshotLeaf = (w: Hex, bits: Hex) => keccak256(encodePacked(["address", "
 
 let snapshot: Snapshot | undefined;
 async function getSnapshot(): Promise<Snapshot> {
-  if (!snapshot) snapshot = LIVE ? await (await fetch(CONFIG.snapshotUrl)).json() : (demoSnapshot as Snapshot);
+  if (!snapshot) snapshot = await (await fetch(CONFIG.snapshotUrl)).json();
   return snapshot!;
 }
 export const sampleWallets = async () => Object.keys((await getSnapshot()).wallets);
@@ -57,7 +55,7 @@ export const sampleWallets = async () => Object.keys((await getSnapshot()).walle
 let net: Net | undefined;
 export async function loadNet(): Promise<Net> {
   if (net) return net;
-  if (!LIVE) return (net = parse(toyNetlist.netlist as Hex, toyNetlist.nIn, toyNetlist.nOut));
+  if (!LIVE) return (net = parse(v1Netlist.netlist as Hex, v1Netlist.nIn, v1Netlist.nOut));
   const [nIn, nOut] = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "circuitInfo", args: [CONFIG.circuitId] });
   const hex = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "netlist", args: [CONFIG.circuitId] });
   return (net = parse(hex, nIn, nOut));
@@ -97,7 +95,7 @@ export type AuditInfo = { k: number; testRoot: Hex; testSize: number; netlistHas
 let demoRounds: Round[] = [];
 let leavesCache: TestLeaves | undefined;
 const testLeaves = async (): Promise<TestLeaves> =>
-  leavesCache ??= LIVE ? await (await fetch(CONFIG.testLeavesUrl)).json() : (toyTestLeaves as TestLeaves);
+  leavesCache ??= await (await fetch(CONFIG.testLeavesUrl)).json();
 
 export async function auditInfo(): Promise<AuditInfo> {
   if (!LIVE) { const t = await testLeaves(); return { k: 16, testRoot: t.root, testSize: t.size, rounds: demoRounds }; }
