@@ -9,7 +9,7 @@ judging uses the version in place at the deadline (Dec 7, 23:59 UTC).
 | 1 | Full Name | *you* |
 | 2 | Nationality (used to pick the offline finale venue) | *you* |
 | 3 | Project name | Cusity |
-| 4 | Project logo (256×256, ≤10 MB, file upload) | *upload a 256×256 PNG* |
+| 4 | Project logo (256×256, ≤10 MB, file upload) | `brand/png/cusity-logo-256.png` |
 | 5 | Telegram handle | *you* |
 | 6 | Project X Account | *the project's X handle* |
 | 7 | Team contact email | *you* |

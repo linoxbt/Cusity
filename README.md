@@ -4,3 +4,5 @@ A logic-gate bot filter for X Layer campaigns: trained with difflogic, compiled 
 
 - [Build spec](docs/BUILD_SPEC.md)
 - [Spec review notes](docs/SPEC_REVIEW.md)
+- [Hackathon submission answers](docs/SUBMISSION.md)
+- [Brand kit](brand/README.md)
