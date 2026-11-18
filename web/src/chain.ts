@@ -50,7 +50,7 @@ type SnapIndex = { campaignId: number; block: number; root: Hex; extractorHash: 
 let index: Promise<SnapIndex> | undefined;
 export const snapshotIndex = (): Promise<SnapIndex> => (index ??= fetch(`${CONFIG.snapshotUrl}index.json`).then(r => r.json()));
 const shards = new Map<string, Promise<Snapshot["wallets"]>>();
-const shard = (w: string) => {
+export const shard = (w: string) => {
   const k = w.slice(2, 4).toLowerCase();
   if (!shards.has(k)) shards.set(k, fetch(`${CONFIG.snapshotUrl}${k}.json`).then(r => r.json() as Promise<Snapshot["wallets"]>));
   return shards.get(k)!;

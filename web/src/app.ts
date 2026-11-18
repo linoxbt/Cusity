@@ -2,7 +2,7 @@
 // The last checked wallet carries across pages (sessionStorage), and ?w=0x… makes any page shareable.
 import "./style.css";
 import { CONFIG, LIVE } from "./config";
-import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, snapshotIndex, type CheckResult } from "./chain";
+import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, shard, snapshotIndex, type CheckResult } from "./chain";
 import { decidingGates, flips, readings } from "./explain";
 import { $, bitsGrid, esc, marginBar, short } from "./ui";
 import { startMotion } from "./motion";
@@ -109,7 +109,10 @@ function checkPage() {
     } catch (e) { fail(out, e); }
   };
   $("f").addEventListener("submit", e => { e.preventDefault(); go($<HTMLInputElement>("w").value.trim()); });
+  $("w").addEventListener("input", () => { const v = $<HTMLInputElement>("w").value.trim(); if (/^0x[0-9a-fA-F]{2}/.test(v)) shard(v).catch(() => {}); });
+  loadNet().catch(() => {});   // warm the circuit while the page is idle
   sampleWallets().then(ws => {
+    ws.slice(0, 4).forEach(w => shard(w).catch(() => {}));
     $("samples").innerHTML = ws.slice(0, 4).map(w => `<button type="button" data-w="${esc(w)}">${short(w, 4)}</button>`).join("");
     $("samples").querySelectorAll<HTMLButtonElement>("button").forEach(b => b.onclick = () => {
       $<HTMLInputElement>("w").value = b.dataset.w!; go(b.dataset.w!);
@@ -126,7 +129,7 @@ async function explainPage() {
   try {
     const r = await lookup(wallet());
     if (!r || r.status !== "ok") return needWallet(el);
-    const net = await loadNet(), fl = flips(net, r.bits), dg = decidingGates(net, r.bits), dgs = new Set(dg);
+    const net = await loadNet(), fl = flips(net, r.bits);
     el.innerHTML = `
       <div class="card"><div class="verdict">${pill(r)}<span class="mono muted">${short(r.wallet)}</span></div>${marginBar(r.margin, r.verdict)}</div>
       <div class="card">
@@ -139,9 +142,15 @@ async function explainPage() {
         <table><tbody>${readings(r.bits).map(x => `<tr><td>${esc(x.text)}</td><td class="mono muted">${x.bits.join("")}</td></tr>`).join("")}</tbody></table>
       </div>
       <div class="card">
-        <h2>Gates <span class="count mono">${dg.length} / ${net.a.length} deciding</span></h2>
-        <div class="gatemap">${Array.from(net.a, (_, g) => `<i class="${dgs.has(g) ? "d" : ""}" title="gate ${g}"></i>`).join("")}</div>
+        <h2>Gates <span class="count mono" id="gcount">…</span></h2>
+        <div class="gatemap" id="gmap"><div class="skeleton"><i></i><i></i></div></div>
       </div>`;
+    // the gate map is the heaviest part: paint the page first, then fill it in
+    requestAnimationFrame(() => setTimeout(() => {
+      const dgs = new Set(decidingGates(net, r.bits));
+      $("gcount").textContent = `${dgs.size} / ${net.a.length} deciding`;
+      $("gmap").innerHTML = Array.from(net.a, (_, g) => `<i class="${dgs.has(g) ? "d" : ""}" title="gate ${g}"></i>`).join("");
+    }, 0));
   } catch (e) { fail(el, e); }
 }
 
