@@ -1,4 +1,4 @@
-// The app: four independent pages (check.html, explain.html, audit.html, appeal.html) sharing one shell.
+// The app: six independent pages (check, explain, audit, appeal, campaign, model) sharing one shell.
 // The last checked wallet carries across pages (sessionStorage), and ?w=0x… makes any page shareable.
 import "./style.css";
 import { CONFIG, LIVE } from "./config";
@@ -6,10 +6,11 @@ import { auditInfo, checkWallet, loadNet, runAudit, sampleWallets, type CheckRes
 import { decidingGates, flips, readings } from "./explain";
 import { $, bitsGrid, esc, marginBar, short } from "./ui";
 import { startMotion } from "./motion";
+import card from "../public/model/model_card.json";
 
-type Page = "check" | "explain" | "audit" | "appeal";
+type Page = "check" | "explain" | "audit" | "appeal" | "campaign" | "model";
 type Ok = Extract<CheckResult, { status: "ok" }>;
-const PAGES: [Page, string][] = [["check", "Check"], ["explain", "Explain"], ["audit", "Audit"], ["appeal", "Appeal"]];
+const PAGES: [Page, string][] = [["check", "Check"], ["explain", "Explain"], ["audit", "Audit"], ["appeal", "Appeal"], ["campaign", "Campaign"], ["model", "Model"]];
 const page = (document.body.dataset.page ?? "check") as Page;
 const KEY = "cusity:wallet";
 
@@ -23,23 +24,35 @@ function shell(title: string) {
   const nav = PAGES.map(([p, label], i) =>
     `<a href="${link(p)}" class="${p === page ? "on" : ""}"><span>0${i + 1}</span>${label}</a>`).join("");
   document.body.innerHTML = `
-    <aside class="rail">
+    <aside class="rail" id="rail">
       <a class="rail-tile" href="index.html" aria-label="Cusity home"><img src="./mark.svg" alt="" width="34" height="34" /></a>
       <nav class="rail-nav">${nav}</nav>
+      <a class="rail-home mono" href="index.html">← Home</a>
       <div class="rail-status mono"><span class="lbl">Circuit</span><span class="val">${LIVE ? `#${CONFIG.circuitId} live` : "demo"}</span></div>
     </aside>
     <div class="app-main">
       <header class="app-bar">
+        <button class="menu-btn" id="menu" aria-label="Open menu" aria-controls="rail" aria-expanded="false"><i></i><i></i><i></i></button>
         <a class="bar-brand" href="index.html"><img src="./logo.svg" alt="cusity" height="22" /></a>
-        <nav class="app-tabs">${nav}</nav>
         <span class="chip mono">${LIVE ? "Live · X Layer" : "Demo"}</span>
       </header>
       <section class="sheet app-sheet">
         <h1 class="app-title">${title}</h1>
         <div id="page"></div>
       </section>
-    </div>`;
+    </div>
+    <div class="scrim" id="scrim"></div>`;
+  // phone: the sidebar slides in as a drawer
+  const open = (v: boolean) => { document.body.classList.toggle("drawer-open", v); $("menu").setAttribute("aria-expanded", String(v)); };
+  $("menu").onclick = () => open(!document.body.classList.contains("drawer-open"));
+  $("scrim").onclick = () => open(false);
+  addEventListener("keydown", e => { if (e.key === "Escape") open(false); });
 }
+
+const copyRow = (label: string, v: string) =>
+  `<div class="hashrow"><span class="k mono">${label}</span><code class="mono" title="${esc(v)}">${short(v, 10)}</code><button class="ghost" data-copy="${esc(v)}">Copy</button></div>`;
+const wireCopy = () => document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach(b =>
+  b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy!); b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1200); });
 
 const pill = (r: Ok) => `<span class="pill ${r.verdict ? "flag" : ""}"><span class="dot"></span>${r.verdict ? "Flagged" : "Passed"}</span>`;
 const fail = (el: HTMLElement, e: unknown) => { el.innerHTML = `<div class="card warn">${esc(String((e as Error).message ?? e))}</div>`; };
@@ -196,5 +209,67 @@ async function appealPage() {
   });
 }
 
-({ check: checkPage, explain: explainPage, audit: auditPage, appeal: appealPage })[page]();
+
+// ------------------------------------------------------------------ campaign
+
+async function campaignPage() {
+  shell("Campaign");
+  let vectorsRoot = "";
+  try { vectorsRoot = (await (await fetch(CONFIG.snapshotUrl)).json()).root; } catch { /* shown as pending */ }
+  const steps: [string, string, string, boolean][] = [   // label, value, note, done on chain
+    ["Test set committed", card.testRoot, `${card.testSize} rows`, LIVE],
+    ["Filter hash committed", card.netlistSha256, "before snapshot", LIVE],
+    ["Snapshot", "76,254,000", "block", true],
+    ["Wallet bits published", vectorsRoot, "Merkle root", LIVE],
+    ["Taped out + bound", LIVE ? `#${CONFIG.circuitId}` : "—", "circuit", LIVE],
+    ["Audits", "", "see Audit", LIVE],
+  ];
+  $("page").innerHTML = `
+    <ol class="timeline">${steps.map(([l, v, n, done], i) => `
+      <li class="${done ? "done" : ""}">
+        <span class="tl-n mono">0${i + 1}</span>
+        <div class="tl-body"><b>${l}</b><span class="mono muted">${n}</span></div>
+        <span class="tl-val">${v && v.startsWith("0x") ? `<code class="mono" title="${esc(v)}">${short(v, 6)}</code><button class="ghost" data-copy="${esc(v)}">Copy</button>`
+          : v ? `<code class="mono">${esc(v)}</code>` : ""}</span>
+        <span class="tl-state mono">${done ? "on chain" : "pending"}</span>
+      </li>`).join("")}</ol>`;
+  wireCopy();
+}
+
+// ------------------------------------------------------------------ model
+
+function modelPage() {
+  shell("Model");
+  const t = card.test;
+  $("page").innerHTML = `
+    <div class="stats">
+      <div><span class="k mono">Gates</span><span class="v">${card.gates}</span><span class="s mono">NAND</span></div>
+      <div><span class="k mono">Inputs</span><span class="v">${card.nIn}</span><span class="s mono">bits</span></div>
+      <div><span class="k mono">Accuracy</span><span class="v">${(t.balanced_accuracy * 100).toFixed(1)}%</span><span class="s mono">held-out, balanced</span></div>
+      <div><span class="k mono">Bot precision</span><span class="v">${(t.bot_precision * 100).toFixed(0)}%</span><span class="s mono">recall ${(t.bot_recall * 100).toFixed(0)}%</span></div>
+    </div>
+    <div class="card">
+      <h2>Identity</h2>
+      ${LIVE ? copyRow("Processor", CONFIG.processor) + `<div class="hashrow"><span class="k mono">Circuit ID</span><code class="mono">#${CONFIG.circuitId}</code></div>` : ""}
+      ${copyRow("Netlist sha256", card.netlistSha256)}
+      ${copyRow("Extractor sha256", card.extractorSha256)}
+      ${copyRow("Test-set root", card.testRoot)}
+    </div>
+    <div class="card">
+      <h2>Architecture</h2>
+      <div class="facts mono"><span>difflogic</span><span>${card.architecture.widths.join(" → ")} → ${card.architecture.group * 2}</span><span>verdict + 6-bit margin</span></div>
+    </div>
+    <div class="card">
+      <h2>Download</h2>
+      <div class="dl mono">
+        <a href="./model/cusity.netlist.json" download>netlist.json</a>
+        <a href="./model/cusity.v" download>cusity.v</a>
+        <a href="./model/model_card.json" download>model_card.json</a>
+        <a href="./test_leaves.json" download>test_leaves.json</a>
+      </div>
+    </div>`;
+  wireCopy();
+}
+
+({ check: checkPage, explain: explainPage, audit: auditPage, appeal: appealPage, campaign: campaignPage, model: modelPage })[page]();
 startMotion();
