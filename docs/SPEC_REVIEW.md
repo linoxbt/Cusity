@@ -172,3 +172,30 @@ campaign.commitBlock` in `bind`. Either way, the model card should say this reli
 3. Swap the Step 1 snippet's groups to match A8 (3.1).
 4. Decide on Plan A or B today. If it's B, open sign-ups now (§4).
 5. Before deploying contracts: make audits atomic (2.1), make K configurable (3.10), and put extractor parameters in the hash (2.2).
+
+---
+
+## 7. Check against the official hackathon page
+
+Source: https://web3.okx.com/xlayer/build-x-series (Build X Series → **X Layer TapeOut Accelerate**), read Nov 18, 2026.
+
+**Matches the spec**
+
+- Window Oct 16 – **Dec 7, 2026, 23:59 UTC**; the page also calls this deadline provisional.
+- Submission is through a Google Form (https://forms.gle/EoDNbxQ65dev1wFd9).
+- The write-up fields are the same four the spec drafts: product, target users and how to reach them, revenue model, and why users pay and keep using it.
+- Circuit projects must give the **processor contract address and circuit ID**. Sites and apps must give an access link and say which TapeOut projects or features they use.
+- The project must use TapeOut circuits, contracts or on-chain data on X Layer. You don't have to run your own processor.
+- Demo video: at most 3 minutes, covering the problem, core features, users and business model, and how TapeOut is used. These are the same beats as the spec's script.
+- The hackathon runs online. **Shortlisted teams attend an offline Demo Day.**
+
+**Differences and new information**
+
+- **Judging criteria** (judged jointly by X Layer and TapeOut): user value and commercial potential; innovation (circuit design, product, UX, or *expanding TapeOut use cases*); ecosystem integration; product readiness and UX; demo video. The spec doesn't map its work to these. The live campaign covers readiness and commercial potential. "A learned model as a circuit" fits the use-case part of innovation.
+- **Ecosystem tools named:** DeWEB, **FabX**, TapeCode, TapeKit and TapeSend. FabX isn't in the spec. Find out what it is. None of these tools is required.
+- **The demo video is a judging criterion with a *recommended* maximum of 3 minutes.** The page doesn't call it a submission requirement, but treat it as one.
+- **No repo requirement.** A public repo is the spec's own addition. It's still worth having, because it backs up the "verifiable" claim.
+- **Prizes:** 100,000 USDT pool before tax: 1st 20,000 USDT; 2nd 10,000 USDT × 5; 3rd 6,000 USDT × 5. Prizes are paid in stages.
+- **Eligibility:** you must be 18 or over (or an entity) and not a Restricted Person under the X Layer Terms of Service. Winners may face identity checks and must provide a self-custodial wallet.
+
+**Still unknown:** the Demo Day location and date, and whether remote finalists can win. Ask in the event Telegram (https://t.me/+-7ouB60aYig2MmM1). That's also a good place to ask about the TapeSend client and the DeWEB publish path.
