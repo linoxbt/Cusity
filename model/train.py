@@ -23,10 +23,13 @@ def build(widths, group, tau):
     return torch.nn.Sequential(*mods, GroupSum(k=2, tau=tau))   # neurons [0,G) = class 0 (human), [G,2G) = class 1 (bot)
 
 def accuracy(model, X, y):
+    """Balanced accuracy of the discrete model (mean of bot recall and human recall). Model selection uses
+    this, not plain accuracy, so a class-imbalanced validation set can't reward flagging everyone."""
     model.eval()                     # eval() = hard, discrete gates
     with torch.no_grad(): pred = model(X).argmax(-1)
     model.train()
-    return (pred == y).float().mean().item()
+    rec = [((pred == c) & (y == c)).sum().item() / max(1, (y == c).sum().item()) for c in (0, 1)]
+    return sum(rec) / 2
 
 def export_gates(model, group):
     layers = []
@@ -38,7 +41,7 @@ def export_gates(model, group):
     return {"nIn": 64, "group": group, "tau": float(model[-1].tau), "layers": layers}
 
 def fit(train_path, val_path, widths, group=16, tau=0, epochs=200, batch=256, lr=0.01, seed=0, log=print):
-    """Train; return (best discrete model by val accuracy, best val accuracy)."""
+    """Train; return (best discrete model by balanced val accuracy, that accuracy)."""
     torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
     Xtr, ytr = load(train_path); Xva, yva = load(val_path)
     model = build(list(widths), group, tau or group / 4)

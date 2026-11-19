@@ -6,11 +6,12 @@
   * funding-time window: how tightly a cluster's first fundings bunch together (LayerZero used 24 h)
 
 Exchanges, bridges and contracts are hubs, not owners, so they never connect wallets (Arbitrum removed
-them before clustering too): a counterparty is a hub if it is a contract, its outgoing history is
-exchange-scale (capped), or it touches more than HUB_DEGREE labelled wallets.
+them before clustering too): a counterparty is a hub if it is a contract, its own history is exchange-scale
+(its outgoing or incoming list hit the 1,000-tx cap), or it touches more than HUB_DEGREE labelled wallets.
+Amounts and failed transactions follow the extractor's rules (data/history_okx.ts).
 
-Reads the OKX history cache (data/raw/okx) and data/vectors.jsonl; writes web/public/graph/.
-  python data/clusters.py
+Reads the OKX history cache (data/raw/okx/<block>) and data/vectors.jsonl; writes web/public/graph/.
+  python data/clusters.py [block]
 """
 import collections, glob, json, os, sys
 import networkx as nx
@@ -22,6 +23,20 @@ import tap02
 HUB_DEGREE = 60          # a counterparty shared by more labelled wallets than this is a service, not a farm owner
 WINDOW = 24 * 3600       # LayerZero-style funding window
 OUT = "web/public/graph"
+BLOCK = sys.argv[1] if len(sys.argv) > 1 else "76254000"
+WEI_FROM_BLOCK = 10_438_885   # = OKX_WEI_FROM_BLOCK in data/history_okx.ts
+
+def okb(t):
+    """Amount in OKB, by the extractor's rule; failed transactions moved nothing."""
+    a = t.get("amount") or "0"
+    if t.get("state") == "fail": return 0.0
+    if "." in a or int(t.get("height") or 0) < WEI_FROM_BLOCK: return float(a)
+    return int(a) / 1e18 if a.isdigit() else 0.0
+
+def wilson(k, n, z=1.96):
+    if n == 0: return (0.0, 0.0)
+    p = k / n; d = 1 + z * z / n; c = p + z * z / (2 * n); r = z * ((p * (1 - p) + z * z / (4 * n)) / n) ** .5
+    return ((c - r) / d, (c + r) / d)
 
 labels = {l.split(",")[0]: (int(l.split(",")[1]), l.split(",")[2]) for l in open("data/labels_public.csv").read().strip().split("\n")[1:]}
 vec = {json.loads(l)["address"]: json.loads(l)["bits"] for l in open("data/vectors.jsonl")}
@@ -32,23 +47,25 @@ def verdict(bits):
     return o[0], sum(o[1 + k] << k for k in range(6)) - 32
 
 hist, capped = {}, set()
-for f in glob.glob("data/raw/okx/*.json"):
+for f in glob.glob(f"data/raw/okx/{BLOCK}/*.json"):
     a = os.path.basename(f)[:-5]
     j = json.load(open(f))
-    if a.endswith(".from"):
-        if j.get("capped"): capped.add(a[:-5])
+    if a.endswith(".from") or a.endswith(".to"):
+        if j.get("capped"): capped.add(a.rsplit(".", 1)[0])
         continue
     if a in labels: hist[a] = sorted(j["items"], key=lambda t: (int(t.get("height") or 0), t.get("txId", "")))
 
 contracts, fund, coll, direct = set(), {}, collections.defaultdict(set), collections.defaultdict(int)
+amount = collections.defaultdict(float)   # (from, to) -> OKB moved, for the graph's edge labels
 for a, items in hist.items():
     for t in items:
         fr, to = (t.get("from") or "").lower(), (t.get("to") or "").lower()
-        amt = float(t.get("amount") or 0)
+        amt = okb(t)
         if t.get("isToContract") and to: contracts.add(to)
         if t.get("isFromContract") and fr: contracts.add(fr)
         if amt <= 0: continue
-        if to == a and a not in fund: fund[a] = (fr, int(t.get("transactionTime") or 0) // 1000)
+        if (fr == a or to == a) and fr and to: amount[(fr, to)] += amt if fr == a else 0
+        if to == a and a not in fund: fund[a] = (fr, int(t.get("transactionTime") or 0) // 1000); amount[(fr, a)] += amt
         if fr == a and to and to != a:
             if to in labels: direct[tuple(sorted((a, to)))] += 1
             else: coll[to].add(a)
@@ -94,15 +111,15 @@ for cid, members in enumerate(clusters):
     for w in members:   # the funder / collector intermediaries that tie this cluster together
         f = fund.get(w, (None,))[0]
         if f and not hub(f) and len(by_funder[f] & mset) >= 2:
-            inter.setdefault(f, "funder"); edges.append({"s": f, "t": w, "k": "funds"})
+            inter.setdefault(f, "funder"); edges.append({"s": f, "t": w, "k": "funds", "okb": round(amount[(f, w)], 6)})
     for c, ws in coll.items():
         if hub(c): continue
         inside = ws & mset
         if len(inside) >= 2:
             inter.setdefault(c, "collector")
-            edges += [{"s": w, "t": c, "k": "sweeps"} for w in sorted(inside)]
+            edges += [{"s": w, "t": c, "k": "sweeps", "okb": round(amount[(w, c)], 6)} for w in sorted(inside)]
     for (a, b) in direct:
-        if a in mset and b in mset: edges.append({"s": a, "t": b, "k": "direct"})
+        if a in mset and b in mset: edges.append({"s": a, "t": b, "k": "direct", "n": direct[(a, b)], "okb": round(amount[(a, b)] + amount[(b, a)], 6)})
     nodes += [{"id": x, "kind": k} for x, k in inter.items()]
     ts = sorted(fund[w][1] for w in members if w in fund and fund[w][1])
     best = max((sum(1 for u in ts if t0 <= u <= t0 + WINDOW) for t0 in ts), default=0)
@@ -113,13 +130,14 @@ for cid, members in enumerate(clusters):
     summary.append(stat)
     json.dump({"stats": stat, "nodes": nodes, "edges": edges}, open(f"{OUT}/c/{cid}.json", "w"))
 
-json.dump({"wallets": index, "clusters": summary, "hubDegree": HUB_DEGREE}, open(f"{OUT}/index.json", "w"))
-
-# what the clusters say about the labels (does clustering carry signal beyond the 64 bits?)
+# what the clusters say about the labels (does clustering carry signal beyond the 64 bits?), with 95% CIs
 inc = [w for w in labels if w in index]; out = [w for w in labels if w not in index]
-rate = lambda ws: sum(labels[w][0] for w in ws) / max(1, len(ws))
-big = [w for w in inc if summary[index[w]]["size"] >= 20]
+bots = lambda ws: sum(labels[w][0] for w in ws)
+ci_in, ci_out = wilson(bots(inc), len(inc)), wilson(bots(out), len(out))
+evidence = {"inCluster": {"n": len(inc), "botRate": bots(inc) / max(1, len(inc)), "ci95": ci_in},
+            "notClustered": {"n": len(out), "botRate": bots(out) / max(1, len(out)), "ci95": ci_out}}
+json.dump({"wallets": index, "clusters": summary, "hubDegree": HUB_DEGREE, "evidence": evidence}, open(f"{OUT}/index.json", "w"))
 print(f"clusters: {len(clusters)} (largest {len(clusters[0]) if clusters else 0}); wallets in a cluster: {len(inc)}/{len(labels)}")
-print(f"bot rate: in a cluster {rate(inc):.1%} | in a cluster of 20+ {rate(big):.1%} ({len(big)} wallets) | not clustered {rate(out):.1%}")
+print(f"bot rate: in a cluster {evidence['inCluster']['botRate']:.1%} (95% CI {ci_in[0]:.1%}-{ci_in[1]:.1%}) | not clustered {evidence['notClustered']['botRate']:.1%} (95% CI {ci_out[0]:.1%}-{ci_out[1]:.1%})")
 print(f"hubs excluded: {sum(1 for x in deg if hub(x))} (contracts {len(contracts)}, exchange-scale {len(capped)})")
 for s in summary[:6]: print(s)

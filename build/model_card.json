@@ -1,12 +1,12 @@
 {
- "name": "Cusity bot filter v2",
- "version": 2,
+ "name": "Cusity bot filter v3",
+ "version": 3,
  "processor": "",
  "circuitId": 0,
- "netlistSha256": "0x9268d5e500e13f2c51dee1b61ca1365e45a5534684aad5cf91a0eef703ae78f5",
+ "netlistSha256": "0x6a7c3a0574005c986c28534011207c643523738f153fe461e79c864d9291821b",
  "nIn": 64,
  "nOut": 7,
- "gates": 646,
+ "gates": 993,
  "outputs": {
   "verdict": 0,
   "marginBits": [
@@ -17,6 +17,8 @@
  },
  "architecture": {
   "widths": [
+   512,
+   256,
    128,
    64
   ],
@@ -24,29 +26,48 @@
   "library": "difflogic 0.1.0"
  },
  "features": "data/features.ts",
- "extractorSha256": "0x4ad8aeeb368be4d32e123884f8e4130eedb32a7fbc80972ddae94fa25cc752b6",
- "testRoot": "0x60bbb5fea6fcc1591ea7a7e3e6d177ecbb1bb76cf2c9dc218913a91b625ec07a",
- "testSize": 364,
+ "extractorSha256": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929",
+ "testRoot": "0x88fef8e63773e4a818709e064ea745d8c95c9a58f3ec38fab80ce73504f347ff",
+ "testSize": 365,
+ "testDepth": 9,
+ "testCommittedInGit": "7d091fdf4726d4360393a039382bdbfc60b8e980",
+ "selection": "mean balanced validation accuracy over seeds; ties -> fewer gates",
  "test": {
-  "accuracy": 0.6840659340659341,
-  "balanced_accuracy": 0.6784080235130139,
-  "bot_precision": 0.6772727272727272,
-  "bot_recall": 0.772020725388601,
-  "n": 364
- },
- "trainedOn": "Plan A labels: Hop airdrop sybils and bridge users (ISC), LayerZero initial sybil list; wallets active on X Layer",
- "changes": "v2 adds two Sybil-hunt features (LayerZero 24 h funding bursts, Hop shared collection addresses) and an exchange-scale funder flag; exchanges and contracts link nobody.",
- "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited.",
- "previous": {
-  "name": "Cusity bot filter v1",
-  "gates": 807,
-  "netlistSha256": "0x35ac968403ba1c43baf923cb36808c390bb4e40c3855e41eab590d0d5c7a742a",
-  "test": {
-   "accuracy": 0.6565934065934066,
-   "balanced_accuracy": 0.6555010150592371,
-   "bot_precision": 0.6770833333333334,
-   "bot_recall": 0.6735751295336787,
-   "n": 364
+  "n": 365,
+  "accuracy": 0.6931506849315069,
+  "balanced_accuracy": 0.6998276174922882,
+  "balanced_accuracy_ci95": [
+   0.6543683766859345,
+   0.7449001339666301
+  ],
+  "bot_recall": 0.6212121212121212,
+  "human_specificity": 0.7784431137724551,
+  "human_false_positive_rate": 0.22155688622754488,
+  "bot_precision": 0.76875,
+  "bot_precision_at_prevalence": {
+   "10%": 0.2375368603642672,
+   "30%": 0.5457951375049821
+  },
+  "flag_rate": 0.4383561643835616,
+  "by_source": {
+   "hop-sybil": {
+    "n": 22,
+    "flagged": 0.8182
+   },
+   "hop-user": {
+    "n": 167,
+    "flagged": 0.2216
+   },
+   "layerzero-sybil": {
+    "n": 176,
+    "flagged": 0.5966
+   }
+  },
+  "unseen_vectors": {
+   "n": 205,
+   "balanced_accuracy": 0.6417334375610709
   }
- }
+ },
+ "trainedOn": "Hop airdrop Sybil list (ISC) and LayerZero initial Sybil list as bots, Hop bridge users as humans; wallets active on X Layer, snapshot block 76,254,000",
+ "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024, and the sources differ in era (every human is a 2022 Hop user; most bots are 2023-24 LayerZero), so some signal may be cohort, not behaviour: see test.by_source. Feature design and thresholds were chosen with the whole (unlabelled) feature distribution in view. Precision depends on how many bots a campaign really has: see test.bot_precision_at_prevalence. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited."
 }
