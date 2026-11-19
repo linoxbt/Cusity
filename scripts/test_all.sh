@@ -12,7 +12,7 @@ echo "== 2. data layer (packing, layout, extractor rules, positional Merkle)"
 npx tsx --test data/*.test.ts 2>&1 | grep -E "^# (pass|fail)"
 echo "== 3. every published artifact describes the same model and snapshot"
 npx tsx scripts/merkle_compat.ts >/dev/null && git diff --quiet -- build/merkle_compat.json || { echo "merkle_compat.json changed: TS tree builder drifted"; exit 1; }
-npx tsx scripts/check_consistency.ts
+STRICT_MEASURED=1 npx tsx scripts/check_consistency.ts
 echo "== 4. contracts (unit, fuzz, TS<->Solidity trees)"
 (cd contracts && forge test 2>&1 | tail -1)
 echo "== 5. web type-check and build"

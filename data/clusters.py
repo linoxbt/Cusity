@@ -23,15 +23,17 @@ import tap02
 HUB_DEGREE = 60          # a counterparty shared by more labelled wallets than this is a service, not a farm owner
 WINDOW = 24 * 3600       # LayerZero-style funding window
 OUT = "web/public/graph"
-BLOCK = sys.argv[1] if len(sys.argv) > 1 else "76254000"
-WEI_FROM_BLOCK = 10_438_885   # = OKX_WEI_FROM_BLOCK in data/history_okx.ts
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+GROUPS_ONLY = "--groups" in sys.argv   # just write build/groups.json (connected components) for model/split.py
+BLOCK = ARGS[0] if ARGS else str(json.loads(open("data/vectors.jsonl").readline())["block"])
+OKB_UNTIL, WEI_FROM = 10_434_920, 10_438_885   # = OKX_OKB_UNTIL_BLOCK / OKX_WEI_FROM_BLOCK in data/history_okx.ts
 
 def okb(t):
     """Amount in OKB, by the extractor's rule; failed transactions moved nothing."""
-    a = t.get("amount") or "0"
+    a = t.get("amount") or "0"; h = int(t.get("height") or 0)
     if t.get("state") == "fail": return 0.0
-    if "." in a or int(t.get("height") or 0) < WEI_FROM_BLOCK: return float(a)
-    return int(a) / 1e18 if a.isdigit() else 0.0
+    if "." in a or h <= OKB_UNTIL or (h < WEI_FROM and len(a) < 10): return float(a)
+    return int(a) / 1e18
 
 def wilson(k, n, z=1.96):
     if n == 0: return (0.0, 0.0)
@@ -40,7 +42,6 @@ def wilson(k, n, z=1.96):
 
 labels = {l.split(",")[0]: (int(l.split(",")[1]), l.split(",")[2]) for l in open("data/labels_public.csv").read().strip().split("\n")[1:]}
 vec = {json.loads(l)["address"]: json.loads(l)["bits"] for l in open("data/vectors.jsonl")}
-nl = json.load(open("build/cusity.netlist.json")); A, B = tap02.parse(nl["netlist"], 64)
 
 def verdict(bits):
     o = tap02.outputs(tap02.run(A, B, 64, tap02.unpack(bits, 64)), 7)
@@ -89,6 +90,13 @@ for c, ws in coll.items():
     ws = sorted(ws)
     for w in ws[1:]: G.add_edge(ws[0], w); link[(ws[0], w)].append(("collector", c))
 for (a, b), n in direct.items(): G.add_edge(a, b); link[(a, b)].append(("direct", None))
+
+if GROUPS_ONLY:   # every link (shared funder, shared collector, direct transfer) keeps wallets in one split
+    groups = {w: i for i, comp in enumerate(sorted(nx.connected_components(G), key=lambda c: min(c))) for w in comp}
+    json.dump(groups, open("build/groups.json", "w"))
+    print(f"groups: {len(set(groups.values()))} components over {len(groups)} wallets (largest {max(map(len, nx.connected_components(G)))})")
+    sys.exit()
+nl = json.load(open("build/cusity.netlist.json")); A, B = tap02.parse(nl["netlist"], 64)
 
 clusters = []
 for comp in nx.connected_components(G):

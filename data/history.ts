@@ -10,7 +10,7 @@ export const HUB_TXS = 1000;   // a funder/collector with more value txs than th
 export type History = {
   txsOf(address: string): Tx[];            // sorted, both directions
   funderOf(address: string): string | null; // sender of the first incoming value transfer in range
-  funderCount(funder: string): number;      // distinct wallets the funder ever sent value to (FUNDER_CAP if exchange-scale)
+  funderCount(funder: string): number;      // distinct non-contract wallets the funder ever paid (0 if exchange-scale: hubs link nobody)
   /** v2: other wallets the same funder sent value to within 24 h of funding this one (0 when the funder is a hub). */
   funderBurst(address: string): number;
   /** Exchange-scale funder (more than HUB_TXS outgoing txs): links nobody, as in the Arbitrum/LayerZero hunts. */
@@ -34,7 +34,7 @@ export function mainRecipient(a: string, txs: Tx[], isContract: (t: Tx) => boole
 
 /** Recipients of `funder` (other than `a`) paid within 24 h of time t. */
 export function burstAround(funderTxs: Tx[], funder: string, a: string, t: number): number {
-  return new Set(funderTxs.filter(x => x.from === funder && x.to && x.to !== a && x.value > 0n && Math.abs(x.time - t) <= DAY).map(x => x.to)).size;
+  return new Set(funderTxs.filter(x => x.from === funder && x.to && x.to !== a && x.value > 0n && !x.toContract && Math.abs(x.time - t) <= DAY).map(x => x.to)).size;
 }
 
 export const FUNDER_CAP = 501;
@@ -61,7 +61,7 @@ export function buildHistory(txs: Tx[]): History {
   const h: History = {
     txsOf: a => by.get(a.toLowerCase()) ?? [],
     funderOf: a => first.get(a.toLowerCase())?.from ?? null,
-    funderCount: f => funderIsHub(f) ? FUNDER_CAP : Math.min(recipients.get(f)?.size ?? 0, FUNDER_CAP),
+    funderCount: f => funderIsHub(f) ? 0 : Math.min([...(recipients.get(f) ?? [])].filter(r => !called.has(r)).length, FUNDER_CAP),
     funderIsHub,
     collectorIsHub: x => (inN.get(x) ?? 0) > HUB_TXS,
     funderBurst: a0 => {

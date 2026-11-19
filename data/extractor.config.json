@@ -1,10 +1,9 @@
 {
-  "comment": "Everything that changes the bits, besides the code. Hashed into extractorHash with the sources (data/extractor_hash.ts). Training snapshot: block 76254000; campaign window = 30 days before it; OKB price frozen at $86.10 (CoinGecko, Nov 18 2026). exchanges lists known exchange addresses (none yet); exchange-scale funders are detected from their own history either way. history = the backend that reads wallet histories (okx | index): campaigns must use the one the model was trained with.",
+  "comment": "Everything that changes the bits, besides the code; hashed into extractorHash with the sources (data/extractor_hash.ts). Nothing here is tied to one snapshot, so any campaign can use the extractor unchanged: the activity window is the windowDays before the snapshot block's timestamp, and okbUsd is a fixed reference price (Nov 18 2026, CoinGecko) that only converts OKB and USDT0 balances to one unit for the balance thresholds. exchanges lists known exchange addresses (none yet; exchange-scale funders are detected from their own history). history = the backend that reads wallet histories (okx | index).",
   "history": "okx",
   "chainId": 196,
   "scanFromBlock": 0,
-  "windowStart": 1792431036,
-  "windowEnd": 1795023036,
+  "windowDays": 30,
   "okbUsd": 86.1,
   "usdt0": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
   "usdt0Decimals": 6,

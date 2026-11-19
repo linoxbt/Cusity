@@ -678,11 +678,11 @@ async function stepPage() {
           ];
         });
       } else if (n === 3) {
-        const span = (extCfg.windowEnd - extCfg.windowStart) / 86400;
-        el.innerHTML = head + `<div class="stats">${tile("Block", idx.block.toLocaleString("en-US"), "X Layer")}${tile("Window", `${span} days`, "campaign activity window")}
+        el.innerHTML = head + `<div class="stats">${tile("Block", idx.block.toLocaleString("en-US"), "X Layer")}${tile("Window", `${extCfg.windowDays} days`, "before the snapshot")}
           ${tile("OKB price", `$${extCfg.okbUsd}`, "frozen for USD features")}${tile("History", esc(extCfg.history), "backend, hashed")}</div>
-          <div class="card"><h2>Window</h2><div class="window"><div><span class="mono muted">from</span><b>${dateOf(extCfg.windowStart)}</b></div>
-            <i></i><div><span class="mono muted">to</span><b>${dateOf(extCfg.windowEnd)}</b></div></div></div>
+          <div class="card"><h2>Window</h2><div class="window"><div><span class="mono muted">from</span><b id="w-from">${extCfg.windowDays} days before</b></div>
+            <i></i><div><span class="mono muted">to</span><b id="w-to">the snapshot block</b></div></div>
+            <p class="muted small">Relative to the snapshot, so every campaign uses the same extractor (and the same hash).</p></div>
           ${verifyCard("Verify on X Layer", "Read the block")}
           <div class="card"><h2>Frozen inputs</h2><div class="tbl-wrap"><table><tbody>
             <tr><td>USDT0</td><td class="mono">${short(extCfg.usdt0, 8)}</td></tr>
@@ -691,10 +691,11 @@ async function stepPage() {
         runner(async () => {
           const { client } = await live(), blk = BigInt(idx.block);
           const [b, headBlk] = await Promise.all([client.getBlock({ blockNumber: blk }), client.getBlockNumber()]);
+          $("w-from").textContent = dateOf(Number(b.timestamp) - extCfg.windowDays * 86400); $("w-to").textContent = dateOf(Number(b.timestamp));
           return [
             { label: "Block exists", ok: true, detail: short(b.hash!, 8) },
             { label: "Block time", ok: null, detail: dateOf(Number(b.timestamp)) },
-            { label: "Window ends at the snapshot", ok: Math.abs(Number(b.timestamp) - extCfg.windowEnd) < 600, detail: dateOf(extCfg.windowEnd) },
+            { label: "Activity window", ok: null, detail: `${dateOf(Number(b.timestamp) - extCfg.windowDays * 86400)} → ${dateOf(Number(b.timestamp))}` },
             { label: "Final (behind the chain head)", ok: headBlk > blk, detail: `${(headBlk - blk).toLocaleString("en-US")} blocks ago` },
           ];
         });

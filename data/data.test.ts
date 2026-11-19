@@ -36,7 +36,7 @@ const tx = (from: string, to: string, value: bigint, time: number, extra: Partia
 test("funder cluster does not depend on who else is in the input list", () => {
   const F = "0xf0", txs = [tx(F, "0xa1", 5n, 1), tx(F, "0xa2", 5n, 2), tx(F, "0xa3", 5n, 3), tx("0xa1", "0xc0", 1n, 4, { hasData: true })];
   const h = buildHistory(txs);
-  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowDays: 30, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
   const f = historyFeatures("0xa1", h, cfg, 86400 * 10);
   assert.equal(f.funderCluster, 3);   // F sent value to three wallets, wherever they are in the input list
   assert.equal(f.contracts, 1);
@@ -48,7 +48,7 @@ test("v2: funding burst within 24 h and shared collector, hubs excluded", () => 
   const txs = [tx(F, "0xa1", 5n, D), tx(F, "0xa2", 5n, D + 3600), tx(F, "0xa3", 5n, 3 * D),   // a3 is 2 days later: outside
     tx("0xa1", C, 4n, 4 * D), tx("0xa2", C, 4n, 4 * D), tx("0xa3", C, 4n, 4 * D), tx("0xa1", "0xdd", 1n, 4 * D)];
   const h = buildHistory(txs);
-  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowDays: 30, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
   const f = historyFeatures("0xa1", h, cfg, 10 * D);
   assert.equal(f.funderBurst, 1);       // a2, funded 1 h later
   assert.equal(h.collectorOf("0xa1"), C);   // most value went to C
@@ -62,7 +62,7 @@ test("v2: funding burst within 24 h and shared collector, hubs excluded", () => 
 
 test("amountRepeat counts value transfers only; gasSame needs 3+ txs", () => {
   const A = "0xa1", D = 86400;
-  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowDays: 30, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
   const calls = Array.from({ length: 6 }, (_, i) => tx(A, `0xc${i}`, 0n, D + i, { hasData: true }));   // zero-value calls
   const h = buildHistory([tx("0xf0", A, 9n, 1), ...calls, tx(A, "0xb1", 5n, D + 10), tx(A, "0xb2", 7n, D + 11)]);
   const f = historyFeatures(A, h, cfg, 10 * D);
@@ -78,6 +78,9 @@ test("OKX amounts: OKB before the format change, integer wei after; failed txs m
   assert.equal(amountWei("22", 810_327), 22_000_000_000_000_000_000n);                 // whole OKB, old format
   assert.equal(amountWei("20000000000000000", 74_614_255), 20_000_000_000_000_000n);   // wei, new format
   assert.equal(amountWei("5", OKX_WEI_FROM_BLOCK), 5n);
+  assert.equal(amountWei("530317614447533255", 10_436_000), 530_317_614_447_533_255n);   // inside the switch gap: 10+ digits = wei
+  assert.equal(amountWei("22", 10_436_000), 22_000_000_000_000_000_000n);
+  assert.throws(() => amountWei("1e18", 74_614_255), /unparseable/);
   assert.equal(amountWei("1.5", 74_614_255), 1_500_000_000_000_000_000n);             // a decimal point always means OKB
   const failed = toTx({ txId: "0x1", height: "74614255", transactionTime: "1700000000000", from: "0xaa", to: "0xbb", amount: "1000", state: "fail" });
   assert.equal(failed.value, 0n);

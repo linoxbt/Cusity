@@ -11,6 +11,7 @@ nl, sw, tl = json.load(open(a.netlist)), json.load(open(a.sweep)), json.load(ope
 ext = subprocess.run(["npx", "tsx", "data/extractor_hash.ts"], capture_output=True, text=True, check=True).stdout.strip()
 git = lambda *args: subprocess.run(["git", *args], capture_output=True, text=True).stdout.strip()
 test_commit = git("log", "-1", "--format=%H", "--", a.test_leaves)
+snap = json.loads(open("data/vectors.jsonl").readline())["block"]
 card = {
     "name": f"Cusity bot filter v{a.version}", "version": a.version, "processor": a.processor, "circuitId": a.circuit_id,
     "netlistSha256": nl["netlistSha256"], "nIn": 64, "nOut": 7, "gates": nl["gates"],
@@ -19,7 +20,7 @@ card = {
     "features": "data/features.ts", "extractorSha256": ext, "testRoot": tl["root"], "testSize": tl["size"], "testDepth": tl["depth"],
     "testCommittedInGit": test_commit, "selection": sw["selection"], "test": sw["test"],
     "trainedOn": "Hop airdrop Sybil list (ISC) and LayerZero initial Sybil list as bots, Hop bridge users as humans; "
-                 "wallets active on X Layer, snapshot block 76,254,000",
+                 f"wallets active on X Layer, snapshot block {snap:,}",
     "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024, and the sources differ in "
               "era (every human is a 2022 Hop user; most bots are 2023-24 LayerZero), so some signal may be cohort, not behaviour: "
               "see test.by_source. Feature design and thresholds were chosen with the whole (unlabelled) feature distribution in "

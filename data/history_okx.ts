@@ -2,7 +2,7 @@
 // one paged request per wallet instead of scanning blocks.
 //   GET https://web3.okx.com/api/v5/xlayer/address/normal-transaction-list   (max 50 rows/page)
 // Docs: https://web3.okx.com/onchainos/dev-docs/xlayer/developer/data/normal-transactions-by-address
-// Note: this endpoint covers about one year back from the wallet's latest transaction.
+// Note: OKX documents limited history; the cached histories reach back up to ~940 days.
 //
 // Auth: create a project and API key at https://web3.okx.com/onchainos/dev-portal, then set
 // OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE (e.g. in .env, run with `npx tsx --env-file=.env ...`).
@@ -22,8 +22,10 @@ const LIMIT = 50;           // the API's maximum rows per page
 const MAX_PAGES = 200;      // 10,000 txs per wallet; beyond that a wallet is an exchange/bot-scale sender anyway
 export const FUNDER_CAP = 501;   // funder counts above the top threshold (500) are all the same bit
 const HUB_PAGES = 20;            // a funder (collector) with more than 20 pages = 1,000 outgoing (incoming) txs is exchange-scale
-/** The API's `amount` format changed between blocks 10,428,153 and 10,438,885 (checked over all 134,777
- *  cached rows): before, amounts are OKB ("0.0184", "22"); from this block on, they are integer wei. */
+/** The API's `amount` format changed somewhere in blocks (10,434,920, 10,438,885] (checked over all 135,100
+ *  cached rows): up to 10,434,920 amounts are OKB ("0.0184", "22"; integers have at most 5 digits); from
+ *  10,438,885 on they are integer wei (10+ digits). Inside the gap, an integer of 10+ digits is wei. */
+export const OKX_OKB_UNTIL_BLOCK = 10_434_920;
 export const OKX_WEI_FROM_BLOCK = 10_438_885;
 
 type Item = Record<string, string | undefined>;
@@ -40,11 +42,13 @@ export function signHeaders(pathWithQuery: string, env = process.env, now = new 
 
 const flag = (v: unknown) => v === true || v === "true";
 const units = (s: string | undefined) => { try { return s ? parseUnits(s, 18) : 0n; } catch { return 0n; } };
-/** OKB-denominated before OKX_WEI_FROM_BLOCK (or whenever it has a decimal point), integer wei after it. */
+/** An API amount in wei. A decimal point always means OKB; otherwise the block decides (see above).
+ *  Anything that isn't a plain number throws: a silent 0 would quietly change features. */
 export function amountWei(s: string | undefined, block: number): bigint {
-  if (!s) return 0n;
-  if (s.includes(".") || block < OKX_WEI_FROM_BLOCK) return units(s);
-  return /^\d+$/.test(s) ? BigInt(s) : 0n;
+  if (s === undefined || s === "") return 0n;
+  if (!/^\d+(\.\d+)?$/.test(s)) throw new Error(`unparseable amount "${s}" at block ${block}`);
+  const okb = s.includes(".") || block <= OKX_OKB_UNTIL_BLOCK || (block < OKX_WEI_FROM_BLOCK && s.length < 10);
+  return okb ? units(s) : BigInt(s);
 }
 
 /** API row -> our Tx. normal-transaction-list carries gasPrice/gasLimit; if a row lacks them, the fee stands in.
@@ -124,8 +128,10 @@ export async function okxHistory(addresses: string[], toBlock: number, fetchFn?:
   for (const f of funders) {
     if (++k % 50 === 0) log(`funders ${k}/${funders.length}`);
     const { txs, capped } = await fetchTxs(f, toBlock, fetchFn, { fromOnly: true, maxPages: HUB_PAGES });
-    const n = new Set(txs.filter(t => t.from === f && t.to && t.value > 0n).map(t => t.to)).size;
-    fCount.set(f, capped ? FUNDER_CAP : Math.min(n, FUNDER_CAP));
+    // wallets it paid: value transfers to non-contracts. An exchange-scale funder links nobody, so it counts 0
+    // (fundedFromHub carries that fact on its own bit)
+    const n = new Set(txs.filter(t => t.from === f && t.to && t.value > 0n && !t.toContract).map(t => t.to)).size;
+    fCount.set(f, capped ? 0 : Math.min(n, FUNDER_CAP));
     fTxs.set(f, txs);
     if (capped) funderHubs.add(f);
   }
