@@ -30,3 +30,4 @@ contracts/lib/
 *.tsbuildinfo
 __pycache__/
 build/deweb/
+.tools/

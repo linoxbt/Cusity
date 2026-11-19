@@ -103,6 +103,11 @@ PROCESSOR=0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e PROCESSOR_NUMBER=419 CIRCUI
 
 **Re-publishing** writes only files whose SHA-256 changed and removes files that are gone, so a model update costs only its changed files.
 
+**From a phone (cloud session, no keystore):** `scripts/publish_deweb.sh` does everything in one go: install tools, check funds, build, tape out, publish, and read every file back.
+1. Use a **fresh wallet** holding only ≈ 0.15 OKB + 0.01 BEM on X Layer (or ≈ 0.95 OKB with no BEM).
+2. Put its key in the environment's settings as `CUSITY_DEPLOYER_KEY`. Environment variables are stored in plain text and readable by every session on that environment, so remove it afterwards.
+3. In a new session, run `scripts/publish_deweb.sh` (dry run), then `scripts/publish_deweb.sh --go`.
+
 **Rehearsed on a mainnet fork** (it published `tape://24.2.419.tape/` on the fork and verified all 395 files): `scripts/deweb_build.sh && FORK=1 forge test --match-contract DewebTest -vv`. It tapes out on #419, publishes every file, reads every file back from the registry, checks its SHA-256, and checks that the name is live.
 
 ## Site
