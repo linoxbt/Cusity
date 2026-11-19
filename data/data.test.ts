@@ -16,12 +16,12 @@ test("pack/unpack round trip, LSB first", () => {
 });
 
 test("layout is 64 bits and thermometer-valid", () => {
-  const f: any = { ageDays: 45, txCount: 12, contracts: 4, counterparties: 30, funderCluster: 3, amountRepeat: 50,
+  const f: any = { ageDays: 650, txCount: 12, contracts: 4, counterparties: 30, funderCluster: 3, amountRepeat: 50,
     hourSpread: 5, gasSame: 85, burstShare: 20, balanceUsd: 250, funderBurst: 2, collectorShared: 4, isContract: false, fundedFromHub: true, sweptToFunder: false };
   const b = toBits(f);
   assert.equal(b.length, N_BITS); assert.ok(isValid(b));
-  assert.equal(levelOf(b, SLOTS[0]), 3);   // 45 days > 1, 7, 30
-  assert.equal(describeLevel(FEATURES[0], 3), "wallet age: more than 30 days, at most 90 days");
+  assert.equal(levelOf(b, SLOTS[0]), 3);   // 650 days > 180, 365, 600
+  assert.equal(describeLevel(FEATURES[0], 3), "wallet age: more than 600 days, at most 800 days");
   assert.ok(isValid(withLevel(b, SLOTS[0], 6)));
 });
 
@@ -36,9 +36,9 @@ const tx = (from: string, to: string, value: bigint, time: number, extra: Partia
 test("funder cluster does not depend on who else is in the input list", () => {
   const F = "0xf0", txs = [tx(F, "0xa1", 5n, 1), tx(F, "0xa2", 5n, 2), tx(F, "0xa3", 5n, 3), tx("0xa1", "0xc0", 1n, 4, { hasData: true })];
   const h = buildHistory(txs);
-  const cfg: Config = { chainId: 196, scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
   const f = historyFeatures("0xa1", h, cfg, 86400 * 10);
-  assert.equal(f.funderCluster, 3);   // counts all three wallets funded by F, from the whole index
+  assert.equal(f.funderCluster, 3);   // F sent value to three wallets, wherever they are in the input list
   assert.equal(f.contracts, 1);
   assert.equal(f.counterparties, 2);
 });
@@ -48,15 +48,39 @@ test("v2: funding burst within 24 h and shared collector, hubs excluded", () => 
   const txs = [tx(F, "0xa1", 5n, D), tx(F, "0xa2", 5n, D + 3600), tx(F, "0xa3", 5n, 3 * D),   // a3 is 2 days later: outside
     tx("0xa1", C, 4n, 4 * D), tx("0xa2", C, 4n, 4 * D), tx("0xa3", C, 4n, 4 * D), tx("0xa1", "0xdd", 1n, 4 * D)];
   const h = buildHistory(txs);
-  const cfg: Config = { chainId: 196, scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
   const f = historyFeatures("0xa1", h, cfg, 10 * D);
   assert.equal(f.funderBurst, 1);       // a2, funded 1 h later
   assert.equal(h.collectorOf("0xa1"), C);   // most value went to C
   assert.equal(f.collectorShared, 2);   // a2 and a3 also pay C
   assert.equal(f.fundedFromHub, false);
   const hubbed = buildHistory([...txs, ...Array.from({ length: 1001 }, (_, i) => tx(F, `0xe${i}`, 1n, D))]);
+  assert.equal(hubbed.collectorIsHub(F), false);   // exchange-scale as a funder says nothing about it as a collector
   const g = historyFeatures("0xa1", hubbed, cfg, 10 * D);
   assert.equal(g.funderBurst, 0); assert.equal(g.fundedFromHub, true);   // an exchange-scale funder links nobody
+});
+
+test("amountRepeat counts value transfers only; gasSame needs 3+ txs", () => {
+  const A = "0xa1", D = 86400;
+  const cfg: Config = { chainId: 196, history: "index", scanFromBlock: 0, windowStart: 0, windowEnd: 10, okbUsd: 0, usdt0: "0x0", usdt0Decimals: 6, exchanges: [] };
+  const calls = Array.from({ length: 6 }, (_, i) => tx(A, `0xc${i}`, 0n, D + i, { hasData: true }));   // zero-value calls
+  const h = buildHistory([tx("0xf0", A, 9n, 1), ...calls, tx(A, "0xb1", 5n, D + 10), tx(A, "0xb2", 7n, D + 11)]);
+  const f = historyFeatures(A, h, cfg, 10 * D);
+  assert.equal(f.amountRepeat, 0);       // 5 and 7 differ; the six 0-value calls don't count as repeats
+  assert.equal(f.gasSame, 100);          // 8 txs, all with the same gas settings
+  const g = historyFeatures("0xa2", buildHistory([tx("0xf0", "0xa2", 9n, 1), tx("0xa2", "0xb1", 5n, D)]), cfg, 10 * D);
+  assert.equal(g.gasSame, 0);            // one tx: "identical gas" means nothing
+});
+
+test("OKX amounts: OKB before the format change, integer wei after; failed txs move no value", async () => {
+  const { amountWei, OKX_WEI_FROM_BLOCK, toTx } = await import("./history_okx");
+  assert.equal(amountWei("0.0184", 1_009_002), 18_400_000_000_000_000n);
+  assert.equal(amountWei("22", 810_327), 22_000_000_000_000_000_000n);                 // whole OKB, old format
+  assert.equal(amountWei("20000000000000000", 74_614_255), 20_000_000_000_000_000n);   // wei, new format
+  assert.equal(amountWei("5", OKX_WEI_FROM_BLOCK), 5n);
+  assert.equal(amountWei("1.5", 74_614_255), 1_500_000_000_000_000_000n);             // a decimal point always means OKB
+  const failed = toTx({ txId: "0x1", height: "74614255", transactionTime: "1700000000000", from: "0xaa", to: "0xbb", amount: "1000", state: "fail" });
+  assert.equal(failed.value, 0n);
 });
 
 test("OKX request signing matches the documented recipe", async () => {
@@ -111,6 +135,7 @@ test("OKX history: paging, snapshot cut-off, population-independent funder count
   };
   const fake = async (url: string) => {
     const q = new URL(url).searchParams, a = q.get("address")!, dir = q.get("isFromOrTo");
+    assert.equal(q.get("endBlockHeight"), "500");
     return { ok: true, status: 200, json: async () => ({ code: "0", msg: "", data: [{ totalPage: "1", transactionLists: pages[dir === "to" ? `${a}:to` : a] ?? [] }] }) };
   };
   const h = await okxHistory([W], 500, fake);

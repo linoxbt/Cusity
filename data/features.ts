@@ -4,27 +4,28 @@
 export type Feature = { name: string; label: string; unit: string; thresholds: number[] };
 
 export const FEATURES: Feature[] = [
-  { name: "ageDays",        label: "wallet age",                        unit: "days",  thresholds: [1, 7, 30, 90, 180, 365] },
-  { name: "txCount",        label: "transactions sent",                 unit: "",      thresholds: [1, 5, 20, 50, 200, 1000] },
-  { name: "contracts",      label: "distinct contracts used",           unit: "",      thresholds: [1, 3, 10, 25, 50, 100] },
-  { name: "counterparties", label: "distinct counterparties",           unit: "",      thresholds: [1, 3, 10, 25, 50, 100] },
+  { name: "ageDays",        label: "wallet age",                        unit: "days",  thresholds: [180, 365, 600, 800, 900, 930] },
+  { name: "txCount",        label: "transactions sent",                 unit: "",      thresholds: [1, 3, 10, 25, 50, 150] },
+  { name: "contracts",      label: "distinct contracts used",           unit: "",      thresholds: [1, 2, 4, 8, 15, 30] },
+  { name: "counterparties", label: "distinct counterparties",           unit: "",      thresholds: [2, 4, 7, 12, 20, 40] },
   { name: "funderCluster",  label: "wallets sharing its first funder",  unit: "",      thresholds: [1, 2, 5, 10, 25, 50, 100, 500] },
   { name: "amountRepeat",   label: "transfers with repeated amounts",   unit: "%",     thresholds: [10, 25, 40, 60, 80, 95] },
   { name: "hourSpread",     label: "distinct active hours of the day",  unit: "",      thresholds: [1, 2, 4, 8, 12, 18] },
-  { name: "gasSame",        label: "txs with identical gas settings",   unit: "%",     thresholds: [80, 99] },
+  { name: "gasSame",        label: "txs with identical gas settings (3+ txs)", unit: "%", thresholds: [99] },
   { name: "burstShare",     label: "activity inside the campaign window", unit: "%",   thresholds: [10, 50] },
-  { name: "balanceUsd",     label: "balance",                           unit: "USD",   thresholds: [0.01, 1, 10, 100, 1000, 10000] },
-  // v2, after the LayerZero / Hop Sybil hunts: funding bursts and shared collection addresses
-  { name: "funderBurst",    label: "wallets its funder funded within 24 h of it", unit: "", thresholds: [1, 3, 10] },
+  { name: "balanceUsd",     label: "balance",                           unit: "USD",   thresholds: [0.01, 0.1, 1, 5, 20, 100] },
+  // after the LayerZero / Hop Sybil hunts: funding bursts and shared collection addresses.
+  // Thresholds (v3) sit at quantiles of the unlabelled feature distribution, so no bit is constant.
+  { name: "funderBurst",    label: "wallets its funder funded within 24 h of it", unit: "", thresholds: [1, 2, 4, 10] },
   { name: "collectorShared", label: "other wallets paying its main recipient", unit: "", thresholds: [1, 3, 10, 50] },
 ];
 export const FLAGS = [
   { name: "isContract",    label: "is a contract (has code)" },
-  { name: "fundedFromHub", label: "first funded by an exchange-scale address or a contract" },
+  { name: "fundedFromHub", label: "first funded by an exchange-scale address (1,000+ outgoing txs)" },
   { name: "sweptToFunder", label: "sent funds back to its funder" },
 ] as const;
 export const N_BITS = 64; // 61 threshold bits + 3 flags
-export const LAYOUT_VERSION = 2;
+export const LAYOUT_VERSION = 3;
 
 export type RawFeatures = { [k: string]: number | boolean };
 export type Hex = `0x${string}`;

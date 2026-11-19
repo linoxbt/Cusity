@@ -1,11 +1,12 @@
-// A wallet at a fixed snapshot block -> 64 bits. Deterministic: same index, config and block give the
-// same bits for the same wallet, whoever else is in the input file (funder counts come from the
-// whole scanned range, not from the input list).
+// A wallet at a fixed snapshot block -> 64 bits. Deterministic: the same history data, config and block
+// give the same bits for the same wallet, whoever else is in the input file (funder and collector counts
+// come from those addresses' own histories, not from the input list).
 //
-//   npx tsx data/extract.ts --wallets data/labels.csv --block 76300000 --out data/vectors.jsonl
+//   npx tsx --env-file=.env data/extract.ts --wallets data/labels_public.csv --block 76254000 --out data/vectors.jsonl
 //
-// Needs: the block index covering [scanFromBlock, block] (data/indexer.ts), and an RPC that serves
-// state at `block` (an archive node once the block is more than ~128 blocks old).
+// The history backend is part of the hashed config (extractor.config.json "history"): "okx" reads the
+// OKX X Layer Data API (needs OKX_* keys), "index" reads our own block index (data/indexer.ts). State at
+// `block` is read over RPC (an archive node once the block is more than ~128 blocks old).
 import { erc20Abi, getAddress } from "viem";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -13,12 +14,14 @@ import { client } from "./chain";
 import { toBits, pack, type RawFeatures } from "./features";
 import { historyFromIndex, type History } from "./history";
 import { okxHistory } from "./history_okx";
+import { extractorHash } from "./extractor_hash";
 
-export type Config = { chainId: number; scanFromBlock: number; windowStart: number; windowEnd: number;
+export type Config = { chainId: number; history: "okx" | "index"; scanFromBlock: number; windowStart: number; windowEnd: number;
   okbUsd: number; usdt0: `0x${string}`; usdt0Decimals: number; exchanges: string[] };
 
 export const loadConfig = (p = "data/extractor.config.json"): Config => JSON.parse(readFileSync(p, "utf8"));
 
+export const GAS_MIN_TXS = 3;
 const pct = (n: number, d: number) => (d === 0 ? 0 : (100 * n) / d);
 const counts = (xs: string[]) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>());
 
@@ -26,20 +29,21 @@ const counts = (xs: string[]) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 
 export function historyFeatures(addr: string, h: History, cfg: Config, snapshotTime: number): RawFeatures {
   const a = addr.toLowerCase(), txs = h.txsOf(a), out = txs.filter(t => t.from === a);
   const funder = h.funderOf(a), exchanges = new Set(cfg.exchanges.map(x => x.toLowerCase()));
-  const valueCounts = counts(out.map(t => t.value.toString()));
+  const paid = out.filter(t => t.value > 0n);   // value transfers only: zero-value calls all "repeat" 0 (audit B13)
+  const valueCounts = counts(paid.map(t => t.value.toString()));
   const gasCounts = counts(out.map(t => `${t.gasPrice}:${t.gasLimit}`));
   return {
     ageDays: txs.length ? (snapshotTime - txs[0].time) / 86400 : 0,
     contracts: new Set(out.filter(t => t.hasData && t.to).map(t => t.to)).size,
     counterparties: new Set([...out.map(t => t.to), ...txs.filter(t => t.to === a).map(t => t.from)].filter(x => x && x !== a)).size,
     funderCluster: funder ? h.funderCount(funder) : 0,
-    amountRepeat: pct(out.filter(t => (valueCounts.get(t.value.toString()) ?? 0) > 1).length, out.length),
+    amountRepeat: pct(paid.filter(t => (valueCounts.get(t.value.toString()) ?? 0) > 1).length, paid.length),
     hourSpread: new Set(out.map(t => new Date(t.time * 1000).getUTCHours())).size,
-    gasSame: pct(Math.max(0, ...gasCounts.values()), out.length),
+    gasSame: out.length >= GAS_MIN_TXS ? pct(Math.max(0, ...gasCounts.values()), out.length) : 0,   // 1-2 txs always "match"
     burstShare: pct(txs.filter(t => t.time >= cfg.windowStart && t.time <= cfg.windowEnd).length, txs.length),
     funderBurst: h.funderBurst(a),
-    collectorShared: (() => { const c = h.collectorOf(a); return c && !h.isHub(c) ? Math.max(0, h.collectorCount(c) - 1) : 0; })(),
-    fundedFromHub: !!funder && (exchanges.has(funder) || h.isHub(funder)),
+    collectorShared: (() => { const c = h.collectorOf(a); return c && !h.collectorIsHub(c) ? Math.max(0, h.collectorCount(c) - 1) : 0; })(),
+    fundedFromHub: !!funder && (exchanges.has(funder) || h.funderIsHub(funder)),
     sweptToFunder: !!funder && out.some(t => t.to === funder),
   };
 }
@@ -63,7 +67,8 @@ async function readState(A: `0x${string}`, block: bigint, cfg: Config): Promise<
   return {
     txCount: nonce,
     balanceUsd: (Number(okbWei) / 1e18) * cfg.okbUsd + Number(usdt) / 10 ** cfg.usdt0Decimals,
-    isContract: !!code && code !== "0x",
+    // EIP-7702 delegated EOAs carry code 0xef0100‖address but are still wallets
+    isContract: !!code && code !== "0x" && !code.toLowerCase().startsWith("0xef0100"),
   };
 }
 
@@ -80,16 +85,20 @@ async function main() {
   const block = BigInt(arg("block")!);
   const { timestamp } = await client.getBlock({ blockNumber: block });
   const wallets = readWallets(arg("wallets")!);
-  // --history index (default): our own block index; --history okx: OKX X Layer Data API (needs OKX_* keys)
-  const h: History = arg("history") === "okx"
+  if (arg("history")) throw new Error("the history backend is set in extractor.config.json (\"history\"), so it is part of extractorHash");
+  const ext = extractorHash(), raw: string[] = [];
+  const h: History = cfg.history === "okx"
     ? await okxHistory(wallets.map(w => w.address), Number(block), undefined, console.log)
     : historyFromIndex(cfg.scanFromBlock, Number(block));
   const lines: string[] = [];
   for (const w of wallets) {
     const f = { ...historyFeatures(w.address, h, cfg, Number(timestamp)), ...(await stateFeatures(w.address, block, cfg)) };
-    lines.push(JSON.stringify({ address: w.address, bits: pack(toBits(f)), ...(w.label !== undefined ? { label: w.label } : {}), block: Number(block) }));
+    lines.push(JSON.stringify({ address: w.address, bits: pack(toBits(f)), ...(w.label !== undefined ? { label: w.label } : {}), block: Number(block), extractorHash: ext }));
+    const funder = h.funderOf(w.address);
+    raw.push(JSON.stringify({ address: w.address, ...f, funder, funderHub: !!funder && h.funderIsHub(funder) }));
   }
   writeFileSync(arg("out")!, lines.join("\n") + "\n");
+  if (arg("raw")) writeFileSync(arg("raw")!, raw.join("\n") + "\n");   // un-thresholded features, for checking thresholds
   console.log(`wrote ${lines.length} vectors at block ${block}`);
 }
 if (process.argv[1]?.endsWith("extract.ts")) main().catch(e => { console.error(e); process.exit(1); });

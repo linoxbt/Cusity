@@ -12,7 +12,7 @@ import { createHmac } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseUnits } from "viem";
 import type { Tx } from "./indexer";
-import { burstAround, mainRecipient, HUB_TXS, type History } from "./history";
+import { burstAround, mainRecipient, type History } from "./history";
 
 const HOST = "https://web3.okx.com";
 const PATH = "/api/v5/xlayer/address/normal-transaction-list";
@@ -21,6 +21,10 @@ const DIR = "data/raw/okx";
 const LIMIT = 50;           // the API's maximum rows per page
 const MAX_PAGES = 200;      // 10,000 txs per wallet; beyond that a wallet is an exchange/bot-scale sender anyway
 export const FUNDER_CAP = 501;   // funder counts above the top threshold (500) are all the same bit
+const HUB_PAGES = 20;            // a funder (collector) with more than 20 pages = 1,000 outgoing (incoming) txs is exchange-scale
+/** The API's `amount` format changed between blocks 10,428,153 and 10,438,885 (checked over all 134,777
+ *  cached rows): before, amounts are OKB ("0.0184", "22"); from this block on, they are integer wei. */
+export const OKX_WEI_FROM_BLOCK = 10_438_885;
 
 type Item = Record<string, string | undefined>;
 type Fetch = (url: string, init?: { headers: Record<string, string> }) => Promise<{ ok: boolean; status: number; json(): Promise<any> }>;
@@ -36,17 +40,26 @@ export function signHeaders(pathWithQuery: string, env = process.env, now = new 
 
 const flag = (v: unknown) => v === true || v === "true";
 const units = (s: string | undefined) => { try { return s ? parseUnits(s, 18) : 0n; } catch { return 0n; } };
+/** OKB-denominated before OKX_WEI_FROM_BLOCK (or whenever it has a decimal point), integer wei after it. */
+export function amountWei(s: string | undefined, block: number): bigint {
+  if (!s) return 0n;
+  if (s.includes(".") || block < OKX_WEI_FROM_BLOCK) return units(s);
+  return /^\d+$/.test(s) ? BigInt(s) : 0n;
+}
 
-/** API row -> our Tx. normal-transaction-list carries gasPrice/gasLimit; if a row lacks them, the fee stands in. */
+/** API row -> our Tx. normal-transaction-list carries gasPrice/gasLimit; if a row lacks them, the fee stands in.
+ *  A failed transaction moved no value, so its value is 0 (it still counts as activity). */
 export function toTx(it: Item): Tx {
   const ms = Number(it.transactionTime ?? it.blockTime ?? 0);
+  const block = Number(it.height ?? it.blockHeight);
+  const failed = it.state === "fail";
   return {
     hash: String(it.txId ?? it.txid ?? it.hash),
-    block: Number(it.height ?? it.blockHeight),
+    block,
     time: Math.floor(ms > 1e12 ? ms / 1000 : ms),
     from: String(it.from ?? "").toLowerCase(),
     to: it.to ? String(it.to).toLowerCase() : null,
-    value: units(it.amount ?? it.value),
+    value: failed ? 0n : amountWei(it.amount ?? it.value, block),
     gasPrice: it.gasPrice !== undefined ? BigInt(it.gasPrice) : units(it.txFee),
     gasLimit: it.gasLimit !== undefined ? BigInt(it.gasLimit) : 0n,
     hasData: !!it.methodId && it.methodId !== "0x" && it.methodId !== "0x00000000",
@@ -57,7 +70,8 @@ export function toTx(it: Item): Tx {
 export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch = fetch as unknown as Fetch,
   opts: { fromOnly?: boolean; toOnly?: boolean; maxPages?: number } = {}): Promise<{ txs: Tx[]; capped: boolean }> {
   const dir = opts.fromOnly ? "from" : opts.toOnly ? "to" : "both";
-  const a = address.toLowerCase(), cache = `${DIR}/${a}${dir === "both" ? "" : "." + dir}.json`, maxPages = opts.maxPages ?? MAX_PAGES;
+  // keyed by snapshot block: a later campaign never reuses histories cut at another block (audit B3)
+  const a = address.toLowerCase(), cache = `${DIR}/${toBlock}/${a}${dir === "both" ? "" : "." + dir}.json`, maxPages = opts.maxPages ?? MAX_PAGES;
   let items: Item[];
   let capped = false;
   if (existsSync(cache)) ({ items, capped } = JSON.parse(readFileSync(cache, "utf8")));
@@ -78,7 +92,7 @@ export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch 
       if (page >= Number(d.totalPage ?? 1) || rows.length < LIMIT) break;
       if (page === maxPages) capped = true;
     }
-    mkdirSync(DIR, { recursive: true });
+    mkdirSync(`${DIR}/${toBlock}`, { recursive: true });
     writeFileSync(cache, JSON.stringify({ items, capped }));
   }
   const seen = new Set<string>();
@@ -87,51 +101,53 @@ export async function fetchTxs(address: string, toBlock: number, fetchFn: Fetch 
   return { txs, capped };
 }
 
-/** Prefetch every wallet, its first funder and its main recipient, then answer the History interface synchronously. */
+/** Prefetch every wallet, its first funder and its main recipient, then answer the History interface
+ *  synchronously. Hub status is decided per address from its own list in the role it plays (a funder from
+ *  its outgoing list, a collector from its incoming list), so one wallet's bits never depend on who else is
+ *  in the input (audit B12). */
 export async function okxHistory(addresses: string[], toBlock: number, fetchFn?: Fetch, log = (_: string) => {}): Promise<History> {
   const by = new Map<string, Tx[]>(), first = new Map<string, Tx | null>(), coll = new Map<string, string | null>();
-  const fCount = new Map<string, number>(), fTxs = new Map<string, Tx[]>(), cCount = new Map<string, number>(), hubs = new Set<string>();
+  const fCount = new Map<string, number>(), fTxs = new Map<string, Tx[]>(), cCount = new Map<string, number>();
+  const funderHubs = new Set<string>(), collectorHubs = new Set<string>();
   let i = 0;
   for (const a0 of addresses) {
     const a = a0.toLowerCase();
     const { txs } = await fetchTxs(a, toBlock, fetchFn);
     by.set(a, txs);
-    const f = txs.find(t => t.to === a && t.value > 0n) ?? null;
-    first.set(a, f);
-    if (f?.fromContract) hubs.add(f.from);
+    first.set(a, txs.find(t => t.to === a && t.value > 0n) ?? null);
     coll.set(a, mainRecipient(a, txs, t => !!t.toContract));
     if (++i % 50 === 0) log(`history ${i}/${addresses.length}`);
   }
-  // Funder: how many distinct wallets it ever sent value to (population-independent), and when.
-  // Outgoing txs only, at most 20 pages (1,000 txs): a funder beyond that is exchange-scale, i.e. a hub.
+  // Funder: how many distinct wallets it ever sent value to, and when. Outgoing txs only, at most 20 pages.
   const funders = [...new Set([...first.values()].filter(Boolean).map(t => t!.from))];
   let k = 0;
   for (const f of funders) {
     if (++k % 50 === 0) log(`funders ${k}/${funders.length}`);
-    const { txs, capped } = await fetchTxs(f, toBlock, fetchFn, { fromOnly: true, maxPages: 20 });
+    const { txs, capped } = await fetchTxs(f, toBlock, fetchFn, { fromOnly: true, maxPages: HUB_PAGES });
     const n = new Set(txs.filter(t => t.from === f && t.to && t.value > 0n).map(t => t.to)).size;
     fCount.set(f, capped ? FUNDER_CAP : Math.min(n, FUNDER_CAP));
     fTxs.set(f, txs);
-    if (capped) hubs.add(f);
+    if (capped) funderHubs.add(f);
   }
   // Collector: how many distinct wallets ever sent value to it. Incoming txs only, same 20-page cap.
   const collectors = [...new Set([...coll.values()].filter(Boolean) as string[])];
   k = 0;
   for (const c of collectors) {
     if (++k % 50 === 0) log(`collectors ${k}/${collectors.length}`);
-    const { txs, capped } = await fetchTxs(c, toBlock, fetchFn, { toOnly: true, maxPages: 20 });
+    const { txs, capped } = await fetchTxs(c, toBlock, fetchFn, { toOnly: true, maxPages: HUB_PAGES });
     cCount.set(c, new Set(txs.filter(t => t.to === c && t.value > 0n).map(t => t.from)).size);
-    if (capped || txs.length >= HUB_TXS) hubs.add(c);
+    if (capped) collectorHubs.add(c);
   }
-  const isHub = (x: string) => hubs.has(x.toLowerCase());
+  const funderIsHub = (x: string) => funderHubs.has(x.toLowerCase());
   return {
     txsOf: a => by.get(a.toLowerCase()) ?? [],
     funderOf: a => first.get(a.toLowerCase())?.from ?? null,
     funderCount: f => fCount.get(f) ?? 0,
-    isHub,
+    funderIsHub,
+    collectorIsHub: x => collectorHubs.has(x.toLowerCase()),
     funderBurst: a0 => {
       const a = a0.toLowerCase(), f = first.get(a);
-      return !f || isHub(f.from) ? 0 : burstAround(fTxs.get(f.from) ?? [], f.from, a, f.time);
+      return !f || funderIsHub(f.from) ? 0 : burstAround(fTxs.get(f.from) ?? [], f.from, a, f.time);
     },
     collectorOf: a => coll.get(a.toLowerCase()) ?? null,
     collectorCount: c => cCount.get(c) ?? 0,

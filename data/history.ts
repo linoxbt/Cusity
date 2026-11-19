@@ -10,11 +10,13 @@ export const HUB_TXS = 1000;   // a funder/collector with more value txs than th
 export type History = {
   txsOf(address: string): Tx[];            // sorted, both directions
   funderOf(address: string): string | null; // sender of the first incoming value transfer in range
-  funderCount(funder: string): number;      // how many wallets in the WHOLE scanned range share this first funder
+  funderCount(funder: string): number;      // distinct wallets the funder ever sent value to (FUNDER_CAP if exchange-scale)
   /** v2: other wallets the same funder sent value to within 24 h of funding this one (0 when the funder is a hub). */
   funderBurst(address: string): number;
-  /** v2: exchange-scale address or contract: links nobody (Arbitrum and LayerZero removed these before clustering). */
-  isHub(address: string): boolean;
+  /** Exchange-scale funder (more than HUB_TXS outgoing txs): links nobody, as in the Arbitrum/LayerZero hunts. */
+  funderIsHub(address: string): boolean;
+  /** Exchange-scale collector (more than HUB_TXS incoming txs). */
+  collectorIsHub(address: string): boolean;
   /** v2: the non-contract address this wallet sent the most value to, or null. */
   collectorOf(address: string): string | null;
   /** v2: distinct wallets that ever sent value to this address. */
@@ -35,28 +37,36 @@ export function burstAround(funderTxs: Tx[], funder: string, a: string, t: numbe
   return new Set(funderTxs.filter(x => x.from === funder && x.to && x.to !== a && x.value > 0n && Math.abs(x.time - t) <= DAY).map(x => x.to)).size;
 }
 
+export const FUNDER_CAP = 501;
+
+/** The same definitions as the OKX backend (history_okx.ts), computed over every tx in the scanned range.
+ *  The one difference: without code lookups, "contract" means "ever called with data". The backend in use
+ *  is part of the hashed extractor config, so training and a campaign can't silently mix the two. */
 export function buildHistory(txs: Tx[]): History {
-  const by = new Map<string, Tx[]>(), first = new Map<string, Tx>(), counts = new Map<string, number>();
-  const senders = new Map<string, Set<string>>(), valueTxs = new Map<string, number>(), called = new Set<string>();
+  const by = new Map<string, Tx[]>(), first = new Map<string, Tx>(), recipients = new Map<string, Set<string>>();
+  const senders = new Map<string, Set<string>>(), outN = new Map<string, number>(), inN = new Map<string, number>(), called = new Set<string>();
   const add = (a: string, t: Tx) => { const l = by.get(a); l ? l.push(t) : by.set(a, [t]); };
+  const set = (m: Map<string, Set<string>>, k: string) => m.get(k) ?? m.set(k, new Set()).get(k)!;
   for (const t of txs) {
     add(t.from, t); if (t.to && t.to !== t.from) add(t.to, t);
-    if (t.to && t.hasData) called.add(t.to);              // no code lookups here: anything ever called counts as a contract
+    outN.set(t.from, (outN.get(t.from) ?? 0) + 1);
+    if (t.to) inN.set(t.to, (inN.get(t.to) ?? 0) + 1);
+    if (t.to && t.hasData) called.add(t.to);
     if (t.to && t.value > 0n) {
-      if (!first.has(t.to)) { first.set(t.to, t); counts.set(t.from, (counts.get(t.from) ?? 0) + 1); }
-      (senders.get(t.to) ?? senders.set(t.to, new Set()).get(t.to)!).add(t.from);
-      valueTxs.set(t.from, (valueTxs.get(t.from) ?? 0) + 1); valueTxs.set(t.to, (valueTxs.get(t.to) ?? 0) + 1);
+      if (!first.has(t.to)) first.set(t.to, t);
+      set(recipients, t.from).add(t.to); set(senders, t.to).add(t.from);
     }
   }
-  const isHub = (x: string) => called.has(x) || (valueTxs.get(x) ?? 0) > HUB_TXS;
+  const funderIsHub = (x: string) => (outN.get(x) ?? 0) > HUB_TXS;
   const h: History = {
     txsOf: a => by.get(a.toLowerCase()) ?? [],
     funderOf: a => first.get(a.toLowerCase())?.from ?? null,
-    funderCount: f => counts.get(f) ?? 0,
-    isHub,
+    funderCount: f => funderIsHub(f) ? FUNDER_CAP : Math.min(recipients.get(f)?.size ?? 0, FUNDER_CAP),
+    funderIsHub,
+    collectorIsHub: x => (inN.get(x) ?? 0) > HUB_TXS,
     funderBurst: a0 => {
       const a = a0.toLowerCase(), f = first.get(a);
-      return !f || isHub(f.from) ? 0 : burstAround(by.get(f.from) ?? [], f.from, a, f.time);
+      return !f || funderIsHub(f.from) ? 0 : burstAround(by.get(f.from) ?? [], f.from, a, f.time);
     },
     collectorOf: a0 => { const a = a0.toLowerCase(); return mainRecipient(a, by.get(a) ?? [], t => called.has(t.to!)); },
     collectorCount: c => senders.get(c)?.size ?? 0,

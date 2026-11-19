@@ -1,364 +1,363 @@
-{"address": "0x6ea07dee5ddcecde185a963e111887fdebb2b256", "bits": "0xff300c00c7010100", "label": 1, "block": 76254000}
-{"address": "0xfa1690f2778f1f78c24da9f33eb63c8965293e84", "bits": "0x7f300c0047000700", "label": 0, "block": 76254000}
-{"address": "0x3a409eff50a47aeef294e3f0bb3874490dd99abc", "bits": "0xff311cffdf070140", "label": 0, "block": 76254000}
-{"address": "0x8a3ada92cbbc674d5d216bfbdf849279696d2def", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x304eb9063fa42bd7841dc7cd6644b12385caa891", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0xcdc1ec802e4ef8a3a65592c20978b712e064c5c2", "bits": "0xff300cffdf000040", "label": 1, "block": 76254000}
-{"address": "0xb91b3dec63690356bdfc2d664cdae19b3d96e5a1", "bits": "0xff711cffdf010140", "label": 0, "block": 76254000}
-{"address": "0x70710b4f6c4548312c3851ab2d772cea045af689", "bits": "0xff300cffcf000140", "label": 1, "block": 76254000}
-{"address": "0x5cafe4cdfaaccfcca8818f6562330e619b20947f", "bits": "0x5f1004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0xc6b9b6e0d9e32af12908d793f4469ee484f8566a", "bits": "0x5f00040040000000", "label": 1, "block": 76254000}
-{"address": "0x29c85630d9d217315699b59b88595551032bddc9", "bits": "0x7f00040fc700c087", "label": 1, "block": 76254000}
-{"address": "0xb609c1712fd316f8486dbcc97a86042debc2eba7", "bits": "0xff300cffc7410140", "label": 1, "block": 76254000}
-{"address": "0x1b5cecf78454b8534affcbb9f53e21640ec4088e", "bits": "0x7f0004ff3f000140", "label": 0, "block": 76254000}
-{"address": "0x5adb4ce193f60595d99c86040286a80f6a93541c", "bits": "0xff331c1fff0fc007", "label": 1, "block": 76254000}
-{"address": "0x017174dd146aa7dc4007c1833378f925ba2d3436", "bits": "0x7f0004ff0f00005e", "label": 1, "block": 76254000}
-{"address": "0x31fa3ff8031e33e29b5f6cc79ae651c8732ff62b", "bits": "0x7f300cffff000740", "label": 0, "block": 76254000}
-{"address": "0xa8f23863724898cbaefc97ffd3b0f4d6d4e7601f", "bits": "0xff0004ff3f300140", "label": 1, "block": 76254000}
-{"address": "0x1c39767c2dd700fd313874fe7400e57ba0f580e1", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x32f617c65a200b174f4c198a30b5dbe5840d578e", "bits": "0xff300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0x088ddbd934b8ff2af26e24c1cdebb375701f91e8", "bits": "0x7f0000003f000300", "label": 0, "block": 76254000}
-{"address": "0xb0e53390e4697e65d6c2ed5213e49b8390da9853", "bits": "0xff731cff4f000040", "label": 0, "block": 76254000}
-{"address": "0x61f70c86891e95d327b1c6ef7e12d1208d2bbc75", "bits": "0x5f100cffc7000040", "label": 1, "block": 76254000}
-{"address": "0x8e7bddede63bc0e676bd52a36250b1ade1209886", "bits": "0x470004ffcf40c01f", "label": 1, "block": 76254000}
-{"address": "0x886f55e670cf0e0749cae8e58ba355ae5f804575", "bits": "0xff300cffcf010042", "label": 0, "block": 76254000}
-{"address": "0x8cce8eef33e74ea5e52d8c3d2af3376fb55da34f", "bits": "0xff711cffdf030340", "label": 0, "block": 76254000}
-{"address": "0x9fc7eeacd27d38a436462bb43ad97e49106820d7", "bits": "0xff311cffdf010140", "label": 0, "block": 76254000}
-{"address": "0xcb0d418850c2c8441ea7d45be1c07a37f6d9af9e", "bits": "0xff300c00df000700", "label": 0, "block": 76254000}
-{"address": "0x7ae41362fce3ad6edbd75b58b5b02b07538f95a3", "bits": "0x7f1004003f000300", "label": 0, "block": 76254000}
-{"address": "0xb909d698fe4688ff5a4b7ab99bc989a4d2a8e133", "bits": "0xff731c07df070380", "label": 1, "block": 76254000}
-{"address": "0x2ce1a66f22a2dc6e410d9021d57aeb8d13d6bfef", "bits": "0x7f1004ff7f000140", "label": 0, "block": 76254000}
-{"address": "0x3c6e78a279ca78088a939d80968feffcd517190a", "bits": "0xff311cffcf030040", "label": 0, "block": 76254000}
-{"address": "0x0ca0dae538bb788bbc735c6f581e322d1e52181c", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0x47bf3abb35b7665b72fce5344243fd480f9c121c", "bits": "0xcf330cffcf030340", "label": 0, "block": 76254000}
-{"address": "0xc23140e4894881a96ea27afbdf66d98bb667c417", "bits": "0x3f0004ff00300340", "label": 0, "block": 76254000}
-{"address": "0xd416b7bb7fd0787f10888e778ed315d5335317cf", "bits": "0xff731cffdf070040", "label": 1, "block": 76254000}
-{"address": "0xbcb4c8386c097589e7825aaeb9e7c6295835f1d6", "bits": "0x7f1004ff3f000140", "label": 0, "block": 76254000}
-{"address": "0x1efb3038de631cfce0c0a231952c6b90d5d9cfe5", "bits": "0xff300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0xe306fd36c50e27f253abfab7a7ae9fca84e2f713", "bits": "0xff300c00df000700", "label": 1, "block": 76254000}
-{"address": "0xfaf6db163aed020a0f8a99b67a91c96ab55b3b7c", "bits": "0x3f0004ff00300740", "label": 0, "block": 76254000}
-{"address": "0x5ce66f35b519d7c0510e58595640735384829244", "bits": "0x5f0004ff00000040", "label": 0, "block": 76254000}
-{"address": "0xd455712e43582134f101a0c686d26548b5438a3b", "bits": "0xff300cffcf000740", "label": 0, "block": 76254000}
-{"address": "0x117ef7f6907f1362185e3b83ebc83697706cc78a", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0xd131f1bcdd547e067af447dd3c36c99d6be9fdeb", "bits": "0xff300cffdf010140", "label": 0, "block": 76254000}
-{"address": "0x7a7440b03e25131aa36cda4f75c7c72fcaabaacd", "bits": "0xff1704ffff0f0340", "label": 1, "block": 76254000}
-{"address": "0x9ddc3ab242d2dd2c2939bcf7a77f91f8308b8c92", "bits": "0x5f00040040000000", "label": 1, "block": 76254000}
-{"address": "0x752884ee848f108f0da3a8543fa306c5018e36d9", "bits": "0xff130c0fff0fc000", "label": 0, "block": 76254000}
-{"address": "0xdc633707253d118e32632e199a4f9d49720173d7", "bits": "0xff300cffdf010740", "label": 0, "block": 76254000}
-{"address": "0xfd8295ee3cc3d7796fed3dc3e815d61e1593ee14", "bits": "0xff711c07cf030180", "label": 0, "block": 76254000}
-{"address": "0x70d628288d3b2244b9c2fe12b8c987162380c642", "bits": "0xff731cffff070340", "label": 0, "block": 76254000}
-{"address": "0xdb7a54565cb5ce49cae210ccdd09acee06b69d39", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x30a595f98c697f575e27d648294167c496780583", "bits": "0xffff3c0fff4fc301", "label": 0, "block": 76254000}
-{"address": "0x987bbee511f854c42d744b729f8a8cf4b844b445", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0x2b2d07ad47450bf08d30a545bb8e9bb9d6bb79af", "bits": "0x3f0004ff00300340", "label": 1, "block": 76254000}
-{"address": "0xedc2fdcc98b72e6e0406e795e485f1665ec8cfc6", "bits": "0x7f1004ff00000740", "label": 0, "block": 76254000}
-{"address": "0x7a7acf2241c2b388b6b7eb8bba78f615f6f773b2", "bits": "0x7f1004ff4f000340", "label": 0, "block": 76254000}
-{"address": "0x256c41d22fe0cbba38764f32e8bfdfca85ee3b55", "bits": "0xff731cffff030140", "label": 0, "block": 76254000}
-{"address": "0x60bee18b17fa940f80d2bfdb02ad90f95be1dbe3", "bits": "0xff731cffcf030140", "label": 0, "block": 76254000}
-{"address": "0xdb5cde74160493b1cd60a41a82bbbe6e775cb4b2", "bits": "0x7f0004ff40000042", "label": 1, "block": 76254000}
-{"address": "0xa6a0b8abc4a6968c53b09c6055ce656d73052a05", "bits": "0xff300cffdf000140", "label": 1, "block": 76254000}
-{"address": "0x84ecf15af6fec307afeab934b46947967bc02d5f", "bits": "0x7f300cff43000040", "label": 0, "block": 76254000}
-{"address": "0xe0dee855e501e3ed22651fe8ea0e5ca19c31d03a", "bits": "0x3f0004ff00300340", "label": 1, "block": 76254000}
-{"address": "0xbd0d726ffef6980fd1a85d1fd7e04343adff9c73", "bits": "0x5f100cff4f000740", "label": 1, "block": 76254000}
-{"address": "0x24b00b5987ae6a5b7a8c73671332b938433fa7d9", "bits": "0x7f100cffc3400040", "label": 1, "block": 76254000}
-{"address": "0x043ac44f8cec7e359a31415f1e54459a8c2599a0", "bits": "0xff731cffdf030340", "label": 0, "block": 76254000}
-{"address": "0xb2b9300475af157676c44ee64d39a5eb3c294dbd", "bits": "0xff300cffdf010342", "label": 0, "block": 76254000}
-{"address": "0x1b6b6bedbc40a236a54ae47032bee739e22a1f9e", "bits": "0xff0004ff3f100140", "label": 1, "block": 76254000}
-{"address": "0x3b4eaa66d0b49298052a9c875adc671be39d38c4", "bits": "0xff300cffcf000340", "label": 1, "block": 76254000}
-{"address": "0x2b9e03299d9449d3add284a1c13ab2566e876d64", "bits": "0x431004003fc00100", "label": 0, "block": 76254000}
-{"address": "0x35343c832a396c6a256915d41f9c4e48ffc07786", "bits": "0x7f300cff4f000040", "label": 1, "block": 76254000}
-{"address": "0xdec5ddad2faed03d284e93106b560b34e4d06897", "bits": "0x7f00040f40004100", "label": 1, "block": 76254000}
-{"address": "0x1a478359d119ec98d5fcb4af7869d224335d5514", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x6f3a6d9867d6213056b55ce52b55514215deb343", "bits": "0x7f100cffcf000040", "label": 0, "block": 76254000}
-{"address": "0xba1cad8e212e79cd1b4298abe09eb6b44384ffa2", "bits": "0xff711cffdf010140", "label": 1, "block": 76254000}
-{"address": "0x707cc7ff415da0262a153c853c0e34e7d6d6cadc", "bits": "0xff737c03df071f02", "label": 0, "block": 76254000}
-{"address": "0x3ae0e9a6b67a9ca5cf2f42a0b3266b2098d399ab", "bits": "0x7f1004ffff000340", "label": 0, "block": 76254000}
-{"address": "0xfe01c1a253443b13ab76b4f591b53f2c2d4c0ad4", "bits": "0xff300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0x781023bc48d2abcd86cf9a77770375a34f93598a", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x01a6d9df50a64520521dd41ea7b72f8464f7508a", "bits": "0xff0004ff7f300140", "label": 0, "block": 76254000}
-{"address": "0x56c083f89a84853075decfdcf4f546b0786acf45", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0xcbbbe513350ec770ce9258aec033a0f703a034cc", "bits": "0xff100cff43000140", "label": 1, "block": 76254000}
-{"address": "0xb5052922e3713076b4162394a7941e0700e5a280", "bits": "0xff330cffff010140", "label": 1, "block": 76254000}
-{"address": "0x2e2f6e3d47863af282df7c4d87599a2ac97838b0", "bits": "0xff030c07ff0f4000", "label": 1, "block": 76254000}
-{"address": "0x5995fcff23f84bbb21a922658cfdcb366cf204e9", "bits": "0x47000000ff000300", "label": 0, "block": 76254000}
-{"address": "0xefc5ff84594ebf147dceaeb5c41079672cf0d85c", "bits": "0xff731cffff0f0340", "label": 0, "block": 76254000}
-{"address": "0xee9ca24fb62bfc021e1a46e09e1c1cbecd3341b5", "bits": "0xff731cffdf070340", "label": 0, "block": 76254000}
-{"address": "0xb43d27453a271a1bf2f008b4a7a72e4bcc5825d3", "bits": "0x5f000c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x256b980f7bdc7194568913ad567a8c24c8c223a4", "bits": "0xff731cffdf030042", "label": 1, "block": 76254000}
-{"address": "0xa6abb21417b20f48859c5c9e5c5156976f450207", "bits": "0x7f100cffc7010140", "label": 1, "block": 76254000}
-{"address": "0x776c2b3e6e7e9dd56ff4710ac3e7db83fdbbde6c", "bits": "0xdf310c007f000100", "label": 1, "block": 76254000}
-{"address": "0x03f3344a01a7697db1ec51066ed43cc080483a73", "bits": "0xff311cffdf030140", "label": 0, "block": 76254000}
-{"address": "0xf5cd542a348f153535e9f9a1c936fef201d2c120", "bits": "0xff300cffcf010040", "label": 0, "block": 76254000}
-{"address": "0x09c64a95c610e7bf78ef481ea9c4bf6756ad5351", "bits": "0xdf300cff4f000040", "label": 0, "block": 76254000}
-{"address": "0x938a49e24fd7a26149dd537019078d8a8f919290", "bits": "0xff300c00c7010000", "label": 0, "block": 76254000}
-{"address": "0x2f999cb1896f703df7cd481dd38be9d6d48df8fa", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xd2abd7a3333395a1ed7e54c67edf43ef934033a1", "bits": "0xfff7ffffff0f0f40", "label": 0, "block": 76254000}
-{"address": "0x676064ab30986ab2bef70b492642b43b936b4487", "bits": "0xff711c00df030100", "label": 1, "block": 76254000}
-{"address": "0x94f17887d9fb92c27c11a68608c62bed6f509838", "bits": "0xff300c00cf010000", "label": 0, "block": 76254000}
-{"address": "0x71a099bcb82591a1e69cc3ef3259fa872565581f", "bits": "0x7f100cff40400042", "label": 1, "block": 76254000}
-{"address": "0x308043d6a6596889a732ce5d30177e83b4870227", "bits": "0x7f00040f4000c300", "label": 0, "block": 76254000}
-{"address": "0x233adba1f6044ea761178b3642981b14eb42dd56", "bits": "0xff701cffdf010140", "label": 1, "block": 76254000}
-{"address": "0x42d4c4c04495699ff4fa2e19299201ad9cf36377", "bits": "0x7f100c0340000100", "label": 0, "block": 76254000}
-{"address": "0x5509cecfd7e520da92bd114da73c576a90c2ff4a", "bits": "0x7f100cffcf000140", "label": 0, "block": 76254000}
-{"address": "0x8d58d717691d9da8c6e210f09f7b90255550e6bf", "bits": "0xff100cffcf010040", "label": 1, "block": 76254000}
-{"address": "0x732052b8d446acdb4e43282ec39c1a385c811b02", "bits": "0xff300cffdf010342", "label": 1, "block": 76254000}
-{"address": "0x35b6a178c8926c0a798687ccdd857ac8dcc8b647", "bits": "0x3f0004ff00300340", "label": 1, "block": 76254000}
-{"address": "0x983f87acc5d33f810913f6b1153a4a1c3ec93e5d", "bits": "0xc7300c00df400720", "label": 1, "block": 76254000}
-{"address": "0x45b528a722e76c3ea508323b370fef23ca62303e", "bits": "0x7f0004074f00c186", "label": 1, "block": 76254000}
-{"address": "0x2f2f665974261c4129b1dc6c359bd259cd66f78a", "bits": "0xff731cffdf010740", "label": 0, "block": 76254000}
-{"address": "0x1d6936ef8dd255283327e853066514d956b2f4ac", "bits": "0x3f00000000300700", "label": 0, "block": 76254000}
-{"address": "0xf30a35fc178a8fd5b01a5745441c56b6a076c44d", "bits": "0x7f100cff40400046", "label": 1, "block": 76254000}
-{"address": "0xab15b71cb9b3ea4ed88acfd77db5109670c5a038", "bits": "0x5f100cff4f000140", "label": 1, "block": 76254000}
-{"address": "0x1f9e539d76ecc21830fa6a7cdea4cf3946927a04", "bits": "0xff0304ffff070740", "label": 0, "block": 76254000}
-{"address": "0x9e32d01ec3942cadf46c2c5326a1cd0bc59ae1eb", "bits": "0x7f100400ff000100", "label": 1, "block": 76254000}
-{"address": "0x370ee840dde9d938b56c4221c2b335932a38e3a4", "bits": "0xff100cff40000040", "label": 0, "block": 76254000}
-{"address": "0xdc09edf802121fbbecc6c974a3f9ee02025a1c66", "bits": "0x7f300cffc3000140", "label": 0, "block": 76254000}
-{"address": "0x3fb4600736d306ee2a89edf0356d4272fb095768", "bits": "0xff101cffc7031fc0", "label": 0, "block": 76254000}
-{"address": "0x3bf39e4677efb07a775437b5e4bd6acf12906858", "bits": "0xff731cffdf010040", "label": 0, "block": 76254000}
-{"address": "0x25f8e49fecc47aa0a40124838c51a2c8c48a0cbe", "bits": "0xff731cffdf030140", "label": 0, "block": 76254000}
-{"address": "0xbee8bbbc85f226f2fc2490901f48958c41df152d", "bits": "0xff300cffcf010140", "label": 0, "block": 76254000}
-{"address": "0xe2a35252559c00ee8477542980bc9cb666e59f03", "bits": "0xff130cffff010140", "label": 1, "block": 76254000}
-{"address": "0x330bce303d27df0eb1b856da3464278db1db1ac5", "bits": "0xff711cffdf030040", "label": 0, "block": 76254000}
-{"address": "0xaf884fc78e7446e3e11e8e4c7d4e2085b8aaf956", "bits": "0x3f00000000300300", "label": 0, "block": 76254000}
-{"address": "0x840c70f1b7a1caa8ca6e2a2d066fc15505ec1396", "bits": "0xff711cffcf010040", "label": 1, "block": 76254000}
-{"address": "0x91994426897af536bf7d7fcee95afb835cfea515", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0x478d1b0dbbabed0b4e783f5aa99a9aa7973ce8e7", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x0d47272d6e68761ed7b4221320ccab9a9fb1558b", "bits": "0xff310cffdf030340", "label": 1, "block": 76254000}
-{"address": "0x70cd3bb0d2bc142e3392558d59a8070ff04d939a", "bits": "0xff731cffcf070140", "label": 1, "block": 76254000}
-{"address": "0xbfb2d56debeff3e93a9c2454de727d5163102d45", "bits": "0x3f00040f0030c101", "label": 1, "block": 76254000}
-{"address": "0xbe18b1d07b5d91adfcb28feb4a4053475d088f0a", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0xbc420d27e22796fc04e110c8680208a044359625", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0xd095e66cca716c5e07076fa47458b5974e91e5bb", "bits": "0x7f1004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0xa7c8b4004af68b85785482015c9f7e701c54316d", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x776034076ed79be13971c04237612cbe7f8442d5", "bits": "0xff300c001f000700", "label": 0, "block": 76254000}
-{"address": "0x6b6ecf6904edb851318a026fc2e4a387a2e3d2aa", "bits": "0xff100cffcf000040", "label": 1, "block": 76254000}
-{"address": "0xe62c0d3423351ab3dfa1c1a403392a5ad58c617b", "bits": "0x430000003fc00120", "label": 0, "block": 76254000}
-{"address": "0xdf974829f6d977370b21e065ae445390cb9d010c", "bits": "0xff310c00df010300", "label": 0, "block": 76254000}
-{"address": "0xa9ccb3f3e69a09ae9b11da6aafad6ee15e85b15b", "bits": "0x7f0004ff00000040", "label": 1, "block": 76254000}
-{"address": "0xc1ccd770d86d8a6f04b4182aba417fd5a16fa3b6", "bits": "0xff731cffff070340", "label": 1, "block": 76254000}
-{"address": "0xbf36276e2292683faba57ba4864721ffb4419ac8", "bits": "0x7f100cff47000040", "label": 1, "block": 76254000}
-{"address": "0x96fca82bb2ce4c5a700a14581412366cc05dd6fa", "bits": "0xff300c03ff010300", "label": 0, "block": 76254000}
-{"address": "0xca2a4e091767d2fb2014e0db34f3d7415e0b6e56", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0x920fba25c6e266930ca3fbaf958c0d5145cb6a50", "bits": "0x7f100cff0f000340", "label": 1, "block": 76254000}
-{"address": "0xa1d408f661dab87681e9128d0379157110bdaef4", "bits": "0x3f0004070030c100", "label": 1, "block": 76254000}
-{"address": "0xa4651ab24fba42db4bbe5c9e899a3f6252ede864", "bits": "0x5f100400cf000000", "label": 1, "block": 76254000}
-{"address": "0x94c5ee76800191f3df07f0b90ee15c952ddc0dba", "bits": "0x3f0004ff00300340", "label": 1, "block": 76254000}
-{"address": "0xa8072fc1fcec94453fd9efc74a20491b5d0d4fc7", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0xab243ad98d3d59e6efea6bdadde1ace029f822f0", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0x62bad6c22f32aadb51f3d03eddda600b96345e10", "bits": "0x7f000cffcf000040", "label": 0, "block": 76254000}
-{"address": "0x63435ad7678ef11eb1c9f8d92aeee96c2294817a", "bits": "0xff731cffdf030040", "label": 0, "block": 76254000}
-{"address": "0x3e54c7de8097334afaf9fb96348d377c03e0b591", "bits": "0x7f0004ff00000140", "label": 1, "block": 76254000}
-{"address": "0x91ec68cba01c20c2474d6fb70b3ae2a4e4044cb0", "bits": "0xff731cffdf0f0040", "label": 1, "block": 76254000}
-{"address": "0x53ae707382d1231a4414ad1e982d775842f6a934", "bits": "0xff300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0x1ae74f5f0d55d82ab60b381cacec1445eaa1b26a", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0x48171b5d7cc16099b9173f690512aa1fc8cebb49", "bits": "0xff330c00ff010300", "label": 1, "block": 76254000}
-{"address": "0x91639f372205661c81d0aa17f6793d81f57d59bf", "bits": "0xff0004ff3f300140", "label": 1, "block": 76254000}
-{"address": "0x60fd08ffac8d18a602bcd4b479e137e802053a18", "bits": "0x7f1004ffff000340", "label": 0, "block": 76254000}
-{"address": "0x49e4109ffe2613edfe479010af66b6670468722e", "bits": "0x3f00041f0030c101", "label": 1, "block": 76254000}
-{"address": "0x65e91f3cf0c8be36734a752c6a3d1733ca02a7fb", "bits": "0x7f100cff4f000340", "label": 1, "block": 76254000}
-{"address": "0xacd78cff762d321c70a2dd74575cc9bbd38e560b", "bits": "0x0f00000000300100", "label": 0, "block": 76254000}
-{"address": "0x2a40aaf3e076187b67ccce82e20da5ce27caa2a7", "bits": "0xff300cffdf010140", "label": 0, "block": 76254000}
-{"address": "0xb5669e4280b0394414b00c348c7626eca7430125", "bits": "0x5f000c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x214c5b2a2503faa592ee3b1a87e8f9bb964282b9", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0xc2fab9da78a5df4b5b9966a91aa4c7ca91437890", "bits": "0x7f00040f7f00c301", "label": 1, "block": 76254000}
-{"address": "0x3adfd604ac92c38e692971196e31007f191183cf", "bits": "0x5f00040040000000", "label": 1, "block": 76254000}
-{"address": "0xe0b99ed374b86c49a90ac017b11fe398854ad8b8", "bits": "0xff711cffcf01005e", "label": 1, "block": 76254000}
-{"address": "0x4f4b0642039897a958c0d6b69c300f388c92ceb4", "bits": "0xff300cffcf000140", "label": 1, "block": 76254000}
-{"address": "0x168e86eb1d72566ee0f77be308283ec4e9b60a14", "bits": "0xff731cffdf000140", "label": 0, "block": 76254000}
-{"address": "0x86910c728c199ab5673029b5a33ec9e83a108f6e", "bits": "0xff100cffdf010040", "label": 1, "block": 76254000}
-{"address": "0x626ca5aebed560d9636e020058d87596bb6afa31", "bits": "0x7f100cffc7000140", "label": 1, "block": 76254000}
-{"address": "0x4b491e2fb5b4e9419091ba1cf9a513c3398b00a4", "bits": "0xff300cff4f000140", "label": 1, "block": 76254000}
-{"address": "0xb5873bad2347b572eaa4dd3f3338dc2de3444b2b", "bits": "0xff100400c7000f00", "label": 0, "block": 76254000}
-{"address": "0x0adb94d9df7392425e44b511b3344ddc33760a88", "bits": "0x7f100cff40000040", "label": 1, "block": 76254000}
-{"address": "0x2d1a575ceb5801241a3047cb1bc19c833106ccd4", "bits": "0x7f00000040000700", "label": 1, "block": 76254000}
-{"address": "0x21bdb91661a4472ff0d3871c300d4120a886ad9b", "bits": "0xff300cffdf010340", "label": 1, "block": 76254000}
-{"address": "0xc8b4ac64b3ce122ed43c0d326629f48ce69eb275", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0xda87d5072d15e82b8c2bcb95d718e2aad27d2037", "bits": "0x7f00040040000000", "label": 1, "block": 76254000}
-{"address": "0xe0d432e1e450f312182924dbf2ef72b7738e6813", "bits": "0xff100cffcf000040", "label": 0, "block": 76254000}
-{"address": "0x0eb30037a53e47d652c71d3adac7e6c3b128f471", "bits": "0xff771c00ff030300", "label": 1, "block": 76254000}
-{"address": "0x08b831c42fdb508582aae3dafaf5ce0eb02ae343", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x6f4d091c82a08d51c099aa8e3941635b414518be", "bits": "0x3f0004ff00300340", "label": 0, "block": 76254000}
-{"address": "0x29a75d58c32dff2fe62f88c55af968aebc3d09ee", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x062870bc22a9f75fb4bfdf0de832baf879d6e0a4", "bits": "0xff100cffff000740", "label": 1, "block": 76254000}
-{"address": "0xeef72e6fed72ce7a578ed9c02ba679317a893d76", "bits": "0x7f00040100000000", "label": 1, "block": 76254000}
-{"address": "0x6d654c2a007a2073d861d1370ed3f2415d24c919", "bits": "0x7f0004ff40000046", "label": 1, "block": 76254000}
-{"address": "0x23ad8fc2c503759b2e46cc1002dad07220b4bc83", "bits": "0xcf170cffff000340", "label": 0, "block": 76254000}
-{"address": "0x8d1509e0240eba23cccd58941fa2b5d7ff1fc70f", "bits": "0xff731cffdf070140", "label": 0, "block": 76254000}
-{"address": "0x46e9f5b8426b4d972b44cfd980edfbeac9fd6e70", "bits": "0xff711c00df030100", "label": 1, "block": 76254000}
-{"address": "0x469d23aba423d01b864e90c5b36cb7dec26f6077", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x492e71848afe7773dcc2fefdcd9f4437445bbf83", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x86fac7198127afbdba977b70a072d84db16c5936", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x6680ee1074094326dd35505f190857e42859d63e", "bits": "0x7f1004ff40000140", "label": 0, "block": 76254000}
-{"address": "0xef149d3c65476fe1b306ea2eafdfc054edd5c1d5", "bits": "0x7f1004003f000100", "label": 0, "block": 76254000}
-{"address": "0x167cdc679906a7036e41ae9fd1b77035a4027f59", "bits": "0x7f100cff47000040", "label": 1, "block": 76254000}
-{"address": "0xce55a128f16a09f982ec113ac893ff8e819aeefd", "bits": "0xff100cffdf000340", "label": 0, "block": 76254000}
-{"address": "0x29587c7c31cca0a7d2de790a292101fb4b2f46ff", "bits": "0x7f0004037f00c300", "label": 1, "block": 76254000}
-{"address": "0x1fd5e9ac034f290c7063e9fdc5771b8ecad25826", "bits": "0xff100cffcf000040", "label": 0, "block": 76254000}
-{"address": "0xc0578d9a3bec4e068d62173d4485992a2431b9a8", "bits": "0x7f0004ffc0000040", "label": 1, "block": 76254000}
-{"address": "0x0de4ce0117f8e579f7d2ffe73c900a017efcc12a", "bits": "0x7f0004ff40000140", "label": 1, "block": 76254000}
-{"address": "0x32245e7e21c7aafebb67a331f3e0a3d32b64d36c", "bits": "0x7f300cffcf000040", "label": 0, "block": 76254000}
-{"address": "0x095dafad18cd5501a5229d652493a778885f77f0", "bits": "0x3f0000ff00300140", "label": 1, "block": 76254000}
-{"address": "0x8de04612279dab36ecc2071471697e755ccf3a22", "bits": "0x7f0004ff400000c0", "label": 1, "block": 76254000}
-{"address": "0xc9f414aa264744d243ca1893e46cd588df855271", "bits": "0x7f1004ff40000140", "label": 1, "block": 76254000}
-{"address": "0x8b58d1435fa66b72fb32ddc7081e17e9ad9c1b96", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xc2691c179bd2ecb3d46dd8753292e1e8abe5347b", "bits": "0x7f100400cf400000", "label": 1, "block": 76254000}
-{"address": "0x4723c17d75ab63b36dc1190ad904096e9b6db7c7", "bits": "0x5f00040040000000", "label": 1, "block": 76254000}
-{"address": "0xcf5a2233be2fc530e7d95e6352e2f160a7481184", "bits": "0xff310cffdf07014e", "label": 1, "block": 76254000}
-{"address": "0x1e38f714ae87a73bc6e8c18b148841255ab81a3d", "bits": "0x7f100cffc000004e", "label": 0, "block": 76254000}
-{"address": "0xab3a82c3b116e6eb82fca87c4ef432d859d856d8", "bits": "0xff110cffff030042", "label": 1, "block": 76254000}
-{"address": "0x65ab2af69d1d7c96b12e527584e5d457b57206b5", "bits": "0xff300cffdf000340", "label": 0, "block": 76254000}
-{"address": "0x15c584e002b53f7f10aad2c129e6fe891880d9be", "bits": "0xff330cffff030040", "label": 0, "block": 76254000}
-{"address": "0x6f3ae12e50146ab4041dc1db5e27d05d64040d1d", "bits": "0x7f1004ffcf000340", "label": 0, "block": 76254000}
-{"address": "0x06bc8232a54d6629a1ae01b1e44b707c08fcb67a", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x9898b7d333840642a9d6e65142c886e126726b0c", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xb6ff6b1b4000dae19ff5e615e8fe20a174d7fa59", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xf5f7ded3ee675f456fdc25c7c6f15922bf57282b", "bits": "0x7f1004ff00000140", "label": 0, "block": 76254000}
-{"address": "0x534c06ae5bf947c25ee8960808f7d876296081d2", "bits": "0x7f0004ff00000140", "label": 1, "block": 76254000}
-{"address": "0x411ed5fbc0be25c5c03945ac4a29585cd91153b3", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0x285263eb8f323807162ecbdec7ed20ac66f60985", "bits": "0x7f100cff40000140", "label": 1, "block": 76254000}
-{"address": "0x1f0688f49412105727d672298918314bf5341df7", "bits": "0x7f00047f0000c09f", "label": 1, "block": 76254000}
-{"address": "0x0ba08ce2e477c8874f162e8aa87deb41357eabc1", "bits": "0x7f300c0040000300", "label": 0, "block": 76254000}
-{"address": "0xa075a275b8f3a5c775a3856dd4df63e8914f7b2e", "bits": "0xdf330c00ff000100", "label": 1, "block": 76254000}
-{"address": "0x01d6c450a3fb40c806c99e998e8659c1d987591a", "bits": "0x7f1004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0x6759e4e0ca18233d9d1123fcefa422ce8cb9f2af", "bits": "0x7f0004ff40000042", "label": 1, "block": 76254000}
-{"address": "0xd4f3bc872505a9db728af2ce84cc99e8752117ea", "bits": "0x3f00040300300100", "label": 1, "block": 76254000}
-{"address": "0x905f0fa8ed78744143383c53481b3f452cbbc47b", "bits": "0x7f10040340004100", "label": 0, "block": 76254000}
-{"address": "0x3a31d9d9120013a2f1f55ce45068ed9ce4795e9f", "bits": "0xff311cffdf010040", "label": 0, "block": 76254000}
-{"address": "0x9970a71bbd7ce3fd9db7ab2552d55b9bc90925a3", "bits": "0xfff33cffdf070040", "label": 1, "block": 76254000}
-{"address": "0x821d92e6e62a2004e2cec914c23a9f346add0331", "bits": "0xff300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0x8a00e8358ae8ebfe1cec2f7dcaa1b4eef774b10b", "bits": "0xfff33c03df074180", "label": 1, "block": 76254000}
-{"address": "0x9fbe86b5ea1871c8203e14c69116da521eebdbb0", "bits": "0xff311c07df01c006", "label": 1, "block": 76254000}
-{"address": "0xdbacd6c357fff3e85b7dc7865c094150efcd4a2b", "bits": "0x7f300cffc3000042", "label": 0, "block": 76254000}
-{"address": "0x5b08dd9b4c9187183371b4f4afde6a56fd186426", "bits": "0xff100c3f4f00c09f", "label": 1, "block": 76254000}
-{"address": "0x332bcfeb8835a1a4ca095c1f16a20643ffbe0385", "bits": "0xff731c07df07010e", "label": 1, "block": 76254000}
-{"address": "0xaeabe9acab030697405e095cc61fc82cfb1d3e30", "bits": "0x3f0004ff00300340", "label": 0, "block": 76254000}
-{"address": "0x898e7ba5997edf98ac95e19a2d8dc417fbe80621", "bits": "0xff300c03c7014000", "label": 0, "block": 76254000}
-{"address": "0x2dabb0f4e67cccb958b7572d7a78bbdb73bd4e30", "bits": "0x3f0004ff00300740", "label": 0, "block": 76254000}
-{"address": "0x844d96b6a03fe48846451539edc0e85ce5ade890", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x131a2af4906c51dd9812ef53475288c551fa2163", "bits": "0x3f0004070030c100", "label": 1, "block": 76254000}
-{"address": "0x500e5eb0cf12736f237604bb90ee996a24def620", "bits": "0xff300cffc7010040", "label": 0, "block": 76254000}
-{"address": "0xf2f284e3576b81557f68b11bed7de59403ea8aa4", "bits": "0xff030403ff0f0002", "label": 1, "block": 76254000}
-{"address": "0x130a661300a382766e9f67fe255d77cc53e30e91", "bits": "0x7f0004ff40000040", "label": 0, "block": 76254000}
-{"address": "0xe2c612e40bf472aa75b67754ce204a094b018343", "bits": "0x7f00040000000000", "label": 1, "block": 76254000}
-{"address": "0xa084755d67532f338025ddb73cb474486cfe1e30", "bits": "0xff100cffc7000040", "label": 1, "block": 76254000}
-{"address": "0x27aabbc2ecf2c495dcf08512db0388ce211e32b5", "bits": "0xff300cff47000140", "label": 0, "block": 76254000}
-{"address": "0x452cef1ab80c4629a5de09acfd7d37ed56eb1ab1", "bits": "0xff100cffcf010040", "label": 1, "block": 76254000}
-{"address": "0xbd2a95d30761333cb573be00e4c76a0995c7d07a", "bits": "0xff310cffdf030340", "label": 0, "block": 76254000}
-{"address": "0x59e56a39cbbf0c294e648b2b0fd8670828876434", "bits": "0x7f100cffcf000340", "label": 1, "block": 76254000}
-{"address": "0xbe3c90d34b757587c62852dcd57f7c8e1bc5547c", "bits": "0xff310cffff030140", "label": 1, "block": 76254000}
-{"address": "0x9bf4ae6258d9b5d80ef53d87e9ca38c9386e39f1", "bits": "0xff330cffff070340", "label": 0, "block": 76254000}
-{"address": "0x65a90a920d5a562c4be86887831cbe2dea924c0c", "bits": "0xff300c00df000100", "label": 1, "block": 76254000}
-{"address": "0x91fd6a2396cf3b7c4e4f002cd663469ea883c590", "bits": "0x7f1004000f000300", "label": 0, "block": 76254000}
-{"address": "0xfa93c414267f0bb41242ff82fd9a832891f41f1d", "bits": "0xff0004ff3f000140", "label": 1, "block": 76254000}
-{"address": "0xdb349bf59c9a01e6856f6a6d314c312831279454", "bits": "0xff300cffcf010140", "label": 0, "block": 76254000}
-{"address": "0x9562ef91f565b1d4baa96476a6fcf8e49f3495a0", "bits": "0x7f1004ff40000340", "label": 0, "block": 76254000}
-{"address": "0xe16050b5186dec512ac9233370f9dbc3b51fe46f", "bits": "0x7f00040040000000", "label": 0, "block": 76254000}
-{"address": "0x9ed386aa9c14ddd590ed62663e6addd82a74e06b", "bits": "0x7f0004ff40000040", "label": 0, "block": 76254000}
-{"address": "0x9c9f8f83f5c851af83a1f54ff32549cfb323e55b", "bits": "0x5f100400cf000000", "label": 1, "block": 76254000}
-{"address": "0x5b1899d88b4ff0cf5a34651e7ce7164398211c66", "bits": "0xff771cffff070040", "label": 0, "block": 76254000}
-{"address": "0x38c902b306f2ad767a061be30309fdbec2c9a6a5", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0xb641f5ede32fcb0bf117efb8ee68507afe634db3", "bits": "0xff731cffdf030340", "label": 1, "block": 76254000}
-{"address": "0xdd189180f1e33e43483ecc8a2d1459deab94e7a7", "bits": "0x3f00040300300100", "label": 1, "block": 76254000}
-{"address": "0xa65ee3e7359d50a78ad48fb5278879c4f32c5c23", "bits": "0xff100cffdf010040", "label": 1, "block": 76254000}
-{"address": "0x59d5ad0598311023edb7a2c840bbbae2b4951d15", "bits": "0xff0004ff5f100040", "label": 1, "block": 76254000}
-{"address": "0x4f15f2e51f884012f6e5d365198effa5525c26f1", "bits": "0xff311cffcf030140", "label": 1, "block": 76254000}
-{"address": "0x6791c3ec7e9d5d3995345c5baaa5a9b2397bc245", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xc4ddccef3d6987e05cbc27c067b8c2cb663d2411", "bits": "0xff0004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0x85687cc0a149e77227fcba1269a1dd4055f38010", "bits": "0x7f1004ffff000140", "label": 0, "block": 76254000}
-{"address": "0xf5632cfcd668c10949ba06618d50928ce5841ae3", "bits": "0xff711cffdf010340", "label": 0, "block": 76254000}
-{"address": "0x04b6b8eff2699d044269633c596c52a0be7622ce", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x175d7ac3844ac969c1d17431e59ff057ad17ee3b", "bits": "0xff111cffff070740", "label": 0, "block": 76254000}
-{"address": "0x4c4562d95fac224b91d3a042e210fc77319752c1", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0x60db04525811d64ce62249eb4955dad4778b5e9a", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x82d5f8e1fbc73e1e2a8e074b8934bd997c6a17c8", "bits": "0x7f0004ff3f000140", "label": 0, "block": 76254000}
-{"address": "0x5a3f84a75090499a818404f9971636e74269b3b5", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x317793f94725d590b2dcd28be0bf1a185ae6112b", "bits": "0x4700040300004080", "label": 0, "block": 76254000}
-{"address": "0xa650cec4ec8884832d8eb3bc0bcdf5b8b76f17d6", "bits": "0xff300c00df010700", "label": 1, "block": 76254000}
-{"address": "0x91b973e81104b2cae6096f250f6a441bca0456e1", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0xbedfb14028683f333688b0e6699682cf0a4c990a", "bits": "0xff310cffc7030142", "label": 0, "block": 76254000}
-{"address": "0xafddcf1552635a7001a146fa334f81ef4953e409", "bits": "0x7f1004ff40000340", "label": 0, "block": 76254000}
-{"address": "0x6fc34a8b9b4973b5e6b0b6a984bb0becc9ca2b29", "bits": "0xff311c03cf014300", "label": 0, "block": 76254000}
-{"address": "0x3e08274bb9f61445f75b251333d670ff52f9e60f", "bits": "0x5f100cffc7000042", "label": 1, "block": 76254000}
-{"address": "0xaeb3c9ca208e414d248c32437a5d1f7650902dd6", "bits": "0xff300cffdf030040", "label": 1, "block": 76254000}
-{"address": "0x40a3f86d8c9b68c2545feead4221c0cc265f4a40", "bits": "0xff711cffcf010040", "label": 0, "block": 76254000}
-{"address": "0x9ad8b8134c0c55d3bf1a6426bc37c06f5e748863", "bits": "0x7f0004ff4000005e", "label": 1, "block": 76254000}
-{"address": "0x08f7fd04e76dac7e4d9e343e0b5510379f5bba48", "bits": "0xff731cffdf070040", "label": 0, "block": 76254000}
-{"address": "0x0161de741c815d0b995b82614129ba1ce4723329", "bits": "0x5f000c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x3ec7ec7fa96e161efe20e20f0a99a05f5b484cc6", "bits": "0x5f100400cf000000", "label": 1, "block": 76254000}
-{"address": "0xe303a9962753efde83f441090c6132370e00ba79", "bits": "0xff711cffdf010340", "label": 1, "block": 76254000}
-{"address": "0x5169e74c7b5a8256a9af7469ebb16d073b282873", "bits": "0x7f100cffcf000340", "label": 1, "block": 76254000}
-{"address": "0x4de80b381fd72f182109747697cb346198306d51", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x1ff54110f42aad649ca5f32b750958c36504d627", "bits": "0xff731cffdf010340", "label": 1, "block": 76254000}
-{"address": "0xc80a3257b15da6bc63e0e86552d8ac33080ddae6", "bits": "0xff310cffff070140", "label": 1, "block": 76254000}
-{"address": "0xe92bc099698687f7a32cd68577611b1beae5d401", "bits": "0xff100cffc7010040", "label": 0, "block": 76254000}
-{"address": "0x8280fceab06c49da1cf179dfefaedf7eb653883c", "bits": "0x7f0004ff3f300140", "label": 1, "block": 76254000}
-{"address": "0x9887b8a790cbd8789ff21b58ad73abce06e675f1", "bits": "0xff310cffdf010140", "label": 0, "block": 76254000}
-{"address": "0xb83531c8a283b21f3c38295f8869f84b1543a36b", "bits": "0x7f10040040000100", "label": 0, "block": 76254000}
-{"address": "0xcd1b29cb78bbae2efabb9087b9ac0475a11c5b28", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0xda0f6e5181049036febac11b81db613b73660ceb", "bits": "0x5f100c01c7000000", "label": 1, "block": 76254000}
-{"address": "0x9be06783d8df6f483071805311e3dd55032eb88e", "bits": "0xff300cff1f000740", "label": 0, "block": 76254000}
-{"address": "0x078ca0b8b10891887c4c8f1bc064f766565a9787", "bits": "0xff300cffdf000340", "label": 0, "block": 76254000}
-{"address": "0x8f40a6e73a98a1a502fa96a98449f1bbed64bfd4", "bits": "0x7f1004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0x670d4460c70415438ef1868b896b86a5b6228192", "bits": "0xff300c00df000100", "label": 0, "block": 76254000}
-{"address": "0x18d9c7b5aad1e5b1dcf92b383e90f4743964e662", "bits": "0xff300c00c7000100", "label": 1, "block": 76254000}
-{"address": "0xccef6be6065bce73de52b1dbbc856bd9c436f3fa", "bits": "0x7f300c00c7000000", "label": 1, "block": 76254000}
-{"address": "0x3ed26e5ccf1e4a07028574d0a74a5dea56a1e77a", "bits": "0xff711cffdf010340", "label": 0, "block": 76254000}
-{"address": "0x4f795c90f1b8c95869b7ca28db9c227759b04f6a", "bits": "0x3f0004ff00300040", "label": 1, "block": 76254000}
-{"address": "0xd9082709e35a67d88ee08f16ef6ffe27add15205", "bits": "0x5f100400cf000000", "label": 1, "block": 76254000}
-{"address": "0x66a5a1ebaf087f7ca3da77a8fd9e668d80be6736", "bits": "0x7f000cffc7000140", "label": 1, "block": 76254000}
-{"address": "0xda465b6d4af8bfef08d428016eae4bb50b99a636", "bits": "0x7f1004ff00000340", "label": 0, "block": 76254000}
-{"address": "0x5698969dbf409ca5845998e0bc59bcb539b72e1d", "bits": "0x5f100cff4f000040", "label": 0, "block": 76254000}
-{"address": "0x5fdb261eff3aafbdf65958d9de49fa1d410a3a10", "bits": "0x0300000000f00000", "label": 1, "block": 76254000}
-{"address": "0x3f266faec852be81dfe390e140aee12fa2e8ffb6", "bits": "0x7f100cff47000040", "label": 1, "block": 76254000}
-{"address": "0x48f88a8d8e4a9dff33c0a4d857a81a189c2d6e07", "bits": "0x7f0004ff40000140", "label": 1, "block": 76254000}
-{"address": "0xba8421340396eb6d6be19e8b4715ae68e34ec161", "bits": "0x5f0004ff00000140", "label": 0, "block": 76254000}
-{"address": "0x99d6d24012361620bfa1a3f16d4e745066fc7c69", "bits": "0xff000cff4f400340", "label": 1, "block": 76254000}
-{"address": "0x30c98ab8fb66212634bf284f3c13b1e1fe61b3ce", "bits": "0xff731cffdf070140", "label": 0, "block": 76254000}
-{"address": "0x7d344619d76b9e9ad09d36fc19a30ecdd02d8b2f", "bits": "0xff711cffff030340", "label": 0, "block": 76254000}
-{"address": "0xdae10b05d9846be45b1b4d462b0e42ae7d5de295", "bits": "0xff001c0fdf01c10f", "label": 1, "block": 76254000}
-{"address": "0x91f7c7dc5a44276482c102178fe1d620b397c276", "bits": "0x7f100400cf000300", "label": 1, "block": 76254000}
-{"address": "0x7c44a2b40d5713fbe24936826a27f15f3bad60a7", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x68d019c134d8a61e13469864d997475c98916cbd", "bits": "0x7f100cffcf000040", "label": 1, "block": 76254000}
-{"address": "0xa8b4baa614e4af59e78afd60accd14edc459c646", "bits": "0x7f100cffc3000140", "label": 0, "block": 76254000}
-{"address": "0xad11f6a261ef243adc62924549fad5d980fe3902", "bits": "0x7f0004ff0f000040", "label": 1, "block": 76254000}
-{"address": "0x4f673c81cd7e43f1355dec13069ec6dabdb407b7", "bits": "0x7f100cffcf000140", "label": 1, "block": 76254000}
-{"address": "0xd3207f1a8a3dcef9562556bf174076d4c3836421", "bits": "0x7f100cffcf01004e", "label": 1, "block": 76254000}
-{"address": "0x72c5cd18a51d53db34072546a7a38a4f73600d92", "bits": "0xff733cffdf070340", "label": 0, "block": 76254000}
-{"address": "0x5207c8d08c5d0ae39f3413802b5ed3b3bc78f1bb", "bits": "0x7f1004ff00000040", "label": 1, "block": 76254000}
-{"address": "0x2a6e73a234091267336ac97c0299ac257ba4e434", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000}
-{"address": "0x2e68ae775e66c3e70d13feb43b0676a3ba701000", "bits": "0x3f00040f0030c101", "label": 1, "block": 76254000}
-{"address": "0xb4426ccb57e9fada3463e244eda4f8dae3a66802", "bits": "0x7f300cffcf000140", "label": 0, "block": 76254000}
-{"address": "0xefc5cc5fd323efcaf41370caaf090156bb49b69d", "bits": "0xff731cffdf070140", "label": 0, "block": 76254000}
-{"address": "0x0fa1288c9eddfbcfb93f484e19bd2c7564f72368", "bits": "0x7f0004ff3f000140", "label": 0, "block": 76254000}
-{"address": "0x5f7c55370b2dea9aa143f9faed6cf2f8d4c1b72f", "bits": "0xff100cffdf010040", "label": 1, "block": 76254000}
-{"address": "0x47597e3f4e32157fd75b13ea6c017226d3f4c7aa", "bits": "0x7f1004003f000300", "label": 0, "block": 76254000}
-{"address": "0x494e821ba418fcd34301e5911e7b083548cc09c9", "bits": "0xff300cffc7010040", "label": 1, "block": 76254000}
-{"address": "0xd81eeb1abc9fc891f3f9490d3992bc6dbaf7df54", "bits": "0x3f0004ff00300146", "label": 1, "block": 76254000}
-{"address": "0x982a1fde980e291e921fad931f2ae73d33d246ae", "bits": "0x7f0004ff7f000140", "label": 0, "block": 76254000}
-{"address": "0x6a18c3127dd1c547458ae5ec2bb87b52f4274995", "bits": "0x5f100cff0f000140", "label": 1, "block": 76254000}
-{"address": "0xc7e8b749b12463c75c2877e1199db897c7b09f62", "bits": "0xff300c00df000000", "label": 1, "block": 76254000}
-{"address": "0xb1dcba3b94a8b93be8db33d58f2af50051e7dc25", "bits": "0x7f100cffc7000040", "label": 0, "block": 76254000}
-{"address": "0x8846c73a19c2093b104790057f8b97cd2df5a3f4", "bits": "0x7f0004ff00000740", "label": 1, "block": 76254000}
-{"address": "0xcf529b9c37196537d891d9ba7eab262817c4f958", "bits": "0xff731cffdf070740", "label": 0, "block": 76254000}
-{"address": "0x56a1ad281b5b5a8621093d279e64edb6a53557fe", "bits": "0x0300000000f00000", "label": 1, "block": 76254000}
-{"address": "0xcc3d7f9fe6946979215a901bba385a88fdabbbf4", "bits": "0xff731cffdf030040", "label": 0, "block": 76254000}
-{"address": "0x74798ee1dc5e7a6f5fa26017e5f62e0684262b65", "bits": "0x3f0004ff00300140", "label": 1, "block": 76254000}
-{"address": "0x3b1e0097a0bd13c19d87bad6d834bc4484e18eea", "bits": "0xff100cffc7000140", "label": 1, "block": 76254000}
-{"address": "0x8dadb2db7e2f8bd166c14a97e21d666577df27ec", "bits": "0x5f100400cf000000", "label": 1, "block": 76254000}
-{"address": "0x2a10c2e38301144e24c6b912d472185f45aabca6", "bits": "0x5f100cffc7000040", "label": 1, "block": 76254000}
-{"address": "0xe448d9d70efe95714e38d210e58d458dab0a77d5", "bits": "0xff370c00ff0f0100", "label": 0, "block": 76254000}
-{"address": "0x2bb152d4860ffdabf43e0e0595905f91bd1d65c5", "bits": "0xff0004ff3f300140", "label": 1, "block": 76254000}
-{"address": "0xc84217f2b77c122c3cea7c8e86a1e462a4b528bd", "bits": "0x7f0004ff40000042", "label": 1, "block": 76254000}
-{"address": "0x253ecae3e5828e31ab54203130dd07838e33b1ab", "bits": "0xff300c01df000100", "label": 0, "block": 76254000}
-{"address": "0x99417bc90bea992977ad718ac75e1c92445cd468", "bits": "0x7f0004ff7f000140", "label": 1, "block": 76254000}
-{"address": "0x98d33c9ac1cc2154f3551b46fecb2fba2a7f0748", "bits": "0xff300cffcf010340", "label": 1, "block": 76254000}
-{"address": "0x147ae02ff220543fff6ea2b9715c7565e96c5938", "bits": "0xff1304ffff070040", "label": 1, "block": 76254000}
-{"address": "0x9779e2415dfea0e914cb8f8dbeea3f33c8a04a26", "bits": "0xff0004ff3f300140", "label": 1, "block": 76254000}
-{"address": "0x61a75e2cd5ba6f36791b0fd1ba0b91cdb506c35e", "bits": "0x7f100407ff00c100", "label": 1, "block": 76254000}
-{"address": "0x53be716f74027b957dd72c908ac63e9b4681848c", "bits": "0x7f1004ff40000040", "label": 1, "block": 76254000}
-{"address": "0xb62ccfdc81748e67a6cc1ff2cf3ebacf7e0cfee0", "bits": "0x3f0004ff00300140", "label": 0, "block": 76254000}
-{"address": "0x92021cb74178932f2aed278e1ee960b52a685e73", "bits": "0x7f100cff00000040", "label": 1, "block": 76254000}
-{"address": "0x71913330f21fd7746a7ef69e09bc2b83c40b2345", "bits": "0x7f1004ff40000340", "label": 0, "block": 76254000}
-{"address": "0xbd1187af7b213694b6abf2ed86666066faedb168", "bits": "0xff310cffcf010040", "label": 0, "block": 76254000}
-{"address": "0x3054019a7776f552a5c6a033c7a0148b8c6f6f2b", "bits": "0xff130cffff010040", "label": 1, "block": 76254000}
-{"address": "0x3e4ebcf6bce774f89aba83fc03593d083cb2daa4", "bits": "0xff330c0fff070100", "label": 1, "block": 76254000}
+{"address": "0x8280fceab06c49da1cf179dfefaedf7eb653883c", "bits": "0xdf0000ff00900140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5e2a485af8a2f3bf9f6d8a6156a673db44e4f70c", "bits": "0xdff37d00c0830000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xab3d5e8f658fd1c1cc614abaded293c21f0cfde7", "bits": "0xdff33cffcf030040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4f795c90f1b8c95869b7ca28db9c227759b04f6a", "bits": "0x0f0000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x84e0ad8e8ff4aa9e866ddcf1aecdf5754cb4ba97", "bits": "0xc13004ffc0800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1d9901cb1dc9f3a9d150e70d7cf73c2b55b24d6c", "bits": "0xc30004ff4f000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3e54c7de8097334afaf9fb96348d377c03e0b591", "bits": "0x4f0004ff00800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x696d181a7961ee66c42f1ebeddc0b48b106c45ad", "bits": "0xc3f73dffc7e30340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa3aba06c78d0a27b1bbfa7476174a97941605047", "bits": "0xc3f73c00cf8f0000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xee182703689a1055d2db0f97d5c48bf6f14d1b4c", "bits": "0xc3f33cffcf871f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaec80b4fbe227198720b1d1b82a12968baa0b144", "bits": "0x3f0000ff00800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xab3a82c3b116e6eb82fca87c4ef432d859d856d8", "bits": "0xff330cffcf030042", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5028395997b6073bb9551f2c18fa778273bf2de2", "bits": "0xcf070403c00f0000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xcf9631ec83ca364ac4b21276258ae0d3520e64d9", "bits": "0xdff73cffcf870340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x506ac1d1bd4e32f4ed85d1df33d267e06533dc67", "bits": "0x0f0000ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3ccc00334bd0a036279139c2144489051c8ade7a", "bits": "0xdff33cffcf810140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaf884fc78e7446e3e11e8e4c7d4e2085b8aaf956", "bits": "0x1f00000000800700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa8ec567d5384070cf1b52a79690fe8407ad18698", "bits": "0xdff33cffc3810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd0e5122084f90d49cd8ffea056e431f94cb174c3", "bits": "0xff100403c7800700", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1b3970521955890c7caa0ac93470eaecceede93f", "bits": "0xff1104ffc0010040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1dab8da475acce5ef82dc6a0ab21cf758f18a8b8", "bits": "0xff711cffc3030040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc6b9b6e0d9e32af12908d793f4469ee484f8566a", "bits": "0x4100000040000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9562ef91f565b1d4baa96476a6fcf8e49f3495a0", "bits": "0x431004ff40800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaa3413c8d7b5047624b2d862b5ce03d7e612fc9b", "bits": "0xc3700cffc0800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x32245e7e21c7aafebb67a331f3e0a3d32b64d36c", "bits": "0xcf700cffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xfa4dcd9854bcf0ecd6ee277a3811e667aaf9a31d", "bits": "0x5f0004ff40800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0417926c1504f17892cff3b0d0feeda89c711fce", "bits": "0xff0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6483a15794a4e7e8b41a6a9351879c209b870389", "bits": "0x4310040f0000e08e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0558b3bc115d22327723ebf1993a94fa950103a0", "bits": "0xcf300c074780e100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xcb178b36fa5d8f7c31de75f67cd25422e537f6aa", "bits": "0x5f0004ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x422f46480791ec05dbb7f81ba56c2c8ebe12af7e", "bits": "0xff300c0fc0010000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1a42ded8c988dd9cf5af3dc505511d53181f0a9b", "bits": "0xff0000ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8812722e7048fda2b603ab456a33a15c0866bd93", "bits": "0xdf300cff40800040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x42d4c4c04495699ff4fa2e19299201ad9cf36377", "bits": "0x5f30040340800100", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd174ad0d1e36c7a60cd922e966354095233f8f23", "bits": "0xdf700cffc7800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x80211e601de493d681bf141931d7436ab4b542e6", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf9d1bc2a225f120f9fe319fa132fdcb516d293b1", "bits": "0xdf1004ff40a00040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc9871d99c7d82ddea8db28891b7d13a8bf7a203b", "bits": "0xdff73cffc7010040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x71913330f21fd7746a7ef69e09bc2b83c40b2345", "bits": "0x5f1004ff40800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb0639c8f223dfb30b18ae099132e16fb6c7b6a46", "bits": "0xc11004ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x548bb0c189a1a5a9eda2cd8ef93dcb9285235041", "bits": "0xdff77dffdf830140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1ae74f5f0d55d82ab60b381cacec1445eaa1b26a", "bits": "0x3f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x80c27bc18ff8b13489b697fb1e66fc39b7237fcc", "bits": "0xff0004ff40800042", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb42766ce3307c13415abcb182f17da43c2389a5b", "bits": "0x1f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x64ab7581a68036ccfe0e8fb800d3da79f4660e9a", "bits": "0xdf730cffcf810040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xac50debe83f7dbf2144239bcb946a2506b2782da", "bits": "0xdf710cffcf810340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0964ff9db6c3e517167af09ba1a917f32a59f5ad", "bits": "0x5f30040040800100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd73f607911967e716e9c275e71831d90c22e9bc2", "bits": "0x3f0000ff00800f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xba6c3565c2d0ed0bfec9cbbc0ed9cd6d2ecad34d", "bits": "0x1f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x591b8c2354746f9f0ee94dbdbaa029ef22f9f0ea", "bits": "0xcf711cffcf810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3fec08122f3b858ad0e9fdcf37f264916ce37719", "bits": "0xdf711cffcf810040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x04fe358b0a86c1e584b9869bc555809b98d52229", "bits": "0xc3771c00cf830000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x69ccf8970c41d48fdd163a8fa2dbf83f3307ddf5", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x032f4c560a74de001b1edb43adf59e8c34685bb0", "bits": "0x4f00040000000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x29d7b7eac4deaa632abe92391ffd8a3ccdf5b979", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xeef72e6fed72ce7a578ed9c02ba679317a893d76", "bits": "0xc300040100000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x01a6d9df50a64520521dd41ea7b72f8464f7508a", "bits": "0xff0000ff40900140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x53ae707382d1231a4414ad1e982d775842f6a934", "bits": "0xcf700cffc7800040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb29ca77acedf1a508da499b282e809842fb76e6b", "bits": "0xdf300cff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc8160b24922664d9b3cf7f0acbc149dc33917d15", "bits": "0x3f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x29c85630d9d217315699b59b88595551032bddc9", "bits": "0xc300000fc000e087", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1d07588a4ea08f10dc10dd76a6ddff7a053f13e0", "bits": "0x403004ff00600040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x707cc7ff415da0262a153c853c0e34e7d6d6cadc", "bits": "0xfff7fd03c7871f02", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3ec7ec7fa96e161efe20e20f0a99a05f5b484cc6", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1307f1856985491468e80537ce8e361bf916d81d", "bits": "0xcf100cffc0800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf87809f81e30d59f7824066c19f74876f9254657", "bits": "0x1f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf25e47df21f6e00a666805fc818682ce32953b34", "bits": "0x4f300400c0800000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc09390818dd9892ad89967d3e9d0a0e8f9b0b477", "bits": "0x5f00040740800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5477c67662a318f9081427006ace27b4d12e392d", "bits": "0xc3100c00c0000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xba3a2e06760af9427cbcdb68410662ba485d24c4", "bits": "0xcff33c00cf810f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x10dbc99c90234e4447f0366e8368d688f622475a", "bits": "0xdff33cffc7810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7687aa3c0d18bd25d3dab4205f07cb727cd6867b", "bits": "0xdff33cffc7010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9c57027b1eca93093a6f446422c59c85a5a3fa52", "bits": "0xdff73dffcf070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7362ae42ae17857f61e54baa8a9ae2821fd47ac2", "bits": "0x010000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x47e45e7659fb711a8619e7f9df00606f9d2b5790", "bits": "0xff0104ffc0030040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbe18b1d07b5d91adfcb28feb4a4053475d088f0a", "bits": "0x4f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd5b7399fa063733ac4eaedff39f2b1b15299aa47", "bits": "0x7f00000040800100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x74798ee1dc5e7a6f5fa26017e5f62e0684262b65", "bits": "0x0f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2d71f191742a3efeed72acc4aa2746fb24bc981b", "bits": "0xcff33cffc7010040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x63b9e4e757fc107250790a10db00d6e0b18b2f39", "bits": "0x4f10000000800300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x082b9b776e5d0b1771594676d12619f479b0a69c", "bits": "0x4300040040000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x564a11e4bbd6d49fd81a00d8afd85cc999d8d16b", "bits": "0xc1100400c0800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x03369f6db2e2e77a2ef92b6295d6989cd68b8491", "bits": "0xc3310cffc0810f46", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7b613e84a7511bf36f0d9c82514b1b27e77e95b4", "bits": "0x7f0000ff40800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5af84f1318241b4224ecfc9e6d4e97a3118cd38f", "bits": "0xdff73dffc7870140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa4ff98c94cdfc83a34140152514e353417b93fe0", "bits": "0xdff71cffff870140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x03f3344a01a7697db1ec51066ed43cc080483a73", "bits": "0xc3f31cffdf830140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc9b841b699b237c12e29505206cc215eed2df5da", "bits": "0x430004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd53adf794e2915b4f414be1ab2282ca8da56dcfd", "bits": "0xcf300cffcf800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8300ac1c7ec2431d4577514f4c65a9afb0c804d4", "bits": "0xc3310cffc0010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3ae7783b7fa466e2c9197e60c05c84d6683cbc53", "bits": "0xc3300cffc0800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x28f8d42b47f53d1091d95150dbb839ef93bce0ed", "bits": "0xdf311c03c7810700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf6697f05fbb2753ba47e4e8ca6b3239af47bb550", "bits": "0x0700000100000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb214bc58ad8add023667e3a47cee493547247a74", "bits": "0xdf3104ffc0800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x34d8575ec66968ab4ea07f7031ed6a74c213b704", "bits": "0xc3f33cffc0830f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x097d9e0baccb7f5a64aa05462cf6a30f3e4217c8", "bits": "0x0f0000070080e100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6401a6d9c1b1b4bb9f961b3a0fe70ab3b3593200", "bits": "0x0f0000070080e100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x645fc47fd68c8a0d3bd67675fa6b1fbb3b145116", "bits": "0x0f0000070080e100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xadd9a7c1b516060b212f98e699b2779e961f4ec5", "bits": "0xc0731cffcf070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe09763cc00de691d23abb8b36e3aa44ea64d63a4", "bits": "0x7f00fcff40000046", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf9107317b0ff77ed5b7adea15e50514a3564002b", "bits": "0xdf711cffc0800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3d335600833f6d4075184ea5350a3f37f3b82ce1", "bits": "0xdff73cffcf870040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9b75dedc991e833e7fb13d9da2916a4a01adb65d", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x852e45ed1a6502406af4c409df4e0eef3cc0a0e3", "bits": "0xdff73dffcf831f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe9137a9c82f569c6bc24b4f4dd705d63171c2610", "bits": "0x4f000400c0000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x117ef7f6907f1362185e3b83ebc83697706cc78a", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5b042e04ad18537d02fa0d6e0acce115cde53a13", "bits": "0xdf1004ff40a00040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x91013fc414473b494beda4b51f4b130874c47238", "bits": "0xc1100cffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5ff4a620fe2e7ab1a947b7b1be5b1719d3c7f4ca", "bits": "0xff731cffc3010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x83742faddde0b5b2b307ac46f24a1c118d332549", "bits": "0xdf701cffc7000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3b1e0097a0bd13c19d87bad6d834bc4484e18eea", "bits": "0xdf300cffc0800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc6d075831325a4d678c72e856ab354e885845333", "bits": "0x7f0004ff40000046", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc76384281f7b7b3e48db042fa3c6dd325179dd7a", "bits": "0xdf300cff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xda465b6d4af8bfef08d428016eae4bb50b99a636", "bits": "0x5f1004ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x95d8bba9e5af3de140917393f4ba911718f88c38", "bits": "0xc3300400c0800000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xba2221a02bf8ee9611272aac7d28c5e0b9572284", "bits": "0xdf300cff00800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe34bf7b707f298c4d897404b2e3fff0993d57c4b", "bits": "0xdff73dffcf830140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x987bbee511f854c42d744b729f8a8cf4b844b445", "bits": "0x030000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x732a38e6248109693bf63db97965f6cb6b087d2d", "bits": "0x0300000f00800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc90eb1063b68ec8d87e45c2c4532b6d13e565c56", "bits": "0x4f1004070080e100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x122feb64358c612f99d2c33542a009e977ba9e93", "bits": "0x0f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x088ddbd934b8ff2af26e24c1cdebb375701f91e8", "bits": "0x4700000000800300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x493fde51ce7f67f54d465e0458a0235e5c908b69", "bits": "0xdff01cffc0800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9ad8b8134c0c55d3bf1a6426bc37c06f5e748863", "bits": "0x5f0004ff4000005e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0d94f194c245b20f8d2e8acebd9129e1acd56efe", "bits": "0x470004ff40000046", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x957eb470dd2a5cb879481c0f51e4c3640dd17af9", "bits": "0xdf100cffc000004e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd131f1bcdd547e067af447dd3c36c99d6be9fdeb", "bits": "0xdf711cffcf810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb1111c2fee334bed7e6c81b8af4b367d09c30e62", "bits": "0xcf3004ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x98b1ca3699cbff994abad86a1c6c86c34caf6b80", "bits": "0xff100cffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xae8e2b4abb13de393515ef5abad7e35a2b11ba6d", "bits": "0xc3f33cffc7831f42", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x641cbc1375fb0e504bdb3583740d74485d5d2372", "bits": "0x5f00043fc000e007", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x886f55e670cf0e0749cae8e58ba355ae5f804575", "bits": "0xc3701cffc0010042", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xabaef307ecb38dfa4339129d06c54dbc0bd991b2", "bits": "0x431004ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3bf734c8739200cd8dd395459566adbc9a587098", "bits": "0xff310cffcf000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbbdeff314bb732337e2173415f05e36555c40093", "bits": "0xcf1004ff3f800740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9fc7eeacd27d38a436462bb43ad97e49106820d7", "bits": "0xdff33cffc7810040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x35745911d203985539a3291812c6cec9e87c306c", "bits": "0xcf070403c00f0000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x471b9a239acbdcfed92b754ca76273e57aae507d", "bits": "0xcf170403c08f0000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x033c6728ce67510feae338bb1d2ced699a6a27a4", "bits": "0x0f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2e7b5e89a56e5fcb8053e8a66e50f48d63ba9293", "bits": "0xc3100403c0800300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x86910c728c199ab5673029b5a33ec9e83a108f6e", "bits": "0xdf1104ffc0010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2af40bc2f3c1a8acf1a55b5874f9b65055d3e11b", "bits": "0xc3f77dffc78f0340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xcb0d418850c2c8441ea7d45be1c07a37f6d9af9e", "bits": "0xff701c00c0800f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xdb349bf59c9a01e6856f6a6d314c312831279454", "bits": "0xff711cffc3810040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x793014b7852233312f061f23729ee7542371288f", "bits": "0xff0000ff40800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0fc740b7129e9c9c607ca2f9f19d80bab5cc70b1", "bits": "0xc3300cffcf800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xdfb34114abdb32d105a4551117a151c4fdf89a33", "bits": "0xfff33cffcf810340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x31286b3ef8f76be79ecc4e7abd12c050c3c46346", "bits": "0xc3f33cffc1030042", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x71b4f403319a3d883b60b46b569ba0849bbecf01", "bits": "0x0f0000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb1059da8327718704086e372320185b970b3fafd", "bits": "0x030000ff00000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6f0d30ee2bc8d381eefc23d5149fc9eee268321b", "bits": "0xcf733cffc1830740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd2e1b76f81b71304daceec93f7d55d0a2abe2307", "bits": "0x43100000ff800300", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2a0d18d4d81bc8ac320f59a5fce08601ab9e25b2", "bits": "0xdf1004ff40800740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb4649484e2e3c4f1b689f9df327c2248b8203eb4", "bits": "0xc3300cff40800040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9bf6bf1307fe68920f0476465a17b1bdc84b7dfb", "bits": "0x0f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x77b03cbcaf36bb73791b9dbb49f0d4b1ba4ff6e5", "bits": "0x030000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1db9baffaace4fe4b4dd7b14c7acf3c234cf4dce", "bits": "0xff0000ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x74dc16260c9b017de4aacdef8607857e703c6845", "bits": "0x1f0000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa54a9824873b0b9a03333c92e5b1b3a77803a540", "bits": "0xc3300cffc3000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbf36276e2292683faba57ba4864721ffb4419ac8", "bits": "0xcf300cff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb567d433d16fb90ad5645c741d1f304439498243", "bits": "0xdf710cffcf810340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xff0b372384778479004e5be8d9061c3cb42a4d95", "bits": "0x0f0000ff00800040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5a3f84a75090499a818404f9971636e74269b3b5", "bits": "0x4f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7a3190dcf1797630df096bc0c3c2cc1d264e21bb", "bits": "0xdff33cffcf810340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x79c0798257d76e5c8198a019faeace7673e51001", "bits": "0xc3ff7dffff070046", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9a608d9f416518b5f11acf3dc5594c90d6998e2c", "bits": "0xfff77dffc7070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xade9e683cfa84d4c47d74de76afe8c4d7042eb2b", "bits": "0x4f0000ff3f800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x18703914393336fe11c317a1187967401fcb6bff", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x40bb64e1bc96355dabf6869c26e03840428edd90", "bits": "0xc3f7fcffdf870140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0111dcc6fc2df10b1145fdcfed2bcf1b1c00de91", "bits": "0xc3ff7dffdf8f0040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6ead5b1eaddc3f2b72116228f66ca0347962fc87", "bits": "0xdf710cffcf800740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x495aa0107b4743d9f07b2a6512ebbee384a78285", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9333c471fb0abb0a189189933bfc0d1a4584c9f7", "bits": "0xdff73dffcf810340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5f4ef5c539a56291665fcca4e6b7a6446ad11cc1", "bits": "0xc01004ffc0800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x26c510207cf66dd9ae6fda8706a8feab1665469c", "bits": "0x7f00000f4080e301", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5536d6983c0709f2f16d56213af951c87233e704", "bits": "0x7f00000f4080e301", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc2fab9da78a5df4b5b9966a91aa4c7ca91437890", "bits": "0x7f00000f4080e301", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe362bdc1847415a0a8b22469506b7a4c8f818fa9", "bits": "0x7f00000f4080e301", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb91eb9e08fa927d571077367507725506c1f379b", "bits": "0x7f10040f4080e000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x49f2ed2039df34a871c899d0fd3caeb29b009795", "bits": "0xc3100000c0800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x626ca5aebed560d9636e020058d87596bb6afa31", "bits": "0xcf1004ffcf800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x559b4ef61c40d37f63c15b82bf5dc864dd80a23b", "bits": "0x430004ffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x37aa0ef04927fa2c72bfe1e141b5b0fd498f2d58", "bits": "0xc71004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x26ca32b540bdb8080a514f82705c9e9ab53a5207", "bits": "0xff0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2be7406ad155dc6de55c4022cee74a954f9c1c29", "bits": "0x7f1004ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbc420d27e22796fc04e110c8680208a044359625", "bits": "0xc1100c01c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8bfae28463c7029c57f0baefb98b29e564dc2e02", "bits": "0xdf710cffcf810340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xfc91f727333fbb224a6c78839463b0f372ece7d0", "bits": "0xc3f71c00c0810700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6dc2e29f64dc30e3eb8c500973bbd6315d10a3bb", "bits": "0xc1100cffc0000042", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc467370dc17f3428ec620fca05c33ea647e80ead", "bits": "0xdff33cffc7000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x34c3a5ea06a3a67229fb21a7043243b0eb3e853f", "bits": "0x4f0004ff40000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf3eab2365c8689d7d429e9cf03c78b29f07907b1", "bits": "0xdf300cffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xef149d3c65476fe1b306ea2eafdfc054edd5c1d5", "bits": "0x4310040000800100", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5bbefaccc1a8e1ecb0d470f941668562eeb46ff0", "bits": "0xcff33cffc7810340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1dd4b6c6d87650c3bf48dfc9985257b7776cd2dd", "bits": "0x7f000007c0006086", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaf0b56df675c5367319aee80c7c7f764809e6a50", "bits": "0xff000407c0006086", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3742799e12a6850e9ec9f8bf4db4461de958cc92", "bits": "0xdff31cffc7810340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc79946e8c599a01554d37b985192aae7f8214339", "bits": "0x3f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe48c7af5dbbf684f40f8e9fe4736bb99dc315d1e", "bits": "0xdff73dffcf830040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4b70696e98be43558fdca1526575227746e4a662", "bits": "0xc71004ffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc50f41034741de68ab9197c2a62884a7bc8c4c20", "bits": "0x7f100407c000e000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7b62d6585f0666f5cfcbea5e09baa99133478a96", "bits": "0xff0700ffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x42b14c187d45e53f4f2ab4830231abe0c97b2ebf", "bits": "0xc1300cff40000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7fab8d2f8e6255ba9759074c14e314f61d1e2083", "bits": "0xcf770cffc0870140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb760bd106f186417a980757005df91644ec8b7a1", "bits": "0xdff73c00df870f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4aa7b61f6776f84ccfdbb7ec5a6ce4328ff5a47c", "bits": "0xff300cffff800f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xac7dd5a34f5859ef1fecc8f4d036f75a35b19eb9", "bits": "0xc3300cffcf800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb07e7bc5d7b37c85e56a0d936a40573c8f0474a9", "bits": "0x430004ff7f800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa8b4baa614e4af59e78afd60accd14edc459c646", "bits": "0xdf100cffc0800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0de4ce0117f8e579f7d2ffe73c900a017efcc12a", "bits": "0x4f0004ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3ae0e9a6b67a9ca5cf2f42a0b3266b2098d399ab", "bits": "0xc31004ffc0800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x14200888c9b85b4f1e589de4be12e46916b7af31", "bits": "0xdff73cffcf070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x15c584e002b53f7f10aad2c129e6fe891880d9be", "bits": "0xff771cffc3030040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1ef1e5749f3aaf4ae5275e98fb640bc5536fc09f", "bits": "0x7f0004ffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9eef97db103d882d0430353070ca7a4a0dcce868", "bits": "0x7f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4e3138a26928ea8b79e0192c7de836cf258d4618", "bits": "0xcff33cffcf010040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9debadcaae4820092c8ff7dc741c9ec7d9e95027", "bits": "0xff701cffc7810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4f9e9e4a075614ade3e181893f396959b2f55f94", "bits": "0x0f00000000800780", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x251a78b01a3dd39b1de04a660a21b4db564dc310", "bits": "0x030000ff00000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x32b3a4303a32c889d24d0afc2aada99c5bb19ffb", "bits": "0xfff77dffdf870f40", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6552a83d69e49a418eeeaae4e1e3e5d8ee0402be", "bits": "0xdf300cffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7c7588a522694bedb5b56233c00dc97e74207a8c", "bits": "0x070000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf79cd7b73c86cf051d6e814c4e457081e019f85e", "bits": "0xcf3004000f800f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x56bd929a27ae2dbbffc004d988abeaa80a70aa9e", "bits": "0xcf0104ffc0030040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x429c970f5556b78f2516117d1a7d49b51c2c2278", "bits": "0x4f0004ff40800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1135e6c406fa861a413d53fd3b8d6e434767ed16", "bits": "0xdf3004ffff800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x10061123876ceea12642342afe829444b7e0d48a", "bits": "0xcf711c07c3010000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x905d4ccca7a56937dd9bd97272643cb859cd32dd", "bits": "0xff711c03cf030000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x48b576c87e788a762d6f95a456f2a39113b46950", "bits": "0xc030040040800300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x94c5ee76800191f3df07f0b90ee15c952ddc0dba", "bits": "0x3f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd095e66cca716c5e07076fa47458b5974e91e5bb", "bits": "0x471004ff40800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xfaa4c775cd99017d01b9553cc078eff6e797c35d", "bits": "0xc3f71c1fcfe1e300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x727338536b924efa179fb726b580c4cde5d273bb", "bits": "0x4f1004ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1efb3038de631cfce0c0a231952c6b90d5d9cfe5", "bits": "0xff700cffc7800040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x898e7ba5997edf98ac95e19a2d8dc417fbe80621", "bits": "0xdf701c03c0012000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xdbacd6c357fff3e85b7dc7865c094150efcd4a2b", "bits": "0xdf300cffc0000042", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbf592177e1918abec7c9d435157b76f52601ddb4", "bits": "0xc3310400c0810100", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x138217746bd24765ada859ed9cf23182e456ca3d", "bits": "0x5f30040340802100", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa2c0905a8a1e66cc1633d2031ee21b18d4a42fa6", "bits": "0xdff77dffdf870340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa725fc08eb900b5fc2be53404a4482a4fdc47b50", "bits": "0xc3100c03cf802102", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa1b3ca37d45fa86c363af178525a153ea8634765", "bits": "0xc1100c01c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xab7b49bacd43bd4cfa41433d477f690bb9e1fb26", "bits": "0xfff11cffcf810740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbee8bbbc85f226f2fc2490901f48958c41df152d", "bits": "0xdf700cffc7810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe4ef6fcfde87dfce188fadf24a4a67af756a930a", "bits": "0x5f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6adffd718b897ff206b9c0d45bb5e46ab5893cad", "bits": "0xc3f71cffc7830140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaf9727db19690208db9df2c9ebfd0ef891cd30c1", "bits": "0xdf771cffcf070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x65e91f3cf0c8be36734a752c6a3d1733ca02a7fb", "bits": "0x4f3004ff40800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbe35abf3ba9ff7740de1bc1c4aef9a8e4d16cda2", "bits": "0xc3711c07c0810f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2fc3fd7c06adfc48736122ea33820038cc16dcdb", "bits": "0xc3710cffc1810040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2ed4c1f279d8b221ef8be4c86fda7ebb397e1f13", "bits": "0x5f10040100800100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5b4007fecb97e04eb4aca239e407c882f8100501", "bits": "0x4f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb9bd02f872ae0a01e15d25d4c190627e983c647a", "bits": "0xc3300cffc0010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8f98f993bbcb1e08fc52f8b5b24f9174f0d26766", "bits": "0xcff33cffcf810340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x141b3b65934ce243e1268699d75e44ef740c7cf8", "bits": "0xcf700cff0f800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x21bf63c0418d4f1d13f884c50498b2259b321b43", "bits": "0xdff73dffdf030040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x880e352af029128679eee59a24f93e4b764d40c3", "bits": "0x7f000007c0000086", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4f4b0642039897a958c0d6b69c300f388c92ceb4", "bits": "0xdf700cffcf800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x15534128e89e302288e2bc97495b83795c0d2f6b", "bits": "0xff173cffdf070040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4e94771469b5e9069c2442632ec5a7df77561dd4", "bits": "0x431004ffc0800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x47b2a58cc5a07f121713f600b0c07e503fae99f5", "bits": "0x4f1004ff7f800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3bc823047283e6cc4c6f4b4ab2550e4b85a20664", "bits": "0xc3300407c7010080", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1d6d9382d9acab4ea437790351c583c7677d15e8", "bits": "0x0f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x136cccf1b1d60f33dde699d05e655ba652d48ecc", "bits": "0xc1100c01c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5eee08ba4c77723fe2814f82dd08940cc82e28e7", "bits": "0x5f00040340000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5c79a719c9fda77d76220734a7ee97963d488869", "bits": "0xdff77dffc7830340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbe0030b71e9eded2b417f2a459c0ce24a4e8089a", "bits": "0xdff73dffcf870140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7eeaa91b2406685e03312c5ecd7594c448c9c279", "bits": "0x4f30040040800100", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbd4a38e90710ec7beb292923f4a1b4b1d0131b67", "bits": "0xdf3004ff40a00040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2ae8512b8f0399fd4348b2f4b9a50d03a5a62af5", "bits": "0xff1104ff40000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5a96c8d06bd08c3dac03626381781b973d281e86", "bits": "0xdf700cff7f800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3913467ad3959a41bdad7b1f6d863c697ebb2503", "bits": "0x4f0004ff4000005e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0029d748cbee0898992bbfebb3585a04d9fc8661", "bits": "0x4f0004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9480fc2a527bb0f0e5e6a3cf2922bcd123b71302", "bits": "0xdf711cffc3800f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd8076e8da9a90ba7ecd555145a1142ef1b2a0c87", "bits": "0x7f3004ff40800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb9687ea1d73002d749371044ae07887a08a04b4c", "bits": "0xdff77d0fcf072082", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x052c4ccee7daa70c3af36f0c92d035104d004c52", "bits": "0x4f0004ff4000004e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xcf5a2233be2fc530e7d95e6352e2f160a7481184", "bits": "0xdf330cffc087014e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5ef0ccd9e730d832e01aa859894cf8feef148cf5", "bits": "0x1f00000000800700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x049b2ab20e15389fb164fd45d765f129dbd40739", "bits": "0x5f0004ff40000042", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x09c64a95c610e7bf78ef481ea9c4bf6756ad5351", "bits": "0xc1300cff40000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa1cd45953095210477ca7f6d7d0dad4f48688c45", "bits": "0xff711c00c7810000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbac26b81f53b9207306ede3000712052ff51d7ef", "bits": "0xfff33cffcf810740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x93643b49b7e95f380eb91d6d3b270583a1fc4b0a", "bits": "0xc71004ff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x459a2fed87d602aeadc9da4c0d14da6f0fc542d2", "bits": "0xdf310cffc0010040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x180f1fb7e4ac889c9cdaf7c36e6c9b9a561913c2", "bits": "0xdf1004ffcf000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x873239369bd2a85f4478b1068c55bad53f2d371d", "bits": "0xdf300cffdf810740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x29a94e062a28b8b034c065190fe073b3bacfc579", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x31201116c6f0d00dcbfff5c4570ba5211b76c2e9", "bits": "0xfff33cffcf810140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0bb74b8df5ee47e4c90a66c4fb6dfc309d2004e9", "bits": "0x0f0000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8cea43abb225d9350abe4f66300b4cd6cb22baab", "bits": "0xc11004ffff800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x04a038e2e653fa9ffbe289dfd96770053acb1978", "bits": "0x5f1004ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xcb630c28658d8b4f0509d628d8d947e6f95ea20a", "bits": "0xff100400c0000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x71672e0d7d13384cf01737a68740733e852e8e98", "bits": "0xc3300c0340802000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x506d780e354cba25f19d2b6c2413ab8fc89f3c19", "bits": "0xdf1004ff4f800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9ed386aa9c14ddd590ed62663e6addd82a74e06b", "bits": "0x4f0004ff40000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd0680be2393998a558c9864a0c264ac8731bd4df", "bits": "0x3f00000000800700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xf5632cfcd668c10949ba06618d50928ce5841ae3", "bits": "0xfff11cffcf810740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x18140fbca6fcd986da4463aa44f82c682dd6d8a4", "bits": "0x0000000000600000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x5ab1368d9291bf5e4fb27ac70955a01dc0370520", "bits": "0xff000cffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc108d1b9743c68b70f697f97dfa7ad72d2c0145a", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa01c28cebcea47f26877995af0dd8a445f4adad5", "bits": "0xc0300400c0e00300", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x38443de4140c744ce9f4fa72174d65e2a4daa6da", "bits": "0xff770cffc0070040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x585a003aa0b446c0f9bad7b3b0bac5a809988588", "bits": "0x1f0000ff00800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xbcb4c8386c097589e7825aaeb9e7c6295835f1d6", "bits": "0x4f1004ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2aa40b4f2c62c70b12ca2295f3657632a21d5396", "bits": "0x030000ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x322de26736067396ba755c79c2d2ea6594b28189", "bits": "0xcff73dffcf070040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x8776d9c1aae452c32256f0709c9b9cfa3a1f9b07", "bits": "0xcff73cffcf870140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x86324208823e00bd38ee992df71a96b28b3ce91d", "bits": "0x4f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x38afbf1b7d4c4711126bbef256595711b954db00", "bits": "0xcf3004ff4f800040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0d135de4d90cc8d6cdab007878b6de18ae8a9e21", "bits": "0x4330040000800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x7b3d618140860f35e0aea5893d892051e48bcbd5", "bits": "0x5f3004ff40800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xe48608c7da53a6481a46bb247759b6d3b0edc6af", "bits": "0xcff33cffcf810140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x47bf3abb35b7665b72fce5344243fd480f9c121c", "bits": "0xc0f71cffc1830340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1b5cecf78454b8534affcbb9f53e21640ec4088e", "bits": "0x4f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc640cccce6809fcdfadc467f533ce68d3fb0a72c", "bits": "0xdf700cffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd81eeb1abc9fc891f3f9490d3992bc6dbaf7df54", "bits": "0x3f0000ff00800146", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x795a4ed1a7e726280830d7130a43a830bc8225d4", "bits": "0xc0700c00c0800700", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa5afabc74d9e40903862d9994e6f5c8c33f9980f", "bits": "0x3f0000ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x163f352950317280b8ace663144217622abc8fe6", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6df76a4186cf6605839c55ec247cdd59b4cff508", "bits": "0x473004ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x99799dbb5a66b2ed2499524a741ab7911236db1c", "bits": "0x3f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2b086d849e7952bace0d03aeeec26a75b0a2e9c0", "bits": "0x4f0004ff00000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x09131f237b6514e2a079ee7c71e475f91bef5b7e", "bits": "0xdff77dffcf030040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4224e543682107239b658c2e7cfd85cb4d7f92ae", "bits": "0x4310000040800000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x76489718129976e12a96d0b2c85aaca8f5d917dd", "bits": "0xcff11c00c0010000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x51e0c776c0e17808138c5f6e65cfe0d24d553b46", "bits": "0x4f0004ff4000005e", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x32f2cfb7525dfec1727c98e0a9ccff65c294a68d", "bits": "0xdff77dffc7830340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x81219858f95e3634eece9603421fcf848422398c", "bits": "0xc3731c0fdf01e00f", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xb641f5ede32fcb0bf117efb8ee68507afe634db3", "bits": "0xdff73cffcf830740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x11dcd8f741b12dfda3e3c74f7ef3f3832c0787c4", "bits": "0xff000401c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1bbec7dac0cf0c53ab54ebdf706d3e9acacf5e33", "bits": "0x3f00000100000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xafddcf1552635a7001a146fa334f81ef4953e409", "bits": "0x4f1004ff40800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x249cb8fe45e4c55078291947914326d585e0f606", "bits": "0xcf711cffcf000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x175d7ac3844ac969c1d17431e59ff057ad17ee3b", "bits": "0xdf131cffdf870740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xae0f77c239f72da36d4da20a4bbdaae4ca48e03f", "bits": "0xc0f77d00c0a30f00", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9038063d7efbe521ab85ecf4aed4c8792f9d7435", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x2168577af945529fc223e3a2f6d55cc68d8f294a", "bits": "0xc3300cffc3800f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xeef5286473e4c63f15e8467ee1a503d9e5f85acd", "bits": "0xdf0000ff40800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xd942fb31ec5641c32523d0109fdae5f2a0e7bfd4", "bits": "0xc1700cff40000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x54272c1150ebbc3a3a88ef02660535bff0e69d4b", "bits": "0x4730040000800100", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xc5e021ff6ffd843de7e14f6c2388d532d1cf8286", "bits": "0x3f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x9983faedaabaa9f7cd09feb423be3bf0c8f09b22", "bits": "0xc0330cffcf831f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x587fbf84df414cd6c5a18ae7c2987f13a4b0b3b6", "bits": "0xc1100c01c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x0753cfbc797abfce05abaacbb1e6ae032feb5f1d", "bits": "0x1f0000ff00800140", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4d8b00231f526333d951c31bc7ec681bcf928d36", "bits": "0xdf711cffcf800740", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xdf821b7bd9b7aa16a23d33b82edfbc528eb9bc32", "bits": "0x5f1004ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1eb322c016815ee5b29c071586c1b75be5934576", "bits": "0xc0710c00c0a00000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x49e53fb3d5bf1532febad88a1979e33a94844d1d", "bits": "0x1f0000ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4610c6db3d44ffd3a498fb71c66cd38a37411bb5", "bits": "0xc3711cffcf830746", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4d3c6a07657059fe541f690faac9f76cc0f55147", "bits": "0x4f10040040000000", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa6a00cf7fa1d5d6f5951195275ea3685a09dfabe", "bits": "0xc3f77dffc7270042", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xefc5ff84594ebf147dceaeb5c41079672cf0d85c", "bits": "0xfff77dffdf8f0340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4abdf782327d3447f614525c842571e8172ce5a9", "bits": "0xc3010cffc7800740", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6759e4e0ca18233d9d1123fcefa422ce8cb9f2af", "bits": "0x5f0004ff40000042", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xaad2003307c9b7a2647ec3a8713e02fd0bebbb96", "bits": "0x41100400c0000000", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x529408a6962bae6ca5328874d633738116b89b05", "bits": "0x430000ff40800f40", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x4b458c973895c0625b176309ddc9740b4bfb7495", "bits": "0x0f0000ff00800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x1ac262d831815b1296803f01221271cd5b1c3bbd", "bits": "0x0f0000ff00800340", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x556dbd6ddafbb7ab883bdb9979d3359ac2fff659", "bits": "0x7f0000ff40800140", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0xa5fde477f30ce499d5ed24c8d915a3b8f70df505", "bits": "0x1f0000ff00800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x6f3a6d9867d6213056b55ce52b55514215deb343", "bits": "0xc31004ffc0000040", "label": 0, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x11c047d2512de3f9f7e82c260de4405a5d84df9e", "bits": "0x4f0004ffc0000040", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}
+{"address": "0x3abc79ff0a835caac1193d2ec107938c364e1e82", "bits": "0xcf310cffff800340", "label": 1, "block": 76254000, "extractorHash": "0x1fe3722d832fd379fe7233cf8e861145e99a37817ad2e63ff06907e5374b2929"}

@@ -1,5 +1,6 @@
 {
-  "comment": "Everything that changes the bits, besides the code. Hashed into extractorHash with the sources (data/extractor_hash.ts). Training snapshot: block 76254000; campaign window = 30 days before it; OKB price frozen at $86.10 (CoinGecko, Nov 18 2026). exchanges is empty in v1, so fundedFromExchange is always 0.",
+  "comment": "Everything that changes the bits, besides the code. Hashed into extractorHash with the sources (data/extractor_hash.ts). Training snapshot: block 76254000; campaign window = 30 days before it; OKB price frozen at $86.10 (CoinGecko, Nov 18 2026). exchanges lists known exchange addresses (none yet); exchange-scale funders are detected from their own history either way. history = the backend that reads wallet histories (okx | index): campaigns must use the one the model was trained with.",
+  "history": "okx",
   "chainId": 196,
   "scanFromBlock": 0,
   "windowStart": 1792431036,
