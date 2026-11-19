@@ -2,6 +2,11 @@
 pragma solidity ^0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
+import {AccuracyAudit} from "../src/AccuracyAudit.sol";
+import {CusityRegistry} from "../src/CusityRegistry.sol";
+import {CampaignCommit} from "../src/CampaignCommit.sol";
+import {PositionalHelper as PH} from "./PositionalHelper.sol";
+import {RefProcessor} from "./RefProcessor.sol";
 
 interface IProc {
     function tapeout(bytes calldata netlist, uint32 nIn, uint32 nOut) external payable returns (uint256 id);
@@ -50,9 +55,9 @@ contract ForkTest is Test {
         assertEq(P.eval(1, hex"03"), hex"00");
     }
 
-    function _tapeoutOn(IProc proc) internal { _tapeoutOn(proc, "../build/toy.netlist.json", true); }
+    function _tapeoutOn(IProc proc) internal returns (uint256) { return _tapeoutOn(proc, "../build/toy.netlist.json", true); }
 
-    function _tapeoutOn(IProc proc, string memory path, bool checkFixture) internal {
+    function _tapeoutOn(IProc proc, string memory path, bool checkFixture) internal returns (uint256 id) {
         bytes memory nl = vm.parseJsonBytes(vm.readFile(path), ".netlist");
         uint256 gates = nl.length / 7;
         ITransistors t = ITransistors(proc.transistorsContract());
@@ -72,7 +77,7 @@ contract ForkTest is Test {
         try t.mint{value: gates * (price + pfee)}(0, gates) {} catch { t.mint{value: gates * price}(0, gates); }
         console.log("  BEM spent (8 decimals):", bemBefore - IERC20Min(BEM).balanceOf(ME));
         console.log("  NAND transistors held:", t.balanceOf(ME, 0));
-        uint256 id = proc.tapeout{value: tfee}(nl, 64, 7);
+        id = proc.tapeout{value: tfee}(nl, 64, 7);
         vm.stopPrank();
         console.log("  taped out circuit id:", id);
         console.log("  total cost for", gates, "gates (wei):", before - ME.balance);
@@ -82,7 +87,7 @@ contract ForkTest is Test {
         assertEq(sha256(proc.netlist(id)), vm.parseJsonBytes32(vm.readFile(path), ".netlistSha256"));
         if (!checkFixture) {
             uint256 g1 = gasleft(); proc.eval(id, hex"c00f00003f10ff01"); console.log("  live eval gas:", g1 - gasleft());
-            return;
+            return id;
         }
         string memory fx = vm.readFile("../build/fixture.json");
         for (uint256 i; i < 3; ++i) {
@@ -104,18 +109,20 @@ contract ForkTest is Test {
     function test_tapeoutModelOnFork_cpu422() public { _tapeoutOn(IProc(0x550992f2dC407BfFDd82c516C0984dc5e00B37d3), "../build/cusity.netlist.json", false); }
 
     function test_tapeoutToyNetlistOnFork_cpu300() public { _tapeoutOn(IProc(0x9b826BD2984C2A041eE3b8f7168f2620fC5D3281)); }
-    /// Own processor: created through the live factory on the fork, at the current (near-zero) price cap.
-    function test_ownProcessorOnFork() public {
+    /// Own processor: on Nov 19, 2026 the upgraded factory refuses createCPU at its first check (no revert data),
+    /// even with the deploy fee paid in OKB and BEM approved. Cusity uses existing processors (#419/#422); this
+    /// test fails, on purpose, the day the route opens again so the cost table can be revisited.
+    function test_ownProcessorRouteIsClosed() public {
         IFactory f = IFactory(0x1f09DAeFA827f02CBb40967cc91b259763760761);
         vm.deal(ME, 10 ether);
-        uint256 before = ME.balance;
-        vm.prank(ME);
-        (bool ok, bytes memory ret) = address(f).call{value: f.deployFee()}(
+        address BEM = 0x60e62Efa9405d6873C5deaBD4E6CC91c25363952;
+        deal(BEM, ME, 100e8);
+        vm.startPrank(ME);
+        IERC20Min(BEM).approve(address(f), type(uint256).max);
+        (bool ok,) = address(f).call{value: f.deployFee()}(
             abi.encodeCall(IFactory.createCPU, ("Cusity", "CSTY", "Cusity bot filter circuits", 100000, 1e12)));
-        if (!ok) { console.log("createCPU reverted:"); console.logBytes(ret); return; }
-        address cpu = ret.length >= 32 ? abi.decode(ret, (address)) : f.cpuAt(f.cpuCount() - 1);
-        console.log("created processor on fork:", cpu, "deploy cost (wei):", before - ME.balance);
-        _tapeoutOn(IProc(cpu));
+        vm.stopPrank();
+        assertFalse(ok, "createCPU works again: re-evaluate an own processor");
     }
 
     /// Processor #427 lists a near-zero mint price; record why minting there fails (it is not usable as-is).
@@ -124,7 +131,86 @@ contract ForkTest is Test {
         vm.deal(ME, 1 ether);
         vm.prank(ME);
         (bool ok, bytes memory err) = address(t).call{value: 251 * (t.mintPrice() + t.protocolFee())}(abi.encodeCall(ITransistors.mint, (0, 251)));
-        console.log("cpu427 mint ok?", ok);
-        if (!ok) console.logBytes(err);
+        console.logBytes(err);
+        assertFalse(ok, "cpu427 now accepts mints: re-check it as a cheaper processor");
+    }
+
+    // ------------------------------------------------------------------ the whole Cusity flow on mainnet state
+
+    uint256 constant N = 40;     // test rows
+    uint16 constant K = 16;      // rows per audit, as deployed
+
+    /// Deploys the three contracts exactly as script/Deploy.s.sol does (real factory, real processor code
+    /// hashes), tapes the model out on #419, then runs: test commit -> register -> campaign commit ->
+    /// publish -> bind -> verdictOf -> requestAudit -> seal -> finalizeAudit (K=16), checking every result
+    /// against the processor's own answers.
+    function test_fullFlowOnFork_cpu419() public {
+        IProc proc = IProc(0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e);
+        uint256 cid = _tapeoutOn(proc, "../build/cusity.netlist.json", false);
+        bytes32[] memory code = new bytes32[](2);
+        code[0] = 0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5;
+        code[1] = 0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545;
+        AccuracyAudit audit = new AccuracyAudit(K);
+        CusityRegistry reg = new CusityRegistry(address(audit), 0x1f09DAeFA827f02CBb40967cc91b259763760761, code);
+        audit.setRegistry(address(reg));
+        CampaignCommit camp = new CampaignCommit(address(reg));
+
+        // test set: real-looking rows; every third label disagrees with the circuit
+        bytes8[] memory bits = new bytes8[](N); bool[] memory label = new bool[](N); bool[] memory model = new bool[](N);
+        bytes32[] memory leaves = new bytes32[](N);
+        for (uint256 i; i < N; ++i) {
+            bits[i] = bytes8(keccak256(abi.encode("fork row", i)));
+            model[i] = uint8(proc.eval(cid, abi.encodePacked(bits[i]))[0]) & 1 == 1;
+            label[i] = i % 3 == 0 ? !model[i] : model[i];
+            leaves[i] = keccak256(abi.encodePacked(uint32(i), address(uint160(0xB000 + i)), bits[i], label[i]));
+        }
+        uint256 tc = audit.commitTestSet(PH.root(leaves), PH.depthFor(N), uint32(N));
+        vm.roll(block.number + 1);
+        bytes32 ext = keccak256("extractor");
+        uint256 modelId = reg.register(address(proc), cid, ext, tc, "ipfs://card");
+        assertEq(reg.model(modelId).netlistHash, vm.parseJsonBytes32(vm.readFile("../build/cusity.netlist.json"), ".netlistSha256"));
+
+        // a contract that is not a factory processor is refused on mainnet state too
+        RefProcessor fake = new RefProcessor();
+        vm.expectRevert(CusityRegistry.NotATapeOutProcessor.selector);
+        reg.register(address(fake), 1, ext, tc, "");
+
+        // campaign over 5 wallets
+        vm.roll(block.number + 1);
+        uint256 c = camp.commit(reg.model(modelId).netlistHash, ext, uint64(block.number + 5));
+        bytes32[] memory snap = new bytes32[](5);
+        for (uint256 i; i < 5; ++i) snap[i] = keccak256(abi.encodePacked(uint32(i), address(uint160(0xC000 + i)), bits[i]));
+        vm.roll(block.number + 6);
+        camp.publishVectors(c, PH.root(snap), 5, PH.depthFor(5), "https://cusity/snapshot/list.json");
+        camp.bind(c, modelId);
+        for (uint256 i; i < 5; ++i) {
+            uint256 g = gasleft();
+            (bool v,) = camp.verdictOf(c, uint32(i), address(uint160(0xC000 + i)), bits[i], PH.proof(snap, i));
+            if (i == 0) console.log("verdictOf gas (eth_call):", g - gasleft());
+            assertEq(v, model[i]);
+        }
+
+        // audit
+        uint256 r = audit.requestAudit(modelId);
+        (, , uint64 target,,,,) = audit.rounds(r);
+        vm.roll(uint256(target) + 1);
+        vm.setBlockhash(target, keccak256("fork target hash"));
+        audit.seal(r);
+        vm.roll(block.number + 1000);   // long after the 256-block window: sealed rounds stay finalizable
+        uint32[] memory idx = audit.sampleIndices(r);
+        AccuracyAudit.Row[] memory rows = new AccuracyAudit.Row[](K);
+        bytes32[][] memory proofs = new bytes32[][](K);
+        uint16 expect;
+        for (uint256 j; j < K; ++j) {
+            uint32 i = idx[j];
+            rows[j] = AccuracyAudit.Row(i, address(uint160(0xB000 + i)), bits[i], label[i]);
+            proofs[j] = PH.proof(leaves, i);
+            if (model[i] == label[i]) ++expect;
+        }
+        uint256 g0 = gasleft();
+        (uint16 correct, uint16 total) = audit.finalizeAudit(r, rows, proofs);
+        console.log("finalizeAudit gas, K=16 on the live processor:", g0 - gasleft());
+        assertEq(correct, expect); assertEq(total, K);
+        assertLt(expect, K);   // the mixed labels really were scored
     }
 }

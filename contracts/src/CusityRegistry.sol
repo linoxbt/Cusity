@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ITapeOutProcessor} from "./ITapeOutProcessor.sol";
+import {ITapeOutProcessor, ITapeOutFactory} from "./ITapeOutProcessor.sol";
 
 interface IAuditCommits {
     function testCommitInfo(uint256 id) external view returns (address owner, uint64 blockNumber);
@@ -11,6 +11,10 @@ interface IAuditCommits {
 /// @notice A list of model cards. Each model points at one taped-out TapeOut circuit. The netlist
 /// hash is computed here from the processor's own bytes, so nobody has to trust a typed-in hash.
 /// No admin, no upgrades: a registered model can't be changed.
+/// Only genuine TapeOut processors are accepted (audit S1): the factory must list the processor AND its
+/// runtime code must be one of the processor-proxy builds fixed at deploy. Those proxies embed their beacon
+/// address in code, and that beacon's owner is renounced, so the evaluator behind an accepted processor can
+/// never change and cannot answer different callers differently.
 contract CusityRegistry {
     struct Model {
         address owner;
@@ -28,19 +32,26 @@ contract CusityRegistry {
     uint32 public constant N_OUT = 7;   // output bit 0 = verdict, bits 1..6 = margin (LSB first, offset 32)
 
     IAuditCommits public immutable audit;
+    ITapeOutFactory public immutable factory;
+    mapping(bytes32 => bool) public allowedProcessorCode;
     Model[] private _models;
 
     event ModelRegistered(uint256 indexed modelId, address indexed owner, address processor,
                           uint256 circuitId, bytes32 netlistHash, uint32 gateCount);
 
     error Shape(uint32 nIn, uint32 nOut, uint32 nState);
+    error NotATapeOutProcessor();
     error NotYourTestCommit();
     error TestCommitTooRecent();
 
-    constructor(address audit_) { audit = IAuditCommits(audit_); }
+    constructor(address audit_, address factory_, bytes32[] memory processorCodehashes) {
+        audit = IAuditCommits(audit_); factory = ITapeOutFactory(factory_);
+        for (uint256 i; i < processorCodehashes.length; ++i) allowedProcessorCode[processorCodehashes[i]] = true;
+    }
 
     function register(address processor, uint256 circuitId, bytes32 extractorHash,
                       uint256 testCommitId, string calldata cardURI) external returns (uint256 modelId) {
+        if (!allowedProcessorCode[processor.codehash] || !factory.isCPU(processor)) revert NotATapeOutProcessor();
         ITapeOutProcessor p = ITapeOutProcessor(processor);
         (uint32 nIn, uint32 nOut, uint32 nState, uint32 gates) = p.circuitInfo(circuitId);
         if (nIn != N_IN || nOut != N_OUT || nState != 0) revert Shape(nIn, nOut, nState);

@@ -5,6 +5,7 @@ import { toBits, pack, unpack, isValid, SLOTS, levelOf, withLevel, describeLevel
 import { buildHistory } from "./history";
 import { historyFeatures, type Config } from "./extract";
 import { testTree, snapshotTree } from "./merkle";
+import { verify, testLeaf, snapshotLeaf } from "./merkle_core";
 import type { Tx } from "./indexer";
 
 test("pack/unpack round trip, LSB first", () => {
@@ -66,12 +67,23 @@ test("OKX request signing matches the documented recipe", async () => {
   assert.equal(h["OK-ACCESS-SIGN"], createHmac("sha256", "s").update("2026-11-18T09:00:00.000ZGET/api/v5/xlayer/address/normal-transaction-list?a=1").digest("base64"));
 });
 
-test("merkle trees are deterministic and proofs line up", () => {
-  const rows = [{ bits: "0x0102030405060708" as const, label: 1 }, { bits: "0x1112131415161718" as const, label: 0 }];
+test("positional merkle trees: deterministic, index-bound, sorted snapshot", () => {
+  const rows = [{ address: "0x00000000000000000000000000000000000000bb", bits: "0x0102030405060708" as const, label: 1 },
+                { address: "0x00000000000000000000000000000000000000aa", bits: "0x1112131415161718" as const, label: 0 },
+                { address: "0x00000000000000000000000000000000000000cc", bits: "0x2122232425262728" as const, label: 1 }];
   const a = testTree(rows), b = testTree(rows);
-  assert.equal(a.root, b.root); assert.equal(a.leaves[1].index, 1);
-  const s = snapshotTree([{ address: "0x00000000000000000000000000000000000000aa", bits: "0x0102030405060708", block: 5 }], 3, "0x00");
-  assert.equal(s.campaignId, 3); assert.ok(s.wallets["0x00000000000000000000000000000000000000aa"]);
+  assert.equal(a.root, b.root); assert.equal(a.depth, 2); assert.equal(a.size, 3);
+  for (const l of a.leaves) assert.ok(verify(l.proof, a.root, a.depth, l.index, l.leaf));
+  const l1 = a.leaves[1];
+  assert.ok(!verify(l1.proof, a.root, a.depth, 2, l1.leaf));                       // same leaf, other position
+  assert.ok(!verify(l1.proof, a.root, a.depth, 1, testLeaf(1, l1.wallet, l1.bits, true)));   // flipped label
+  const s = snapshotTree(rows.map(r => ({ ...r, block: 5 })), 3, "0x00");
+  assert.equal(s.campaignId, 3); assert.equal(s.count, 3);
+  assert.deepEqual(s.list.map(x => x[0]), ["0x00000000000000000000000000000000000000aa", "0x00000000000000000000000000000000000000bb", "0x00000000000000000000000000000000000000cc"]);
+  const e = s.wallets["0x00000000000000000000000000000000000000bb"];
+  assert.equal(e.index, 1);
+  assert.ok(verify(e.proof, s.root, s.depth, 1, snapshotLeaf(1, "0x00000000000000000000000000000000000000bb", e.bits)));
+  assert.throws(() => snapshotTree([...rows, rows[0]].map(r => ({ ...r, block: 5 })), 0, "0x00"), /duplicate wallet/);
 });
 
 import { mkdtempSync } from "node:fs";

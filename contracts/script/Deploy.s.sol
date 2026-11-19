@@ -6,14 +6,27 @@ import {AccuracyAudit} from "../src/AccuracyAudit.sol";
 import {CusityRegistry} from "../src/CusityRegistry.sol";
 import {CampaignCommit} from "../src/CampaignCommit.sol";
 
-/// forge script script/Deploy.s.sol --rpc-url $XLAYER_RPC --broadcast
-/// AUDIT_K (default 16) = rows per audit round; lower it if eval gas on the real processor is too high.
+/// Deploys the three contracts on X Layer mainnet, signing with a Foundry keystore (never a raw key):
+///   cast wallet import cusity --interactive          # once; the key is stored encrypted
+///   forge script script/Deploy.s.sol --rpc-url https://rpc.xlayer.tech --account cusity --broadcast
+/// AUDIT_K (default 16, 1..65535) = rows per audit round. K=16 finalizes in ~24M gas with the 646-gate
+/// circuit (measured on a fork), far below X Layer's 210M block gas limit.
 contract Deploy is Script {
+    /// TapeOut processor factory on X Layer (proxy; isCPU is true only for processors it created).
+    address constant FACTORY = 0x1f09DAeFA827f02CBb40967cc91b259763760761;
+    /// Runtime code hashes of TapeOut's processor proxies. Both builds embed the same beacon
+    /// (0xf70d1ed4…991c), whose owner is the zero address, so their evaluator can never change.
+    bytes32 constant PROXY_A = 0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5; // e.g. #180, #300
+    bytes32 constant PROXY_B = 0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545; // e.g. #419, #422
+
     function run() external {
-        uint16 k = uint16(vm.envOr("AUDIT_K", uint256(16)));
-        vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
-        AccuracyAudit audit = new AccuracyAudit(k);
-        CusityRegistry registry = new CusityRegistry(address(audit));
+        uint256 kRaw = vm.envOr("AUDIT_K", uint256(16));
+        require(kRaw > 0 && kRaw <= type(uint16).max, "AUDIT_K must be 1..65535");
+        bytes32[] memory code = new bytes32[](2);
+        code[0] = PROXY_A; code[1] = PROXY_B;
+        vm.startBroadcast();
+        AccuracyAudit audit = new AccuracyAudit(uint16(kRaw));
+        CusityRegistry registry = new CusityRegistry(address(audit), FACTORY, code);
         audit.setRegistry(address(registry));
         CampaignCommit campaign = new CampaignCommit(address(registry));
         vm.stopBroadcast();
