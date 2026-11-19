@@ -35,7 +35,5 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-[[redirects]]
-  from = "/:page/"
-  to = "/:page.html"
-  status = 301
+# No redirect rules: Netlify's pretty URLs already map /check and /check/ to check.html, and unknown
+# paths get web/public/404.html. (A /:page/ -> /:page.html rule looped on unknown paths.)
