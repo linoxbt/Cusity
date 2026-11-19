@@ -68,7 +68,11 @@ export function mountGraph(host: HTMLElement, c: Cluster, focus: string, href: (
     const k = Math.min(6, Math.max(0.3, view.k * f)); f = k / view.k;
     view = { k, x: px - (px - view.x) * f, y: py - (py - view.y) * f }; apply();
   };
-  svg.addEventListener("wheel", e => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(Math.exp(-e.deltaY * 0.0015), p.x, p.y); }, { passive: false });
+  // plain wheel scrolls the page; ctrl/cmd + wheel (what trackpad pinch sends) zooms, as do the buttons
+  svg.addEventListener("wheel", e => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(Math.exp(-e.deltaY * 0.0015), p.x, p.y);
+  }, { passive: false });
   host.querySelectorAll<HTMLButtonElement>(".graph-ctl button").forEach(b => b.onclick = () => (Number(b.dataset.z) ? zoomAt(Number(b.dataset.z)) : fit()));
 
   const ptrs = new Map<number, { x: number; y: number }>();

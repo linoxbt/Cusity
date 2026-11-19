@@ -1,6 +1,6 @@
 # Netlify: build the web workspace (Vite) and publish its static output. Same headers as vercel.json.
 [build]
-  command = "npm ci && npm run -w web build"
+  command = "npm run -w web build"   # Netlify runs npm ci itself (package-lock.json)
   publish = "web/dist"
 
 [build.environment]

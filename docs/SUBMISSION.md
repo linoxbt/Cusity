@@ -22,7 +22,7 @@ judging uses the version in place at the deadline (Dec 7, 23:59 UTC).
 
 ## Elevator pitch (field 10)
 
-Cusity is a bot filter for airdrops and campaigns on X Layer that lets people check why a wallet was flagged, addressing the lack of transparency that causes public disputes each airdrop season. It compiles a trained logic gate network into a single TapeOut circuit, with no weights file or server. Unlike existing filters, its netlist hash is committed on chain before the campaign snapshot, wallet inputs are fixed by a Merkle root, and accuracy is scored on chain using randomly sampled rows from a test set committed in advance. Anyone can check a wallet for free via eth_call, inspect a gate-level explanation in their browser, and appeal through TapeSend. We’ll run our own giveaway first, then offer campaign-specific retraining to X Layer projects running quests and airdrops, which pay to commission and commit each filter.
+Cusity is a bot filter for airdrops and campaigns on X Layer that lets people check why a wallet was flagged, addressing the lack of transparency that causes public disputes each airdrop season. It compiles a trained logic gate network into a single TapeOut circuit, with no weights file or server. Unlike existing filters, its netlist hash is committed on chain before the campaign snapshot, wallet inputs are fixed by a Merkle root, and accuracy is scored on chain using randomly sampled rows from a test set committed in advance. Anyone can check a wallet for free via eth_call, inspect a gate-level explanation in their browser, and file a public appeal carrying the exact bits the circuit was given. We’ll run our own giveaway first, then offer campaign-specific retraining to X Layer projects running quests and airdrops, which pay to commission and commit each filter.
 
 ## Not on this form, but required by the hackathon page
 
@@ -32,5 +32,5 @@ repo README and the demo video, and ask in the Telegram group where they should 
 
 - Processor: [[0x…]] · Circuit ID: [[#]]
 - CusityRegistry [[0x…]] · CampaignCommit [[0x…]] · AccuracyAudit [[0x…]]
-- TapeOut features used: Processor, NAND transistors, tape-out, `eval`, `netlist`, `circuitInfo`, Circuit Container, DeWEB (Website Repository), TapeKit, TapeSend; built with TapeSynth
+- TapeOut features used: Processor, NAND transistors, tape-out, `eval`, `netlist`, `circuitInfo` (and the processor factory's `isCPU`). Only list Circuit Container / DeWEB / TapeSend once they are actually used (the site is on Vercel/Netlify today and appeals are public GitHub issues).
 - Campaign proof: commit tx [[link]] before snapshot block [[#]], bind tx [[link]], audit score [[x/16]], [[N]] wallets checked, [[M]] appeals handled

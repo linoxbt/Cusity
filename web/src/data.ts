@@ -16,7 +16,7 @@ export async function getJson<T>(url: string, fresh = false): Promise<T> {
       const r = await fetch(url, { cache: fresh ? "no-cache" : "default" });
       if (r.status === 404) throw new FetchError("not found");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.json() as T;
+      try { return await r.json() as T; } catch { throw new Error("the server sent something that isn't JSON"); }
     } catch (e) {
       if (e instanceof FetchError) throw new FetchError(`${url.split("/").pop()?.split("?")[0]} was not found.`);
       last = (e as Error).message;

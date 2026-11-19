@@ -34,18 +34,20 @@ contract TapeOut is Script {
         uint256 gates = nl.length / 7;
         ITransistors t = ITransistors(proc.transistorsContract());
         uint256 price = t.mintPrice();
+        // processors without a BEM fee (#180, #300) charge their per-gate protocol fee in OKB with the mint
+        bool bem = vm.envOr("BEM_FEE", true);
+        uint256 perGate = bem ? price : price + t.protocolFee();
         uint256 fee = proc.TAPEOUT_FEE();
         console.log("processor", address(proc), "gates", gates);
         console.log("mint price per gate (wei)", price, "tape-out fee (wei)", fee);
         vm.startBroadcast();
         (, address me,) = vm.readCallers();   // the account that signs (msg.sender of the broadcast calls)
         // newer processors (#419, #422) take a 0.01 BEM protocol fee (8 decimals) on mint; set BEM_FEE=false for #180/#300
-        if (vm.envOr("BEM_FEE", true))
-            require(IERC20(BEM).balanceOf(me) >= 1e6, "needs 0.01 BEM on X Layer for the protocol fee (bridge BEM from BNB Chain)");
-        require(me.balance >= gates * price + fee, "not enough OKB for mint + tape-out fee");
-        if (vm.envOr("BEM_FEE", true) && IERC20(BEM).allowance(me, address(t)) == 0) IERC20(BEM).approve(address(t), type(uint256).max);
+        if (bem) require(IERC20(BEM).balanceOf(me) >= 1e6, "needs 0.01 BEM on X Layer for the protocol fee (bridge BEM from BNB Chain)");
+        require(me.balance >= gates * perGate + fee, "not enough OKB for mint + fees + tape-out fee");
+        if (bem && IERC20(BEM).allowance(me, address(t)) == 0) IERC20(BEM).approve(address(t), type(uint256).max);
         uint256 have = t.balanceOf(me, 0);
-        if (have < gates) t.mint{value: (gates - have) * price}(0, gates - have);
+        if (have < gates) t.mint{value: (gates - have) * perGate}(0, gates - have);
         id = proc.tapeout{value: fee}(nl, 64, 7);
         vm.stopBroadcast();
         require(sha256(proc.netlist(id)) == want, "processor stores different bytes");

@@ -16,15 +16,15 @@ held-out test set). Nothing in this file needs a private key in a file, an envir
 - **Rule:** never put the key in `.env`, never `set -a; source .env`, and run `npm ci --ignore-scripts` on any
   third-party tooling before secrets are anywhere near the shell.
 
-## Measured on a mainnet fork (Nov 19, 2026, model v3, 993 NAND gates)
+## Measured on a mainnet fork (Nov 19, 2026, model v4, 1,194 NAND gates)
 
 | | |
 |---|---|
 | Tape-out on #419 / #422 | 0.0013 OKB + 0.01 BEM (mint price 0) |
-| Tape-out on #180 | ≈ 0.657 OKB (0.00066 OKB per gate + 0.0013) |
-| Tape-out on #300 | ≈ 1.312 OKB |
-| `verdictOf` (free, `eth_call`) | 2.28M gas |
-| `finalizeAudit`, K = 16 | 36.5M gas (block gas limit 210M) |
+| Tape-out on #180 (`BEM_FEE=false`) | 0.789 OKB (0.00066 OKB per gate + 0.0013) |
+| Tape-out on #300 (`BEM_FEE=false`) | 1.577 OKB |
+| `verdictOf` (free, `eth_call`) | 2.74M gas |
+| `finalizeAudit`, one 4-row batch | 11.0M gas (below a 16.8M per-transaction cap; K = 16 takes 4 batches) |
 | Own processor (`createCPU`) | refused by the factory today (`test_ownProcessorRouteIsClosed` flags when that changes) |
 
 Only genuine TapeOut processors are accepted by `CusityRegistry`. A processor must pass two checks:
@@ -42,26 +42,29 @@ RPC=https://rpc.xlayer.tech
 forge script script/Deploy.s.sol --rpc-url $RPC --account cusity --broadcast
 export AUDIT=0x… REGISTRY=0x… CAMPAIGN=0x…
 
-# 2. commit the held-out test set (data/test_leaves.json; must precede the campaign commit)
-STEP=test forge script script/Campaign.s.sol --rpc-url $RPC --account cusity --broadcast       # -> TEST_COMMIT_ID
+# 2. commit the held-out test set (data/test_leaves.json). Best sent by the PROJECT running the airdrop, from its own
+#    keystore: the campaign pins this commit, so the model's author can't grade itself (the site shows who committed it)
+STEP=test forge script script/Campaign.s.sol --rpc-url $RPC --account project --broadcast       # -> TEST_COMMIT_ID
 
 # 3. tape out the exact hashed netlist (dry-run first: drop --broadcast to see the fee plan)
 PROCESSOR=0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e \
   forge script script/TapeOut.s.sol --rpc-url $RPC --account cusity --broadcast                 # -> circuit id
-#    #180 instead: PROCESSOR=0x7335a50819d44402e3D5E00239bBB80A13E7308F BEM_FEE=false
+#    #180 instead: PROCESSOR=0x7335a50819d44402e3D5E00239bBB80A13E7308F BEM_FEE=false  (pays its per-gate fee in OKB)
 
-# 4. register the model (registry re-hashes the processor's bytes; one block after the test commit)
+# 4. register the model (registry re-hashes the processor's bytes; one registration per circuit, ever)
 STEP=register PROCESSOR=0x… CIRCUIT_ID=… TEST_COMMIT_ID=… CARD_URI=https://<site>/model/model_card.json \
   forge script script/Campaign.s.sol --rpc-url $RPC --account cusity --broadcast                # -> MODEL_ID
 
-# 5. commit the campaign BEFORE its snapshot block (netlist + extractor hash from build/model_card.json)
-STEP=commit SNAPSHOT_BLOCK=<future block> forge script script/Campaign.s.sol --rpc-url $RPC --account cusity --broadcast   # -> CAMPAIGN_ID
+# 5. commit the campaign at least MIN_LEAD (86,400 blocks ≈ 1 day) before its snapshot, pinning the test set
+STEP=commit SNAPSHOT_BLOCK=<≥ now + 86400> TEST_COMMIT_ID=… \
+  forge script script/Campaign.s.sol --rpc-url $RPC --account project --broadcast              # -> CAMPAIGN_ID
 ```
 
-After the snapshot block, and within 7 days (`PUBLISH_WINDOW`):
+After the snapshot block: publish within 7 days (`PUBLISH_WINDOW`), bind within 14 (`BIND_WINDOW`).
 
 ```bash
-# 6. extract the entrants at the snapshot block with the committed extractor, build shards + list.json
+# 6. extract the entrants at the snapshot block with the committed extractor; builds shards + list.json AND
+#    inputs.json.gz (every input read), then recomputes every row offline from it as a check
 scripts/campaign_snapshot.sh entrants.csv <snapshotBlock> <CAMPAIGN_ID>
 # 7. publish the vectors root (the script refuses files made at another block or with another extractor)
 STEP=publish CAMPAIGN_ID=… VECTORS_URI=https://<site>/snapshot/list.json \
@@ -81,8 +84,33 @@ STEP=bind CAMPAIGN_ID=… MODEL_ID=… forge script script/Campaign.s.sol --rpc-
 ## Audits
 
 Anyone can run an audit from the Audit page:
-- **Request:** `requestAudit` records who asked. The next block's hash will pick the rows.
-- **Seal:** `seal` stores that hash. It must be called within 256 blocks (≈ 4 minutes on X Layer); after that, finalizing has no deadline.
-- **Finalize:** `finalizeAudit` checks each row's positional proof and runs the circuit on chain.
+1. `requestAudit` records who asked and fixes the next block, whose hash picks the rows.
+2. `seal` stores that hash. It must happen within 256 blocks (≈ 4 minutes); after that, finalizing has no deadline.
+3. `finalizeAudit` checks each row's positional proof and runs the circuit on chain, 4 rows per transaction.
 
-Rounds nobody sealed show as expired. The site counts each one as 0/16, so a bad draw can't be buried.
+The site's headline score counts every unsealed (expired) round as 0/16.
+
+**Run the keeper.** Whoever requests a round sees its draw first, and could let a bad one lapse. The keeper
+removes that choice: it seals every round of the bound model the moment its block exists, then finalizes it.
+
+`KEEPER_KEY=… AUDIT=… CAMPAIGN=… CAMPAIGN_ID=… npx tsx scripts/audit_keeper.ts`
+
+The keeper needs a *dedicated* hot wallet holding a little OKB. It is never the deployer.
+
+If a test commit claims more rows than its tree holds, anyone can call `proveEmptyRow`. That voids the commit,
+so its model can't be audited, and the site says so.
+
+## What the contracts prove, and what they don't
+
+- **Proven on chain:**
+  - the circuit is a genuine TapeOut circuit whose netlist hash matches the campaign commit;
+  - the campaign was committed ≥ 1 day before its snapshot, naming its extractor and test set;
+  - every verdict comes from that circuit on bits in the published tree;
+  - audit rows are drawn by a block hash and scored by the circuit.
+- **Checkable by anyone, off chain:**
+  - every published row recomputes from the published inputs (`scripts/verify_snapshot.sh`);
+  - every test row's label can be checked against the public Hop and LayerZero lists (each row names its wallet).
+- **Trusted:**
+  - **The labels.** The audit score is only as independent as whoever committed the test set, which is why the project, not the model's author, should commit it.
+  - **The sequencer.** X Layer's single sequencer could grind a block hash.
+  - **The factory owner.** TapeOut's processor factory is an upgradeable proxy owned by a multisig (`0xB3D8…3138`). The registry also pins the processors' code hash, and their beacon's owner is renounced, so an upgrade can't change an accepted processor's evaluator. A malicious factory upgrade combined with a code-identical copy is a residual risk we haven't been able to rule out.

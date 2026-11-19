@@ -41,7 +41,40 @@ boosting). The labels carry real but weak signal on X Layer without history. Thi
 the full 64-bit model has to beat; the history features (funder clusters, timing, repeated amounts,
 gas sameness) are the ones expected to carry most of the signal.
 
-## v3 model (Nov 19): audit fixes, fresh split, test set frozen first
+## v4 model (Nov 19): the final-review fixes
+
+A second independent review found:
+- **A stale cache.** The cache stored *derived* state features, so v3's training bits still used the old contract rule. Ten EIP-7702 wallets counted as "contracts".
+- **A frozen window.** The activity window was fixed to the training snapshot, so no other campaign could have bound with the same extractor hash.
+
+v4 fixes both:
+- **State cache:** raw archive reads plus the block header are cached, and features are derived every run.
+- **Window:** the 30 days before whatever snapshot is used.
+- **Amounts:** the format rule is exact around the API's switch, and malformed amounts throw.
+- **Hub funders:** count 0 ("hubs link nobody"), not 501.
+- **Wallet counts:** counts of wallets exclude contracts.
+- **Split:** grouped by full linked components (funder, collector, direct transfers); no component straddles splits.
+
+The test set was frozen and pushed to GitHub (`d9bb8e3`) before training. The whole extraction recomputes byte for byte offline from `web/public/snapshot/inputs.json.gz`.
+
+| Held-out, 364 wallets, scored once | v4 |
+|---|---|
+| Balanced accuracy | **70.2%** (95% CI 65.5–74.9) |
+| Humans flagged | **28.8%** |
+| Bots caught | 69.2% |
+| Bot precision here / at 30% / at 10% bots | 76% / 51% / 21% |
+| Flagged: Hop sybils (n=24) / LayerZero sybils / Hop users | 75% / 68% / 29% |
+| Unseen vectors (215 wallets) | 67.6% |
+| NAND gates | 1194 |
+
+**Honest read:**
+- **Selection.** v4 was picked on validation; v3's lower false-positive rate is not a reason to prefer it after seeing these numbers.
+- **False positives.** 29% of humans flagged is too many for automatic exclusion. Use a flag to prioritise review.
+- **Source of the signal.** The Hop-only comparison suggests real behavioural signal, but with 24 Hop sybils its confidence interval is wide.
+- **Reused pool.** The test wallets come from the pool earlier versions were developed on, so the numbers are optimistic.
+- **Constant bit.** Bit 61 ("is a contract") is constant in this data (no labelled wallet is a contract).
+
+## v3 model (Nov 19), superseded: audit fixes, fresh split, test set frozen first
 
 **Extractor fixes** (each one changed bits; all are tested in `data/data.test.ts`):
 - **Amounts.** The OKX API switched amount format at block 10,438,885: OKB before, integer wei after. v2 parsed the wei values as OKB, inflating them 10¹⁸×, which corrupted the main-recipient / collector choice.
@@ -76,7 +109,7 @@ gas sameness) are the ones expected to carry most of the signal.
 | NAND gates | 993 |
 
 **Honest read:**
-- **Cohort.** Hop sybils and Hop users come from the same campaign and era, yet the circuit flags 82% vs 22% of them. So the signal is mostly behaviour, not label source, but the Hop sybil sample is small (22 wallets).
+- **Cohort.** Hop sybils and Hop users come from the same campaign and era, yet the circuit flags 82% vs 22% of them, which suggests behavioural signal; with 22 Hop sybils the 95% interval is wide (≈ 61–93%).
 - **Precision.** At realistic bot rates precision falls, so a flag is a reason to look closer, not a verdict.
 - **Feature design.** Features and thresholds were designed with the whole (unlabelled) feature distribution in view, and v2's ideas came from looking at all labelled wallets. A truly fresh test needs new labels.
 - **Clusters.** Labelled bots are 66.7% of clustered wallets (95% CI 61.1–71.8) vs 53.5% of the rest (51.4–55.7).

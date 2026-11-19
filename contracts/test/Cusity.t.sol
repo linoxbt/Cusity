@@ -26,6 +26,15 @@ contract EvilProcessor is ITapeOutProcessor {
     }
 }
 
+/// circuitInfo reports one latch (nState = 1): such circuits can't be evaluated statelessly and are refused.
+contract StatefulProc is ITapeOutProcessor {
+    RefProcessor immutable inner;
+    constructor(RefProcessor i) { inner = i; }
+    function circuitInfo(uint256 id) external view returns (uint32 a, uint32 b, uint32, uint32 g) { (a, b,, g) = inner.circuitInfo(id); return (a, b, 1, g); }
+    function netlist(uint256 id) external view returns (bytes memory) { return inner.netlist(id); }
+    function eval(uint256 id, bytes calldata i) external view returns (bytes memory) { return inner.eval(id, i); }
+}
+
 contract CusityTest is Test {
     RefProcessor proc;
     MockFactory factory;
@@ -82,7 +91,7 @@ contract CusityTest is Test {
     function _register() internal returns (uint256, uint256) { return _register(tLabel); }
 
     function _ready(uint256 roundId) internal {
-        (, , uint64 target,,,,) = audit.rounds(roundId);
+        (, , uint64 target,,,,,) = audit.rounds(roundId);
         vm.roll(uint256(target) + 1);
         vm.setBlockhash(target, keccak256(abi.encode("hash", roundId)));
     }
@@ -100,6 +109,7 @@ contract CusityTest is Test {
     }
 
     function _flipped() internal view returns (bool[N] memory f) { for (uint256 i; i < N; ++i) f[i] = !tLabel[i]; }
+    function _mixed() internal view returns (bool[N] memory f) { for (uint256 i; i < N; ++i) f[i] = i % 3 == 0 ? !tLabel[i] : tLabel[i]; }
 
     // ---------------------------------------------------------------- processor + fixture
 
@@ -154,14 +164,38 @@ contract CusityTest is Test {
         registry.register(address(proc), bad, 0, tc, "");
     }
 
-    function test_registerNeedsOwnEarlierTestCommit() public {
+    function test_registerNeedsAnEarlierTestCommitAndOnlyOncePerNetlist() public {
+        vm.prank(address(0x9A0));
         uint256 tc = _commitTests(tLabel);
         vm.expectRevert(CusityRegistry.TestCommitTooRecent.selector);
         registry.register(address(proc), circuitId, 0, tc, "");
         vm.roll(block.number + 1);
-        vm.prank(address(0xBEEF));
-        vm.expectRevert(CusityRegistry.NotYourTestCommit.selector);
-        registry.register(address(proc), circuitId, 0, tc, "");
+        uint256 m = registry.register(address(proc), circuitId, EXT, tc, "");   // someone else's commit is fine
+        uint256 tc2 = _commitTests(_flipped());
+        vm.roll(vm.getBlockNumber() + 1);   // via_ir can reuse a stale block.number after an earlier roll
+        vm.expectRevert(abi.encodeWithSelector(CusityRegistry.AlreadyRegistered.selector, m));
+        registry.register(address(proc), circuitId, EXT, tc2, "");             // no test-set shopping
+        assertEq(registry.modelOfNetlist(sha256(netlistBytes)), m + 1);
+    }
+
+    function test_registerRejectsStatefulCircuits() public {
+        StatefulProc sp = new StatefulProc(proc);
+        bytes32[] memory code = new bytes32[](1); code[0] = address(sp).codehash;
+        MockFactory f2 = new MockFactory(); f2.add(address(sp));
+        AccuracyAudit a2 = new AccuracyAudit(K);
+        CusityRegistry r2 = new CusityRegistry(address(a2), address(f2), code);
+        a2.setRegistry(address(r2));
+        uint256 tc = a2.commitTestSet(PH.root(_testLeaves(tLabel)), PH.depthFor(N), uint32(N));
+        vm.roll(block.number + 1);
+        vm.expectRevert(abi.encodeWithSelector(CusityRegistry.Shape.selector, 64, 7, 1));
+        r2.register(address(sp), circuitId, EXT, tc, "");
+    }
+
+    function test_decodeMasksTheMargin() public view {
+        (bool v, uint8 m) = registry.decode(hex"ff");
+        assertTrue(v); assertEq(m, 63);
+        (v, m) = registry.decode(hex"80");
+        assertFalse(v); assertEq(m, 0);                   // bit 7 is not part of the margin
     }
 
     /// Audit S1: a fake processor serving the honest netlist can no longer be registered.
@@ -193,17 +227,22 @@ contract CusityTest is Test {
         }
     }
 
+    uint64 constant LEAD = 86_400;   // CampaignCommit.MIN_LEAD
+    uint256 tcMain;                  // the test commit _register() made
+
     function _committed() internal returns (uint256 cid, uint256 modelId) {
-        (, modelId) = _register();
+        (tcMain, modelId) = _register();
         vm.roll(block.number + 1);
-        cid = campaigns.commit(sha256(netlistBytes), EXT, uint64(block.number + 10));
+        cid = campaigns.commit(sha256(netlistBytes), EXT, uint64(block.number + LEAD), tcMain);
     }
+
+    function _toPublish(uint256 cid) internal { vm.roll(uint256(campaigns.campaign(cid).snapshotBlock) + 1); }
 
     function _campaignReady() internal returns (uint256 cid, bytes32[] memory leaves, address[] memory wallets) {
         uint256 modelId;
         (cid, modelId) = _committed();
         (leaves, wallets) = _snap(5);
-        vm.roll(block.number + 11);
+        _toPublish(cid);
         campaigns.publishVectors(cid, PH.root(leaves), 5, PH.depthFor(5), "https://x/snapshot/list.json");
         campaigns.bind(cid, modelId);
     }
@@ -239,7 +278,7 @@ contract CusityTest is Test {
     function test_leafBeyondDeclaredCountIsRejected() public {
         (uint256 cid, uint256 modelId) = _committed();
         (bytes32[] memory leaves, address[] memory wallets) = _snap(6);
-        vm.roll(block.number + 11);
+        _toPublish(cid);
         campaigns.publishVectors(cid, PH.root(leaves), 5, 3, "");   // 6 leaves in the tree, 5 declared
         campaigns.bind(cid, modelId);
         campaigns.verdictOf(cid, 4, wallets[4], tBits[4], PH.proof(leaves, 4));
@@ -250,7 +289,7 @@ contract CusityTest is Test {
 
     function test_verdictOfNotReadyUntilBound() public {
         (uint256 cid,) = _committed();
-        vm.expectRevert(CampaignCommit.NotReady.selector);
+        vm.expectRevert(CampaignCommit.NotBound.selector);
         campaigns.verdictOf(cid, 0, tWallet[0], tBits[0], new bytes32[](0));
     }
 
@@ -263,7 +302,7 @@ contract CusityTest is Test {
         leaves[1] = keccak256(abi.encodePacked(uint32(1), w, tBits[1]));
         leaves[2] = keccak256(abi.encodePacked(uint32(2), w, bytes8(0)));   // same wallet, "clean" bits
         leaves[3] = keccak256(abi.encodePacked(uint32(3), tWallet[3], tBits[3]));
-        vm.roll(block.number + 11);
+        _toPublish(cid);
         campaigns.publishVectors(cid, PH.root(leaves), 4, 2, "");
         campaigns.bind(cid, modelId);
         vm.expectRevert(CampaignCommit.NotADuplicate.selector);
@@ -281,9 +320,18 @@ contract CusityTest is Test {
         campaigns.proveDuplicate(cid, wallets[1], 1, tBits[1], PH.proof(leaves, 1), 2, tBits[2], PH.proof(leaves, 2));
     }
 
-    function test_commitAfterSnapshotReverts() public {
-        vm.expectRevert(CampaignCommit.SnapshotPassed.selector);
-        campaigns.commit(0, 0, uint64(block.number));
+    function test_commitNeedsLeadTimeAndAnEarlierTestSet() public {
+        uint256 tc = _commitTests(tLabel);
+        vm.expectRevert(CampaignCommit.TestSetAfterCommit.selector);   // committed in this same block
+        campaigns.commit(0, 0, uint64(block.number + LEAD), tc);
+        vm.roll(block.number + 1);
+        vm.expectRevert(CampaignCommit.SnapshotTooSoon.selector);
+        campaigns.commit(0, 0, uint64(block.number + LEAD - 1), tc);
+        uint256 a = campaigns.commit(0, 0, uint64(block.number + LEAD), tc);
+        uint256 b = campaigns.commit(0, 0, uint64(block.number + LEAD + 5), tc);
+        uint256[] memory mine = campaigns.campaignsOf(address(this));
+        assertEq(mine.length, 2); assertEq(mine[0], a); assertEq(mine[1], b);
+        assertEq(campaigns.campaign(a).testCommitId, tc);
     }
 
     function test_publishRules() public {
@@ -292,7 +340,7 @@ contract CusityTest is Test {
         bytes32 root = PH.root(leaves);
         vm.expectRevert(CampaignCommit.BeforeSnapshot.selector);
         campaigns.publishVectors(cid, root, 5, 3, "");
-        vm.roll(block.number + 11);
+        _toPublish(cid);
         vm.prank(address(0xBAD));
         vm.expectRevert(CampaignCommit.NotOwner.selector);
         campaigns.publishVectors(cid, root, 5, 3, "");
@@ -310,7 +358,7 @@ contract CusityTest is Test {
     function test_publishWindowCloses() public {
         (uint256 cid,) = _committed();
         (bytes32[] memory leaves,) = _snap(5);
-        vm.roll(block.number + 10 + campaigns.PUBLISH_WINDOW() + 1);
+        vm.roll(uint256(campaigns.campaign(cid).snapshotBlock) + campaigns.PUBLISH_WINDOW() + 1);
         vm.expectRevert(CampaignCommit.PublishWindowClosed.selector);
         campaigns.publishVectors(cid, PH.root(leaves), 5, 3, "");
     }
@@ -320,7 +368,7 @@ contract CusityTest is Test {
         vm.expectRevert(CampaignCommit.NotPublished.selector);
         campaigns.bind(cid, modelId);
         (bytes32[] memory leaves,) = _snap(5);
-        vm.roll(block.number + 11);
+        _toPublish(cid);
         campaigns.publishVectors(cid, PH.root(leaves), 5, 3, "");
         vm.prank(address(0xBAD));
         vm.expectRevert(CampaignCommit.NotOwner.selector);
@@ -330,41 +378,158 @@ contract CusityTest is Test {
         campaigns.bind(cid, modelId);
     }
 
-    function _publishedCampaign(bytes32 netlistHash, bytes32 ext, uint256 snapAhead) internal returns (uint256 cid) {
-        cid = campaigns.commit(netlistHash, ext, uint64(block.number + snapAhead));
+    function _publishedCampaign(bytes32 netlistHash, bytes32 ext, uint256 tc) internal returns (uint256 cid) {
+        cid = campaigns.commit(netlistHash, ext, uint64(block.number + LEAD), tc);
         (bytes32[] memory leaves,) = _snap(5);
-        vm.roll(block.number + snapAhead + 1);
+        _toPublish(cid);
         campaigns.publishVectors(cid, PH.root(leaves), 5, 3, "");
     }
 
     function test_bindRejectsDifferentNetlist() public {
-        (, uint256 modelId) = _register();
+        (uint256 tc, uint256 modelId) = _register();
         vm.roll(block.number + 1);
-        uint256 cid = _publishedCampaign(sha256("another netlist"), EXT, 2);
+        uint256 cid = _publishedCampaign(sha256("another netlist"), EXT, tc);
         vm.expectRevert(CampaignCommit.NetlistMismatch.selector);
         campaigns.bind(cid, modelId);
     }
 
     function test_bindRejectsDifferentExtractor() public {
-        (, uint256 modelId) = _register();
+        (uint256 tc, uint256 modelId) = _register();
         vm.roll(block.number + 1);
-        uint256 cid = _publishedCampaign(sha256(netlistBytes), keccak256("other extractor"), 2);
+        uint256 cid = _publishedCampaign(sha256(netlistBytes), keccak256("other extractor"), tc);
         vm.expectRevert(CampaignCommit.ExtractorMismatch.selector);
         campaigns.bind(cid, modelId);
     }
 
-    function test_bindRejectsTestSetCommittedAfterCampaign() public {
-        uint256 cid = _publishedCampaign(sha256(netlistBytes), EXT, 2);
-        (, uint256 modelId) = _register();   // test set committed after the campaign commit
-        vm.expectRevert(CampaignCommit.TestSetAfterCommit.selector);
+    /// Audit H-2: the campaign pins the test set (e.g. one committed by the project, not the model's author).
+    function test_bindRejectsAModelScoredOnAnotherTestSet() public {
+        vm.prank(address(0x9A0));                        // an independent party commits the test set
+        uint256 independent = _commitTests(tLabel);
+        (, uint256 modelId) = _register();               // the model's author registered with their own set
+        vm.roll(block.number + 1);
+        uint256 cid = _publishedCampaign(sha256(netlistBytes), EXT, independent);
+        vm.expectRevert(CampaignCommit.TestSetMismatch.selector);
+        campaigns.bind(cid, modelId);
+    }
+
+    function test_bindWindowCloses() public {
+        (uint256 tc, uint256 modelId) = _register();
+        vm.roll(block.number + 1);
+        uint256 cid = _publishedCampaign(sha256(netlistBytes), EXT, tc);
+        vm.roll(uint256(campaigns.campaign(cid).snapshotBlock) + campaigns.BIND_WINDOW() + 1);
+        vm.expectRevert(CampaignCommit.BindWindowClosed.selector);
         campaigns.bind(cid, modelId);
     }
 
     // ---------------------------------------------------------------- audit
 
-    function test_constructorRejectsZeroK() public {
+    function test_constructorRejectsBadK() public {
         vm.expectRevert(AccuracyAudit.BadK.selector);
         new AccuracyAudit(0);
+        vm.expectRevert(AccuracyAudit.BadK.selector);
+        new AccuracyAudit(65);
+        new AccuracyAudit(64);
+    }
+
+    /// Audit M-4: a round can be finalized in batches (each far below a 16.8M per-tx gas cap) and scores the same.
+    function test_finalizeInBatches() public {
+        (, uint256 modelId) = _register(_mixed());
+        uint256 r = audit.requestAudit(modelId);
+        _ready(r);
+        (AccuracyAudit.Row[] memory rows, bytes32[][] memory proofs) = _rows(r, _mixed());
+        uint16 expect;
+        for (uint256 j; j < K; ++j) if (tModel[rows[j].index] == _mixed()[rows[j].index]) ++expect;
+        AccuracyAudit.Row[] memory a = new AccuracyAudit.Row[](1); bytes32[][] memory pa = new bytes32[][](1);
+        a[0] = rows[0]; pa[0] = proofs[0];
+        (, uint16 scored) = audit.finalizeAudit(r, a, pa);
+        assertEq(scored, 1); assertEq(uint8(audit.status(r)), uint8(AccuracyAudit.Status.Ready));
+        if (rows[0].index != rows[1].index) {   // sample 0's row resent as sample 1 (when they differ)
+            vm.expectRevert(abi.encodeWithSelector(AccuracyAudit.WrongRow.selector, 1, rows[1].index));
+            audit.finalizeAudit(r, a, pa);
+        }
+        AccuracyAudit.Row[] memory b = new AccuracyAudit.Row[](K - 1); bytes32[][] memory pb = new bytes32[][](K - 1);
+        for (uint256 j = 1; j < K; ++j) { b[j - 1] = rows[j]; pb[j - 1] = proofs[j]; }
+        (uint16 correct, uint16 s2) = audit.finalizeAudit(r, b, pb);
+        assertEq(s2, K); assertEq(correct, expect);
+        assertEq(uint8(audit.status(r)), uint8(AccuracyAudit.Status.Done));
+        (, , , , , uint16 c, uint16 tot,) = audit.rounds(r);
+        assertEq(c, expect); assertEq(tot, K);
+    }
+
+    /// Audit H-1: a commit that claims more rows than its tree holds is voided by anyone, and can't freeze audits.
+    function test_overstatedSizeIsVoided() public {
+        bytes32[] memory leaves = _testLeaves(tLabel);            // 11 rows, depth 4
+        uint256 tc = audit.commitTestSet(PH.root(leaves), 4, 16); // claims 16
+        vm.roll(block.number + 1);
+        uint256 modelId = registry.register(address(proc), circuitId, EXT, tc, "");
+        uint256 r = audit.requestAudit(modelId);
+        vm.expectRevert(AccuracyAudit.NotEmpty.selector);
+        audit.proveEmptyRow(tc, 3, PH.proof(leaves, 3));          // a real row is not empty
+        bytes32[] memory padded = new bytes32[](16);
+        for (uint256 i; i < 11; ++i) padded[i] = leaves[i];
+        vm.prank(address(0xF00));
+        audit.proveEmptyRow(tc, 12, PH.proof(padded, 12));
+        (, , , , , bool invalid) = audit.testCommits(tc);
+        assertTrue(invalid);
+        assertEq(uint8(audit.status(r)), uint8(AccuracyAudit.Status.Void));
+        vm.expectRevert(AccuracyAudit.TestSetVoid.selector);
+        audit.requestAudit(modelId);
+        vm.expectRevert(AccuracyAudit.NotEmpty.selector);
+        audit.proveEmptyRow(tc, 17, PH.proof(padded, 1));         // beyond size: not a claim the commit made
+    }
+
+    /// The padding of an honest commit (positions >= size) is empty by design: it must not void the commit.
+    function test_honestPaddingCannotVoid() public {
+        bytes32[] memory leaves = _testLeaves(tLabel);            // 11 rows, depth 4: positions 11..15 are padding
+        uint256 tc = _commitTests(tLabel);
+        bytes32[] memory padded = new bytes32[](16);
+        for (uint256 i; i < 11; ++i) padded[i] = leaves[i];
+        vm.expectRevert(AccuracyAudit.NotEmpty.selector);
+        audit.proveEmptyRow(tc, 12, PH.proof(padded, 12));
+        (, , , , , bool invalid) = audit.testCommits(tc);
+        assertFalse(invalid);
+    }
+
+    function test_roundsAreListedPerModelAndTargetTheNextBlock() public {
+        (, uint256 modelId) = _register();
+        uint256 r0 = audit.requestAudit(modelId);
+        (, , uint64 target,,,,,) = audit.rounds(r0);
+        assertEq(target, block.number + 1);
+        assertEq(uint8(audit.status(r0)), uint8(AccuracyAudit.Status.Pending));
+        vm.roll(target);
+        assertEq(uint8(audit.status(r0)), uint8(AccuracyAudit.Status.Pending));   // at the target block itself
+        vm.roll(uint256(target) + 1);
+        vm.setBlockhash(target, keccak256("h"));
+        assertEq(uint8(audit.status(r0)), uint8(AccuracyAudit.Status.Ready));
+        vm.expectRevert(abi.encodeWithSelector(AccuracyAudit.RoundOpen.selector, r0));
+        audit.requestAudit(modelId);                                              // a Ready round blocks too
+        vm.roll(uint256(target) + 256);
+        assertEq(uint8(audit.status(r0)), uint8(AccuracyAudit.Status.Ready));    // last block with a readable hash
+        vm.roll(uint256(target) + 257);
+        assertEq(uint8(audit.status(r0)), uint8(AccuracyAudit.Status.Expired));
+        uint256 r1 = audit.requestAudit(modelId);
+        uint256[] memory list = audit.roundsOfModel(modelId);
+        assertEq(list.length, 2); assertEq(list[0], r0); assertEq(list[1], r1);
+    }
+
+    function test_roundIdSaltsTheDraw() public {
+        // two rounds sharing a target block hash must still draw different rows
+        (, uint256 m1) = _register();
+        RefProcessor p2 = new RefProcessor(); factory.add(address(p2));
+        bytes memory other = vm.parseJsonBytes(vm.readFile("../build/cusity.netlist.json"), ".netlist");
+        uint256 c2 = p2.tapeout(other, 64, 7);
+        uint256 tc2 = _commitTests(tLabel);
+        vm.roll(block.number + 1);
+        uint256 m2 = registry.register(address(p2), c2, EXT, tc2, "");
+        uint256 ra = audit.requestAudit(m1); uint256 rb = audit.requestAudit(m2);
+        _ready(ra);
+        (, , uint64 tb,,,,,) = audit.rounds(rb);
+        (, , uint64 ta,,,,,) = audit.rounds(ra);
+        assertEq(ta, tb);
+        uint32[] memory ia = audit.sampleIndices(ra); uint32[] memory ib = audit.sampleIndices(rb);
+        bool differ;
+        for (uint256 j; j < K; ++j) if (ia[j] != ib[j]) differ = true;
+        assertTrue(differ);
     }
 
     function test_setRegistryLocksAndChecksBackPointer() public {
@@ -432,9 +597,10 @@ contract CusityTest is Test {
         rows[0].index = uint32((want + 1) % N);
         vm.expectRevert(abi.encodeWithSelector(AccuracyAudit.WrongRow.selector, 0, want));
         audit.finalizeAudit(r, rows, proofs);
-        AccuracyAudit.Row[] memory short_ = new AccuracyAudit.Row[](K - 1);
         vm.expectRevert(AccuracyAudit.WrongRowCount.selector);
-        audit.finalizeAudit(r, short_, proofs);
+        audit.finalizeAudit(r, new AccuracyAudit.Row[](K - 1), proofs);      // rows and proofs differ in length
+        vm.expectRevert(AccuracyAudit.WrongRowCount.selector);
+        audit.finalizeAudit(r, new AccuracyAudit.Row[](0), new bytes32[][](0));
     }
 
     function testFuzz_auditRejectsAlteredRow(bytes8 other) public {
@@ -465,7 +631,7 @@ contract CusityTest is Test {
         (, uint256 modelId) = _register();
         vm.prank(address(0x5EED));
         uint256 r = audit.requestAudit(modelId);
-        (, address requester,,,,,) = audit.rounds(r);
+        (, address requester,,,,,,) = audit.rounds(r);
         assertEq(requester, address(0x5EED));
         vm.expectRevert(abi.encodeWithSelector(AccuracyAudit.NotReady.selector, AccuracyAudit.Status.Pending));
         audit.seal(r);
@@ -499,7 +665,7 @@ contract CusityTest is Test {
     function test_unavailableHashCannotBeUsed() public {
         (, uint256 modelId) = _register();
         uint256 r = audit.requestAudit(modelId);
-        (, , uint64 target,,,,) = audit.rounds(r);
+        (, , uint64 target,,,,,) = audit.rounds(r);
         vm.roll(uint256(target) + 1);
         vm.setBlockhash(target, bytes32(0));
         vm.expectRevert(AccuracyAudit.HashUnavailable.selector);

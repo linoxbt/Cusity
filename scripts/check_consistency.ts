@@ -42,6 +42,11 @@ for (const k of ["00", "7f", "ff"]) eq(`shard ${k} root`, j(`web/public/snapshot
 const vec = readFileSync("data/vectors.jsonl", "utf8").trim().split("\n").map(l => JSON.parse(l));
 if (vec.some(v => v.extractorHash?.toLowerCase() !== ext.toLowerCase())) errs.push("data/vectors.jsonl was extracted with a different extractor");
 if (existsSync("web/public/snapshot_vectors.json")) errs.push("stale web/public/snapshot_vectors.json is published");
+{ // the published inputs bundle must be for the published snapshot's block
+  const { gunzipSync } = await import("node:zlib");
+  if (!existsSync("web/public/snapshot/inputs.json.gz")) errs.push("missing web/public/snapshot/inputs.json.gz (scripts/pack_inputs.ts)");
+  else eq("inputs bundle block", JSON.parse(gunzipSync(readFileSync("web/public/snapshot/inputs.json.gz")).toString()).block, idx.block);
+}
 
 if (errs.length) { console.error("INCONSISTENT:\n  " + errs.join("\n  ")); process.exit(1); }
 console.log(`consistent: v${card.version}, ${card.gates} gates, test root ${tl.root.slice(0, 10)}…, snapshot root ${idx.root.slice(0, 10)}…, extractor ${ext.slice(0, 10)}…`);

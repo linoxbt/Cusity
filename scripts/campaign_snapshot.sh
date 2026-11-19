@@ -14,4 +14,7 @@ echo "$(wc -l < build/campaign_entrants.csv) unique entrants"
 npx tsx $ENVF data/extract.ts --wallets build/campaign_entrants.csv --block "$BLOCK" --out build/campaign_vectors.jsonl
 npx tsx data/merkle.ts snapshot build/campaign_vectors.jsonl "$CID" build/campaign_snapshot.json
 npx tsx scripts/shard_snapshot.ts build/campaign_snapshot.json web/public/snapshot
+# every input the extractor read, so anyone can recompute every row offline (scripts/verify_snapshot.sh)
+npx tsx scripts/pack_inputs.ts "$BLOCK" web/public/snapshot/inputs.json.gz
+scripts/verify_snapshot.sh web/public/snapshot/inputs.json.gz web/public/snapshot/list.json
 echo "next: STEP=publish forge script script/Campaign.s.sol ... (reads web/public/snapshot/index.json), then redeploy the site"

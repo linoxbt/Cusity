@@ -24,6 +24,7 @@ contract RunbookTest is Test {
     function test_runbookOnFork() public {
         address signer = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;   // forge's default broadcaster in tests
         vm.deal(signer, 10 ether);
+        vm.createDir("../build/tmp", true);   // gitignored, so absent in a fresh clone
         deal(0x60e62Efa9405d6873C5deaBD4E6CC91c25363952, signer, 1e8);   // 1 BEM for the protocol fee
         (AccuracyAudit audit, CusityRegistry registry, CampaignCommit campaign) = new Deploy().run();
         vm.setEnv("AUDIT", vm.toString(address(audit))); vm.setEnv("REGISTRY", vm.toString(address(registry)));
@@ -40,7 +41,7 @@ contract RunbookTest is Test {
         vm.setEnv("TEST_COMMIT_ID", vm.toString(tc)); vm.setEnv("CARD_URI", "https://cusity.vercel.app/model/model_card.json");
         uint256 modelId = new Campaign().run();
         vm.roll(block.number + 1);
-        uint256 snap = block.number + 1000;
+        uint256 snap = block.number + 86_400;   // CampaignCommit.MIN_LEAD
         vm.setEnv("STEP", "commit"); vm.setEnv("SNAPSHOT_BLOCK", vm.toString(snap));
         uint256 cid = new Campaign().run();
 
@@ -51,6 +52,7 @@ contract RunbookTest is Test {
         string memory idx = vm.readFile("../web/public/snapshot/index.json");
         string memory o = "idx";
         vm.serializeUint(o, "block", snapBlock);
+        vm.serializeUint(o, "campaignId", cid);
         vm.serializeBytes32(o, "extractorHash", vm.parseJsonBytes32(idx, ".extractorHash"));
         vm.serializeBytes32(o, "root", vm.parseJsonBytes32(idx, ".root"));
         vm.serializeUint(o, "depth", vm.parseJsonUint(idx, ".depth"));
@@ -78,7 +80,7 @@ contract RunbookTest is Test {
         uint256 bemBefore = IERC20Deal(0x60e62Efa9405d6873C5deaBD4E6CC91c25363952).balanceOf(signer);
         console.log("signer BEM left (8 decimals)", bemBefore);
         uint256 r = audit.requestAudit(modelId);
-        (, , uint64 target,,,,) = audit.rounds(r);
+        (, , uint64 target,,,,,) = audit.rounds(r);
         vm.roll(uint256(target) + 1);
         vm.setBlockhash(target, keccak256("rehearsal"));
         uint32[] memory sIdx = audit.sampleIndices(r);
@@ -96,6 +98,7 @@ contract RunbookTest is Test {
         }
         (uint16 correct, uint16 total) = audit.finalizeAudit(r, rows, proofs);
         console.log("real test-set audit score", correct, "/", total);
+        assertEq(total, sIdx.length);
         assertEq(correct, expect);
     }
 }

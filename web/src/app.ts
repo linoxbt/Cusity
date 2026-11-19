@@ -4,7 +4,7 @@
 import "./style.css";
 import { CONFIG, LIVE } from "./config";
 import { auditInfo, checkWallet, live, loadCircuit, loadNet, runAudit, type CheckResult } from "./chain";
-import { checksum, clusterById, FetchError, graphIndex, inSnapshot, rebuildTestRoot, sampleWallets, shardOf, snapshotIndex,
+import { checksum, clusterById, FetchError, getJson, graphIndex, inSnapshot, rebuildTestRoot, sampleWallets, shardOf, snapshotIndex,
   snapshotList, testLeaves, type GIndex } from "./data";
 import { decidingGates, flips, readings } from "./explain";
 import { $, copyButton, esc, marginBar, short } from "./ui";
@@ -27,9 +27,17 @@ const page = (document.body.dataset.page ?? "check") as Page;
 const KEY = "cusity:wallet";
 const params = new URLSearchParams(location.search);
 
-let current = params.get("w") ?? sessionStorage.getItem(KEY) ?? "";
+const store = (s: () => Storage) => ({
+  get: (k: string) => { try { return s().getItem(k); } catch { return null; } },
+  set: (k: string, v: string) => { try { s().setItem(k, v); } catch { /* storage blocked: keep it in memory */ } },
+});
+const session = store(() => sessionStorage), local = store(() => localStorage);
+/** A whole non-negative integer from a query value, or NaN ("0x1", " 1", "1.0" are refused). */
+const int = (v: string | null) => (v !== null && /^\d{1,9}$/.test(v) ? Number(v) : NaN);
+
+let current = params.get("w") ?? session.get(KEY) ?? "";
 const wallet = () => current;
-const remember = (w: string) => { current = w; sessionStorage.setItem(KEY, w); syncNav(); };
+const remember = (w: string) => { current = w; session.set(KEY, w); syncNav(); };
 const link = (p: Page, w = wallet()) => `${p}.html${w ? `?w=${encodeURIComponent(w)}` : ""}`;
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const pct = (x: number, d = 1) => `${(x * 100).toFixed(d)}%`;
@@ -42,6 +50,7 @@ function syncNav() {
 }
 
 function shell(title: string) {
+  document.title = `${title} · Cusity`;
   const on = (p: Page) => p === page || PARENT[page] === p;
   const nav = PAGES.map(([p, label], i) =>
     `<a data-p="${p}" href="${link(p)}" class="${on(p) ? "on" : ""}" ${on(p) ? 'aria-current="page"' : ""}><span>${pad2(i + 1)}</span>${label}</a>`).join("");
@@ -67,7 +76,7 @@ function shell(title: string) {
   // A hidden sidebar is inert, so keyboard focus can't land on links you can't see.
   const phone = () => matchMedia("(max-width: 980px)").matches;
   const KEY_RAIL = "cusity:rail", rail = $("rail"), menu = $("menu");
-  if (localStorage.getItem(KEY_RAIL) === "closed") document.body.classList.add("rail-collapsed");
+  if (local.get(KEY_RAIL) === "closed") document.body.classList.add("rail-collapsed");
   const sync = () => {
     const open = phone() ? document.body.classList.contains("drawer-open") : !document.body.classList.contains("rail-collapsed");
     menu.setAttribute("aria-expanded", String(open));
@@ -80,11 +89,17 @@ function shell(title: string) {
   menu.onclick = () => {
     if (phone()) return drawer(!document.body.classList.contains("drawer-open"));
     const closed = document.body.classList.toggle("rail-collapsed");
-    localStorage.setItem(KEY_RAIL, closed ? "closed" : "open"); sync();
+    local.set(KEY_RAIL, closed ? "closed" : "open"); sync();
   };
   $("scrim").onclick = () => drawer(false);
   addEventListener("keydown", e => {
-    if (e.key === "Escape" && document.body.classList.contains("drawer-open")) { drawer(false); menu.focus(); }
+    if (!document.body.classList.contains("drawer-open")) return;
+    if (e.key === "Escape") { drawer(false); menu.focus(); return; }
+    if (e.key === "Tab") {   // keep focus inside the open drawer (and its toggle)
+      const f = [menu, ...rail.querySelectorAll<HTMLElement>("a")], i = f.indexOf(document.activeElement as HTMLElement);
+      const next = e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : (i === f.length - 1 ? 0 : i + 1);
+      e.preventDefault(); f[next].focus();
+    }
   });
   matchMedia("(max-width: 980px)").addEventListener("change", sync);
   sync();
@@ -331,20 +346,23 @@ async function auditPage() {
       const open = a.rounds.find(r => r.id === a.openRound && (r.status === "pending" || r.status === "ready"));
       // an expired round counts as 0 right: nobody can bury a bad draw by letting it lapse
       const strict = t + expired * a.k ? c / (t + expired * a.k) : 0;
+      const self = a.testOwner && a.modelOwner && a.testOwner.toLowerCase() === a.modelOwner.toLowerCase();
       $("a").innerHTML = `
         <div class="stats">
-          <div><span class="k mono">Score</span><span class="v">${t ? pct(c / t, 0) : "–"}</span><span class="s mono">${t ? `${c}/${t} in ${done.length} round${done.length === 1 ? "" : "s"}` : "no rounds yet"}</span></div>
-          <div><span class="k mono">Counting expired</span><span class="v">${t || expired ? pct(strict, 0) : "–"}</span><span class="s mono">expired = 0/${a.k}</span></div>
+          <div><span class="k mono">Score</span><span class="v">${t || expired ? pct(strict, 0) : "–"}</span><span class="s mono">expired rounds count 0/${a.k}</span></div>
+          <div><span class="k mono">Finished rounds only</span><span class="v">${t ? pct(c / t, 0) : "–"}</span><span class="s mono">${t ? `${c}/${t} in ${done.length} round${done.length === 1 ? "" : "s"}` : "no rounds yet"}</span></div>
           <div><span class="k mono">Expired</span><span class="v ${expired ? "warn" : ""}">${expired}</span><span class="s mono">never sealed</span></div>
           <div><span class="k mono">Test set</span><span class="v">${a.testSize}</span><span class="s mono" title="${esc(a.testRoot)}">${short(a.testRoot, 4)}</span></div>
         </div>
         <div class="facts mono">
           <span class="${a.leavesMatch ? "ok" : "warn"}">${a.leavesMatch ? "Published rows rebuild the committed root" : "Published rows don't match the committed root"}</span>
-          ${LIVE ? `<span class="${a.bound && !a.invalid ? "ok" : "warn"}">${a.invalid ? "Campaign invalidated" : a.bound ? "Campaign bound" : "Not bound"}</span>` : `<span>demo: rounds run in your browser and last for this tab</span>`}
+          ${LIVE ? `<span class="${a.bound && !a.invalid ? "ok" : "warn"}">${a.invalid ? "Campaign invalidated" : a.bound ? "Campaign bound" : "Not bound"}</span>
+            ${a.testVoid ? `<span class="warn">Test set voided on chain</span>` : ""}
+            <span class="${self ? "warn" : "ok"}" title="${esc(a.testOwner ?? "")}">${self ? "Test set committed by the model's author" : "Test set committed by an independent party"}</span>` : `<span>demo: rounds run in your browser and last for this tab</span>`}
           ${open ? `<span class="warn">Round #${open.id} is open: the button finalizes it</span>` : ""}
         </div>
         ${a.rounds.length ? `<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Round</th><th>Status</th><th>Score</th>${LIVE ? "<th>Requested by</th>" : ""}</tr></thead><tbody>${a.rounds.map(r =>
-          `<tr><td class="mono">#${r.id}</td><td class="${r.status === "expired" ? "warn" : ""}">${r.status}</td><td>${r.status === "done" ? `${r.correct}/${r.total}` : r.status === "expired" ? `0/${a.k}` : "–"}</td>${LIVE ? `<td class="mono">${r.requester ? short(r.requester, 4) : ""}</td>` : ""}</tr>`).join("")}</tbody></table></div></div>` : ""}`;
+          `<tr><td class="mono">#${r.id}</td><td class="${r.status === "expired" || r.status === "void" ? "warn" : ""}">${r.status}</td><td>${r.status === "done" ? `${r.correct}/${r.total}` : r.status === "expired" ? `0/${a.k}` : r.scored ? `${r.scored}/${a.k} scored` : "–"}</td>${LIVE ? `<td class="mono">${r.requester ? short(r.requester, 4) : ""}</td>` : ""}</tr>`).join("")}</tbody></table></div></div>` : ""}`;
     } catch (e) { fail($("a"), e, render); }
   };
   $("run").addEventListener("click", async () => {
@@ -373,10 +391,15 @@ async function appealPage() {
       <div class="row"><button class="btn-dark mono">Prepare appeal</button></div>
     </form>
     <div id="out" class="out" aria-live="polite"></div>`;
-  try {
-    const r = await lookup(wallet());
-    if (r && r !== "stale" && r.status === "ok") { $<HTMLInputElement>("aw").value = r.wallet; $<HTMLInputElement>("ab").value = r.bitsHex; }
-  } catch { /* the form still works without a prefill */ }
+  const prefill = async () => {   // fills only fields the visitor hasn't typed into yet
+    try {
+      const r = await lookup(wallet());
+      if (!r || r === "stale" || r.status !== "ok") return;
+      const aw = $<HTMLInputElement>("aw"), ab = $<HTMLInputElement>("ab");
+      if (!aw.value) aw.value = r.wallet;
+      if (!ab.value) ab.value = r.bitsHex;
+    } catch { /* the form still works without a prefill */ }
+  };
   $("f").addEventListener("submit", async e => {
     e.preventDefault();
     const out = $("out"), w = checksum($<HTMLInputElement>("aw").value), bits = $<HTMLInputElement>("ab").value.trim().toLowerCase();
@@ -391,13 +414,14 @@ async function appealPage() {
     } catch { /* still allow the appeal */ }
     const title = `Appeal: ${w}`;
     const body = `**Cusity appeal**\n\n- campaign: #${CONFIG.campaignId}\n- wallet: \`${w}\`\n- bits: \`${bits}\` (${inSnap})\n- model: ${card.name} (\`${card.netlistSha256}\`)\n\n**What's wrong**\n\n${note}\n`;
-    const url = `${CONFIG.appealsUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=appeal`;
+    const url = `${CONFIG.appealsUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
     out.innerHTML = `<div class="card"><div class="msg mono" id="m"></div>
       <div class="row" style="margin-top:12px"><a class="btn-dark mono" href="${esc(url)}" target="_blank" rel="noopener">Open public appeal →</a><button class="ghost" type="button" id="cp">Copy text</button></div>
       <p class="muted small">Needs a GitHub account. No account? Copy the text and post it in the project's channel.</p></div>`;
     $("m").textContent = body;   // user text goes in as text, never HTML
     copyButton($<HTMLButtonElement>("cp"), () => body);
   });
+  prefill();
 }
 
 // ------------------------------------------------------------------ stage detail
@@ -405,8 +429,8 @@ async function appealPage() {
 const FEATURE_OF_BIT = (bit: number) => SLOTS.find(s => bit >= s.start && bit < s.start + s.count)!;
 
 async function stagePage() {
-  const nS = NSTAGES(), raw = Number(params.get("s"));
-  const sIdx = Number.isInteger(raw) && raw >= 1 && raw <= nS ? raw : 1;
+  const nS = NSTAGES(), raw = int(params.get("s"));
+  const sIdx = raw >= 1 && raw <= nS ? raw : 1;
   const sizes = layerSizes(), nL = sizes.length;
   shell(`Stage ${pad2(sIdx)} · ${stageTitle(sIdx)}`);
   const el = $("page");
@@ -501,8 +525,8 @@ async function clusterPage() {
       const cParam = params.get("c");
       let show: number | undefined = cid;
       if (cParam !== null) {
-        const n = Number(cParam);
-        if (cParam === "" || !Number.isInteger(n) || n < 0 || n >= gi.clusters.length) {
+        const n = int(cParam);
+        if (!(n >= 0 && n < gi.clusters.length)) {
           el.innerHTML = `<div class="card warn">There is no cluster “${esc(cParam)}”.</div>` + list; return;
         }
         show = n;
@@ -519,7 +543,7 @@ async function clusterPage() {
           <div><span class="k mono">Labelled bots</span><span class="v">${s.bots}</span><span class="s mono">from Sybil lists</span></div>
           <div><span class="k mono">Funded in 24 h</span><span class="v">${s.window24h}</span><span class="s mono">of ${s.size} wallets</span></div>
         </div>
-        <div class="card"><h2>Map <span class="count mono">${s.funders} funders · ${s.collectors} collectors · ${s.direct} direct links · drag, zoom, tap</span></h2>
+        <div class="card"><h2>Map <span class="count mono">${s.funders} funders · ${s.collectors} collectors · ${s.direct} direct links · drag, ⌘/ctrl + wheel to zoom, tap</span></h2>
           <div id="graph" class="graph-host"><div class="skeleton"><i></i><i></i></div></div>
           <div class="legend mono"><span><i class="lg-flag"></i>flagged</span><span><i class="lg-pass"></i>passed</span><span><i class="lg-funder"></i>shared funder</span><span><i class="lg-coll"></i>shared collector</span><span><i class="lg-lbl"></i>on a Sybil list</span>
             <span><i class="lg-e funds"></i>funds →</span><span><i class="lg-e sweeps"></i>sends to →</span><span><i class="lg-e direct"></i>direct</span></div>
@@ -590,7 +614,7 @@ async function campaignPage() {
 type Check = { label: string; ok: boolean | null; detail: string };
 const checksHtml = (cs: Check[]) => `<ul class="checks">${cs.map(c => `<li class="${c.ok === null ? "" : c.ok ? "c-ok" : "c-bad"}">
   <span class="mark mono" aria-label="${c.ok === null ? "info" : c.ok ? "pass" : "fail"}">${c.ok === null ? "·" : c.ok ? "✓" : "✗"}</span><span>${esc(c.label)}</span><span class="mono muted">${esc(c.detail)}</span></li>`).join("")}</ul>`;
-const callCard = (fn: string, note: string) => `<div class="card"><h2>Contract call <span class="count mono">${esc(note)}</span></h2><pre class="call mono">${esc(fn)}</pre></div>`;
+const callCard = (fn: string, note: string) => `<div class="card"><h2>Contract call <span class="count mono">${esc(note)}</span></h2><pre class="call mono" tabindex="0">${esc(fn)}</pre></div>`;
 const tile = (k: string, v: string, sub: string) => `<div><span class="k mono">${k}</span><span class="v">${v}</span><span class="s mono">${sub}</span></div>`;
 const dateOf = (t: number) => new Date(t * 1000).toISOString().slice(0, 16).replace("T", " ") + " UTC";
 
@@ -602,7 +626,7 @@ const binom = (n: number, p: number) => {
 };
 
 async function stepPage() {
-  const raw = Number(params.get("n")), n = Number.isInteger(raw) && raw >= 1 && raw <= 6 ? raw : 1;
+  const raw = int(params.get("n")), n = raw >= 1 && raw <= 6 ? raw : 1;
   shell(`Step ${pad2(n)} · ${STEPS[n - 1]}`);
   const el = $("page");
   const verifyCard = (title: string, btn: string) => `<div class="card"><h2>${title}</h2><div id="vout" aria-live="polite">${checksHtml([])}</div>
@@ -635,11 +659,11 @@ async function stepPage() {
             <span>frozen in git <a href="https://github.com/linoxbt/cusity/commit/${card.testCommittedInGit}" target="_blank" rel="noopener">${card.testCommittedInGit.slice(0, 7)}</a> before training</span></div></div>
           ${verifyCard("Verify", "Rebuild the root")}
           <div class="card"><h2>Rows <span class="count mono">first 24 of ${t.size}</span></h2>
-            <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Wallet</th><th>Bits</th><th>Label</th><th>Circuit</th><th></th></tr></thead><tbody>${rows.slice(0, 24).map(r => `<tr>
+            <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Wallet</th><th>Bits</th><th>Label</th><th>Circuit</th><th><span class="sr-only">Circuit agrees</span></th></tr></thead><tbody>${rows.slice(0, 24).map(r => `<tr>
               <td class="mono">${r.index}</td><td class="mono"><a href="${link("check", r.wallet)}">${short(r.wallet, 4)}</a></td><td class="mono">${r.bits}</td><td>${r.label ? "bot" : "human"}</td>
               <td class="${r.v ? "flagtxt" : ""}">${r.v ? "Flagged" : "Passed"}</td><td class="mono">${r.v === (r.label === 1) ? "✓" : "✗"}</td></tr>`).join("")}</tbody></table></div>
             <p class="muted small">Each row names its wallet, so anyone can check the label against the public Hop and LayerZero lists and recompute the bits.</p></div>
-          ${callCard(`AccuracyAudit.commitTestSet(\n  root  = ${t.root},\n  depth = ${t.depth},\n  size  = ${t.size}\n)`, "before the campaign")}`;
+          ${callCard(`AccuracyAudit.commitTestSet(\n  root  = ${t.root},\n  depth = ${t.depth},\n  size  = ${t.size}\n)   // best sent by the project, not the model's author`, "before the campaign commit")}`;
         runner(async () => {
           let leafOk = 0, proofOk = 0;
           for (const l of t.leaves) {
@@ -665,10 +689,13 @@ async function stepPage() {
             <div><b>SnapshotPassed</b><span>commit after the snapshot block is refused</span></div>
             <div><b>NetlistMismatch</b><span>bind fails if the taped-out circuit has another hash</span></div>
             <div><b>ExtractorMismatch</b><span>the model must use the committed extractor</span></div>
-            <div><b>NotATapeOutProcessor</b><span>only genuine TapeOut processors can host the circuit</span></div></div></div>
-          ${callCard(`CampaignCommit.commit(\n  netlistHash   = ${card.netlistSha256},\n  extractorHash = ${card.extractorSha256},\n  snapshotBlock = <future block>\n)`, "before the snapshot")}`;
+            <div><b>NotATapeOutProcessor</b><span>only genuine TapeOut processors can host the circuit</span></div>
+            <div><b>SnapshotTooSoon</b><span>the snapshot must be at least ~1 day after the commit</span></div>
+            <div><b>TestSetMismatch</b><span>the model must be scored on the test set the campaign pinned</span></div>
+            <div><b>AlreadyRegistered</b><span>one registration per circuit: no shopping for a friendlier test set</span></div></div></div>
+          ${callCard(`CampaignCommit.commit(\n  netlistHash   = ${card.netlistSha256},\n  extractorHash = ${card.extractorSha256},\n  snapshotBlock = <at least ~1 day ahead>,\n  testCommitId  = <the test set committed in step 01>\n)`, "before the snapshot")}`;
         runner(async () => {
-          const nl = await (await fetch("./model/cusity.netlist.json", { cache: "no-cache" })).json() as { netlist: Hex };
+          const nl = await getJson<{ netlist: Hex }>("./model/cusity.netlist.json", true);
           const bytes = new Uint8Array(nl.netlist.slice(2).match(/../g)!.map(h => parseInt(h, 16)));
           const h = "0x" + Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), b => b.toString(16).padStart(2, "0")).join("");
           return [
@@ -689,8 +716,9 @@ async function stepPage() {
             <tr><td>Exchange list</td><td class="mono">${extCfg.exchanges.length ? `${extCfg.exchanges.length} addresses` : "none listed (exchange-scale funders are detected from their history)"}</td></tr>
             <tr><td>Extractor hash</td><td class="mono">${short(card.extractorSha256, 8)}</td></tr></tbody></table></div></div>`;
         runner(async () => {
-          const { client } = await live(), blk = BigInt(idx.block);
-          const [b, headBlk] = await Promise.all([client.getBlock({ blockNumber: blk }), client.getBlockNumber()]);
+          const L = await live(), blk = BigInt(idx.block);
+          const [b, headBlk] = await Promise.all([L.client.getBlock({ blockNumber: blk }), L.client.getBlockNumber()])
+            .catch(e => { throw new Error(L.explain(e)); });
           $("w-from").textContent = dateOf(Number(b.timestamp) - extCfg.windowDays * 86400); $("w-to").textContent = dateOf(Number(b.timestamp));
           return [
             { label: "Block exists", ok: true, detail: short(b.hash!, 8) },
@@ -706,6 +734,10 @@ async function stepPage() {
           <div class="card">${copyRow("Merkle root", idx.root)}${copyRow("Extractor sha256", idx.extractorHash)}
             <div class="facts mono"><span>leaf i = keccak256(i ‖ wallet ‖ bits)</span><span>wallets sorted by address</span><span>a duplicate can be proven on chain</span></div></div>
           ${verifyCard("Verify the whole snapshot", "Rebuild from list.json")}
+          <div class="card"><h2>Recompute every wallet's bits <span class="count mono">offline, no API keys</span></h2>
+            <p class="small">Every input the extractor read (public X Layer transactions and state at the snapshot block) is published:
+            <a href="./snapshot/inputs.json.gz" download>inputs.json.gz</a>. In a clone of the repository,
+            <code class="mono">scripts/verify_snapshot.sh inputs.json.gz list.json</code> recomputes all ${idx.count.toLocaleString("en-US")} rows with the committed extractor and compares them.</p></div>
           <div class="card"><h2>Verify one wallet</h2>
             <form class="row" id="pf"><label class="sr-only" for="pw">Wallet</label><input class="mono" id="pw" value="${esc(w0)}" spellcheck="false" /><button class="btn-dark mono">Prove</button></form>
             <div id="pout" aria-live="polite"></div><div id="ppath"></div></div>
@@ -745,7 +777,7 @@ async function stepPage() {
         const g = card.gates, cost = (p: (typeof measured.processors)[number]) =>
           `${(g * (p.mintPerGateOkb + p.feePerGateOkb) + measured.tapeoutFeeOkb).toFixed(4).replace(/0+$/, "")} OKB${p.bem ? ` + ${p.bem} BEM` : ""}`;
         el.innerHTML = head + `<div class="stats">${tile("Transistors", String(g), "one per NAND gate")}${tile("Netlist", `${(g * 7).toLocaleString("en-US")} B`, "7 bytes per gate")}
-          ${tile("Check gas", `${(measured.verdictOfGas / 1e6).toFixed(2)}M`, "verdictOf, free via eth_call")}${tile("Audit gas", `${(measured.finalizeAuditGasK16 / 1e6).toFixed(1)}M`, `K=16 · limit ${measured.blockGasLimit / 1e6}M`)}</div>
+          ${tile("Check gas", `${(measured.verdictOfGas / 1e6).toFixed(2)}M`, "verdictOf, free via eth_call")}${tile("Audit gas", `${(measured.finalizeBatch4Gas / 1e6).toFixed(1)}M`, `per 4-row batch · tx cap ${(measured.perTxGasCap / 1e6).toFixed(1)}M`)}</div>
           <div class="card"><h2>Sequence</h2><ol class="seq">
             <li><b>Mint</b><span>${g} NAND transistors on the processor</span></li>
             <li><b>Tape out</b><span>upload exactly the hashed netlist, pay the fee</span></li>
@@ -754,9 +786,10 @@ async function stepPage() {
           <div class="card"><h2>Processors <span class="count mono">all-in cost for ${g} gates · tested on a mainnet fork</span></h2>
             <div class="tbl-wrap"><table><thead><tr><th>Processor</th><th>Address</th><th>Cost</th><th></th></tr></thead><tbody>${measured.processors.map(p => `<tr>
               <td class="mono">${p.id}</td><td class="mono"><a href="${CONFIG.explorer}/address/${p.address}" target="_blank" rel="noopener">${short(p.address, 4)}</a></td><td>${cost(p)}</td><td class="mono muted">${esc(p.note)}</td></tr>`).join("")}</tbody></table></div></div>
-          ${callCard(`forge script script/TapeOut.s.sol --account cusity --broadcast   # mint + tapeout\nCusityRegistry.register(processor, circuitId, extractorHash, testCommitId, cardURI)\nCampaignCommit.bind(${CONFIG.campaignId}, modelId)`, "needs a funded wallet")}`;
+          ${callCard(`forge script script/TapeOut.s.sol --account cusity --broadcast   # mint + tapeout\nCusityRegistry.register(processor, circuitId, extractorHash, testCommitId, cardURI)   # once per circuit\nCampaignCommit.bind(${CONFIG.campaignId}, modelId)   # within 14 days of the snapshot`, "needs a funded wallet")}`;
       } else {
-        const K = CONFIG.auditK, p = card.test.accuracy, pm = binom(K, p), mx = Math.max(...pm);
+        const K = LIVE ? await auditInfo().then(a => a.k).catch(() => CONFIG.auditK) : CONFIG.auditK;
+        const p = card.test.accuracy, pm = binom(K, p), mx = Math.max(...pm);
         let lo = 0, acc = 0; while (acc + pm[lo] < 0.05) acc += pm[lo++];
         let hi = K; acc = 0; while (acc + pm[hi] < 0.05) acc += pm[hi--];
         el.innerHTML = head + `<div class="stats">${tile("Rows per round", String(K), "drawn by a future block hash")}${tile("Expected", `${(K * p).toFixed(1)}`, `of ${K} right`)}
@@ -767,10 +800,10 @@ async function stepPage() {
           <div class="card"><h2>Round</h2><ol class="seq">
             <li><b>Request</b><span>anyone calls requestAudit(modelId); the requester is recorded</span></li>
             <li><b>Seal</b><span>anyone stores the next block's hash within 256 blocks</span></li>
-            <li><b>Finalize</b><span>rows + proofs submitted; the circuit runs on chain</span></li>
-            <li><b>Score</b><span>correct / ${K} saved; unsealed rounds count as 0</span></li></ol>
+            <li><b>Finalize</b><span>rows + proofs, in batches of 4; the circuit runs on chain</span></li>
+            <li><b>Score</b><span>correct / ${K} saved; unsealed rounds count as 0 in the headline</span></li></ol>
             <a class="btn-dark mono" href="${link("audit")}">Open Audit →</a></div>
-          ${callCard(`AccuracyAudit.requestAudit(modelId)\nAccuracyAudit.seal(roundId)\nAccuracyAudit.finalizeAudit(roundId, rows, proofs)`, "permissionless")}`;
+          ${callCard(`AccuracyAudit.requestAudit(modelId)\nAccuracyAudit.seal(roundId)                       # scripts/audit_keeper.ts does this automatically\nAccuracyAudit.finalizeAudit(roundId, rows, proofs)   # 4 rows per call`, "permissionless")}`;
       }
       wireCopy();
     } catch (e) { fail(el, e, load); }
@@ -821,6 +854,7 @@ function modelPage() {
         <a href="./model/model_card.json" download>model_card.json</a>
         <a href="./test_leaves.json" download>test_leaves.json</a>
         <a href="./snapshot/list.json" download>snapshot list.json</a>
+        <a href="./snapshot/inputs.json.gz" download>extractor inputs</a>
       </div>
     </div>`;
   wireCopy();

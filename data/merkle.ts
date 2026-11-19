@@ -19,7 +19,12 @@ export function testTree(rows: { address?: string | null; bits: Hex; label: numb
 }
 
 /** Wallets sorted by address (strictly increasing, so duplicates are impossible in an honest file). */
-export function snapshotTree(rows: { address: string; bits: Hex; block: number }[], campaignId: number, extHash: Hex) {
+export function snapshotTree(rows: { address: string; bits: Hex; block: number; extractorHash?: Hex }[], campaignId: number, extHash: Hex) {
+  // every row must come from one block and one extractor, and that extractor is the one the index records
+  const blocks = new Set(rows.map(r => r.block)), exts = new Set(rows.map(r => (r.extractorHash ?? extHash).toLowerCase()));
+  if (blocks.size !== 1) throw new Error(`rows come from ${blocks.size} different blocks`);
+  if (exts.size !== 1) throw new Error(`rows were extracted by ${exts.size} different extractors`);
+  extHash = [...exts][0] as Hex;
   const sorted = rows.map(r => ({ ...r, address: r.address.toLowerCase() })).sort((a, b) => (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
   sorted.forEach((r, i) => { if (i && r.address === sorted[i - 1].address) throw new Error(`duplicate wallet ${r.address}`); });
   const leaves = sorted.map((r, i) => snapshotLeaf(i, addr(r.address), r.bits));

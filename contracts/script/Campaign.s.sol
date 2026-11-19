@@ -9,7 +9,8 @@ import {CampaignCommit} from "../src/CampaignCommit.sol";
 /// Every campaign transaction, read from the committed artifacts (nothing typed by hand) and signed with a
 /// Foundry keystore. Run one STEP at a time, in this order, dry-run first (drop --broadcast):
 ///   STEP=test     data/test_leaves.json            -> AccuracyAudit.commitTestSet(root, depth, size)
-///   STEP=commit   build/model_card.json + SNAPSHOT_BLOCK -> CampaignCommit.commit(netlistHash, extractorHash, block)
+///                 (ideally run by the PROJECT, not the model's author: the campaign then pins this test set)
+///   STEP=commit   build/model_card.json + SNAPSHOT_BLOCK + TEST_COMMIT_ID -> CampaignCommit.commit(...)
 ///   STEP=register PROCESSOR, CIRCUIT_ID, TEST_COMMIT_ID, CARD_URI -> CusityRegistry.register(...)
 ///   STEP=publish  web/public/snapshot/index.json + CAMPAIGN_ID, VECTORS_URI -> CampaignCommit.publishVectors(...)
 ///   STEP=bind     CAMPAIGN_ID, MODEL_ID          -> CampaignCommit.bind(...)
@@ -22,15 +23,18 @@ contract Campaign is Script {
         vm.startBroadcast();
         if (s == keccak256("test")) {
             string memory j = vm.readFile("../data/test_leaves.json");
+            // the declared size must be the real number of rows, or anyone can void the commit (proveEmptyRow)
+            uint256 n = vm.parseJsonUint(j, ".size");
+            require(n > 0 && vm.keyExistsJson(j, string.concat(".leaves[", vm.toString(n - 1), "]"))
+                && !vm.keyExistsJson(j, string.concat(".leaves[", vm.toString(n), "]")), "size != number of rows");
             id = AccuracyAudit(vm.envAddress("AUDIT")).commitTestSet(
                 vm.parseJsonBytes32(j, ".root"), uint8(vm.parseJsonUint(j, ".depth")), uint32(vm.parseJsonUint(j, ".size")));
             console.log("TEST_COMMIT_ID", id);
         } else if (s == keccak256("commit")) {
             string memory c = vm.readFile("../build/model_card.json");
             uint64 snap = uint64(vm.envUint("SNAPSHOT_BLOCK"));
-            require(snap > block.number + 600, "pick a snapshot block at least ~10 minutes ahead");
             id = CampaignCommit(vm.envAddress("CAMPAIGN")).commit(
-                vm.parseJsonBytes32(c, ".netlistSha256"), vm.parseJsonBytes32(c, ".extractorSha256"), snap);
+                vm.parseJsonBytes32(c, ".netlistSha256"), vm.parseJsonBytes32(c, ".extractorSha256"), snap, vm.envUint("TEST_COMMIT_ID"));
             console.log("CAMPAIGN_ID", id);
         } else if (s == keccak256("register")) {
             string memory c = vm.readFile("../build/model_card.json");
@@ -41,6 +45,7 @@ contract Campaign is Script {
             string memory i = vm.readFile(vm.envOr("SNAPSHOT_INDEX", string("../web/public/snapshot/index.json")));
             CampaignCommit cc = CampaignCommit(vm.envAddress("CAMPAIGN"));
             uint256 cid = vm.envUint("CAMPAIGN_ID");
+            require(vm.parseJsonUint(i, ".campaignId") == cid, "snapshot files were built for another campaign id");
             require(vm.parseJsonUint(i, ".block") == cc.campaign(cid).snapshotBlock, "snapshot files were extracted at another block");
             require(vm.parseJsonBytes32(i, ".extractorHash") == cc.campaign(cid).extractorHash, "snapshot extracted with another extractor");
             cc.publishVectors(cid, vm.parseJsonBytes32(i, ".root"), uint32(vm.parseJsonUint(i, ".count")),

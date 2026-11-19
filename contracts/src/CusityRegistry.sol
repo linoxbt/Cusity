@@ -34,6 +34,7 @@ contract CusityRegistry {
     IAuditCommits public immutable audit;
     ITapeOutFactory public immutable factory;
     mapping(bytes32 => bool) public allowedProcessorCode;
+    mapping(bytes32 => uint256) public modelOfNetlist;   // netlist hash => modelId + 1: one model per circuit
     Model[] private _models;
 
     event ModelRegistered(uint256 indexed modelId, address indexed owner, address processor,
@@ -41,7 +42,7 @@ contract CusityRegistry {
 
     error Shape(uint32 nIn, uint32 nOut, uint32 nState);
     error NotATapeOutProcessor();
-    error NotYourTestCommit();
+    error AlreadyRegistered(uint256 modelId);
     error TestCommitTooRecent();
 
     constructor(address audit_, address factory_, bytes32[] memory processorCodehashes) {
@@ -55,11 +56,15 @@ contract CusityRegistry {
         ITapeOutProcessor p = ITapeOutProcessor(processor);
         (uint32 nIn, uint32 nOut, uint32 nState, uint32 gates) = p.circuitInfo(circuitId);
         if (nIn != N_IN || nOut != N_OUT || nState != 0) revert Shape(nIn, nOut, nState);
-        (address tOwner, uint64 tBlock) = audit.testCommitInfo(testCommitId);
-        if (tOwner != msg.sender) revert NotYourTestCommit();
+        // Any test commit made before this block may be used: a campaign can pin one committed by someone
+        // independent of the model's author (CampaignCommit.bind enforces the pin).
+        (, uint64 tBlock) = audit.testCommitInfo(testCommitId);
         if (tBlock >= block.number) revert TestCommitTooRecent();
         bytes32 h = sha256(p.netlist(circuitId));
+        // One registration per circuit: the same netlist can't be registered again with a friendlier test set.
+        if (modelOfNetlist[h] != 0) revert AlreadyRegistered(modelOfNetlist[h] - 1);
         modelId = _models.length;
+        modelOfNetlist[h] = modelId + 1;
         _models.push(Model(msg.sender, processor, circuitId, h, extractorHash, testCommitId, gates,
                            uint64(block.number), cardURI));
         emit ModelRegistered(modelId, msg.sender, processor, circuitId, h, gates);

@@ -13,8 +13,10 @@ npx tsx --test data/*.test.ts 2>&1 | grep -E "^# (pass|fail)"
 echo "== 3. every published artifact describes the same model and snapshot"
 npx tsx scripts/merkle_compat.ts >/dev/null && git diff --quiet -- build/merkle_compat.json || { echo "merkle_compat.json changed: TS tree builder drifted"; exit 1; }
 STRICT_MEASURED=1 npx tsx scripts/check_consistency.ts
-echo "== 4. contracts (unit, fuzz, TS<->Solidity trees)"
+echo "== 4. every published wallet's bits recompute offline from the published inputs"
+scripts/verify_snapshot.sh web/public/snapshot/inputs.json.gz web/public/snapshot/list.json 2>&1 | tail -1
+echo "== 5. contracts (unit, fuzz, TS<->Solidity trees)"
 (cd contracts && forge test 2>&1 | tail -1)
-echo "== 5. web type-check and build"
+echo "== 6. web type-check and build"
 npm run -w web build 2>&1 | tail -1
 echo "all checks done"

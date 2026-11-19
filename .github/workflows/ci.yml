@@ -12,6 +12,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version-file: .python-version }
       - uses: foundry-rs/foundry-toolchain@v1
+        with: { version: v1.7.1 }
       - run: npm ci
       - run: scripts/setup_contracts.sh
       - run: scripts/test_all.sh          # parity, data tests, artifact consistency, contracts, web build

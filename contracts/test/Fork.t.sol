@@ -177,10 +177,10 @@ contract ForkTest is Test {
 
         // campaign over 5 wallets
         vm.roll(block.number + 1);
-        uint256 c = camp.commit(reg.model(modelId).netlistHash, ext, uint64(block.number + 5));
+        uint256 c = camp.commit(reg.model(modelId).netlistHash, ext, uint64(block.number + camp.MIN_LEAD()), tc);
         bytes32[] memory snap = new bytes32[](5);
         for (uint256 i; i < 5; ++i) snap[i] = keccak256(abi.encodePacked(uint32(i), address(uint160(0xC000 + i)), bits[i]));
-        vm.roll(block.number + 6);
+        vm.roll(uint256(camp.campaign(c).snapshotBlock) + 1);
         camp.publishVectors(c, PH.root(snap), 5, PH.depthFor(5), "https://cusity/snapshot/list.json");
         camp.bind(c, modelId);
         for (uint256 i; i < 5; ++i) {
@@ -192,7 +192,7 @@ contract ForkTest is Test {
 
         // audit
         uint256 r = audit.requestAudit(modelId);
-        (, , uint64 target,,,,) = audit.rounds(r);
+        (, , uint64 target,,,,,) = audit.rounds(r);
         vm.roll(uint256(target) + 1);
         vm.setBlockhash(target, keccak256("fork target hash"));
         audit.seal(r);
@@ -207,10 +207,18 @@ contract ForkTest is Test {
             proofs[j] = PH.proof(leaves, i);
             if (model[i] == label[i]) ++expect;
         }
-        uint256 g0 = gasleft();
-        (uint16 correct, uint16 total) = audit.finalizeAudit(r, rows, proofs);
-        console.log("finalizeAudit gas, K=16 on the live processor:", g0 - gasleft());
-        assertEq(correct, expect); assertEq(total, K);
+        // finalize in 4 batches of 4 rows: each transaction stays far below a 16.8M per-tx gas cap
+        uint16 correct; uint16 scored; uint256 maxBatch;
+        for (uint256 b; b < K; b += 4) {
+            AccuracyAudit.Row[] memory rb = new AccuracyAudit.Row[](4); bytes32[][] memory pb = new bytes32[][](4);
+            for (uint256 q; q < 4; ++q) { rb[q] = rows[b + q]; pb[q] = proofs[b + q]; }
+            uint256 g0 = gasleft();
+            (correct, scored) = audit.finalizeAudit(r, rb, pb);
+            if (g0 - gasleft() > maxBatch) maxBatch = g0 - gasleft();
+        }
+        console.log("largest finalizeAudit batch (4 rows) gas on the live processor:", maxBatch);
+        assertLt(maxBatch, 16_777_216);
+        assertEq(correct, expect); assertEq(scored, K);
         assertLt(expect, K);   // the mixed labels really were scored
     }
 }

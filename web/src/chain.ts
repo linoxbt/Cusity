@@ -20,7 +20,8 @@ export function loadCircuit() {
   if (!netP) {
     netP = (async () => {
       if (!LIVE) return { net: parse(netlistJson.netlist as Hex, netlistJson.nIn, netlistJson.nOut), matchesCard: true };
-      const n = await (await live()).boundNetlist();
+      const L = await live();
+      const n = await L.boundNetlist().catch(e => { throw new Error(L.explain(e)); });
       return { net: parse(n.hex, n.nIn, n.nOut), matchesCard: n.hash.toLowerCase() === card.netlistSha256.toLowerCase() };
     })();
     netP.catch(() => { netP = undefined; });
@@ -44,8 +45,10 @@ export async function checkWallet(input: string): Promise<CheckResult> {
   const entry = sh.wallets[wallet.toLowerCase()];
   if (!entry) return { status: "not-in-snapshot", wallet };
   let { root, depth, count } = idx;
-  if (LIVE) {
-    const c = await (await live()).readCampaign();
+  const L = LIVE ? await live() : undefined;
+  if (L) {
+    const c = await L.readCampaign().catch(e => { throw new Error(L.explain(e)); });
+    if (!c.bound) throw new Error("The campaign isn't bound to a model yet: verdicts open once it is.");
     if (c.invalid) throw new Error("This campaign was invalidated on chain: its snapshot lists a wallet twice.");
     root = c.vectorsRoot; depth = c.vectorsDepth; count = c.vectorsCount;
   }
@@ -55,26 +58,32 @@ export async function checkWallet(input: string): Promise<CheckResult> {
   const bits = unpack(entry.bits), local = decide(await loadNet(), bits);
   const base = { status: "ok" as const, wallet, bits, bitsHex: entry.bits, root, localVerdict: local.verdict };
   if (!LIVE) return { ...base, ...local, rootSource: "published file", source: "in-browser (demo)" };
-  const v = await (await live()).verdictOf(entry.index, wallet, entry.bits, entry.proof);
+  const v = await L!.verdictOf(entry.index, wallet, entry.bits, entry.proof).catch(e => { throw new Error(L!.explain(e)); });
   return { ...base, ...v, rootSource: "on chain", source: "X Layer eth_call" };
 }
 
 // ------------------------------------------------------------------ audit
 
-export type Round = { id: number; status: "none" | "pending" | "ready" | "done" | "expired"; correct: number; total: number; requester?: Hex };
+export type Round = { id: number; status: "none" | "pending" | "ready" | "done" | "expired" | "void"; correct: number; total: number; scored?: number; requester?: Hex };
 export type AuditInfo = { k: number; testRoot: Hex; testSize: number; openRound: number; rounds: Round[];
-  netlistHash?: Hex; committedHash?: Hex; bound?: boolean; invalid?: boolean; leavesMatch: boolean };
+  netlistHash?: Hex; committedHash?: Hex; bound?: boolean; invalid?: boolean; leavesMatch: boolean;
+  testOwner?: Hex; modelOwner?: Hex; testVoid?: boolean };
 
 const DEMO_KEY = "cusity:demo-rounds";
 const demoRounds = (): Round[] => { try { return JSON.parse(sessionStorage.getItem(DEMO_KEY) ?? "[]"); } catch { return []; } };
 
-/** Live: the test rows the site publishes must rebuild to the root committed on chain, or nobody can audit. */
+/** The published rows must rebuild the committed root AND number exactly the committed size (a commit that
+ *  overstates its size could otherwise freeze audits: anyone can void it on chain with proveEmptyRow). */
+const leavesMatch = (t: Awaited<ReturnType<typeof testLeaves>>, root: string, size: number) =>
+  t.leaves.length === size && t.size === size && rebuildTestRoot(t).toLowerCase() === root.toLowerCase();
+
 export async function auditInfo(): Promise<AuditInfo> {
-  const t = await testLeaves(), rebuilt = rebuildTestRoot(t);
+  const t = await testLeaves();
   if (!LIVE) return { k: CONFIG.auditK, testRoot: t.root, testSize: t.size, openRound: -1, rounds: demoRounds(),
-    leavesMatch: rebuilt.toLowerCase() === card.testRoot.toLowerCase() };
-  const s = await (await live()).auditState();
-  return { ...s, k: s.k, rounds: s.rounds, leavesMatch: rebuilt.toLowerCase() === s.testRoot.toLowerCase() };
+    leavesMatch: leavesMatch(t, card.testRoot, card.testSize) };
+  const L = await live();
+  const s = await L.auditState().catch(e => { throw new Error(L.explain(e)); });
+  return { ...s, leavesMatch: leavesMatch(t, s.testRoot, s.testSize) };
 }
 
 /** One audit round. Demo: K rows picked by a random seed, the shipped circuit scores them in the browser.
@@ -82,7 +91,7 @@ export async function auditInfo(): Promise<AuditInfo> {
 export async function runAudit(log: (s: string) => void): Promise<Round> {
   const t = await testLeaves();
   if (!LIVE) {
-    if (rebuildTestRoot(t).toLowerCase() !== card.testRoot.toLowerCase()) throw new Error("The published test rows don't rebuild to the committed root.");
+    if (!leavesMatch(t, card.testRoot, card.testSize)) throw new Error("The published test rows don't rebuild the committed root and size.");
     const n = await loadNet(), seed = crypto.getRandomValues(new Uint8Array(32)), past = demoRounds(), id = past.length, k = CONFIG.auditK;
     let correct = 0;
     for (let j = 0; j < k; j++) {
@@ -101,7 +110,8 @@ export async function runAudit(log: (s: string) => void): Promise<Round> {
   const L = await live();
   try {
     const s = await L.auditState();
-    if (rebuildTestRoot(t).toLowerCase() !== s.testRoot.toLowerCase()) throw new Error("The published test rows don't rebuild to the root committed on chain.");
+    if (s.testVoid) throw new Error("This model's test set was voided on chain; it can't be audited.");
+    if (!leavesMatch(t, s.testRoot, s.testSize)) throw new Error("The published test rows don't match the root and size committed on chain.");
     const { wallet, account } = await L.connect();
     let roundId: bigint;
     const open = s.rounds.find(r => r.id === s.openRound && (r.status === "pending" || r.status === "ready"));
@@ -115,7 +125,8 @@ export async function runAudit(log: (s: string) => void): Promise<Round> {
     }
     const deadline = Date.now() + 90_000;
     let st = 1;
-    while ((st = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "status", args: [roundId] })) === 1) {
+    // 0 (none) can come from a fallback RPC that hasn't seen the request yet: keep waiting
+    while ((st = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "status", args: [roundId] })) <= 1) {
       if (Date.now() > deadline) throw new Error("The round's block didn't arrive within 90 s. Try again in a minute.");
       await new Promise(r => setTimeout(r, 1500));
     }
@@ -123,9 +134,15 @@ export async function runAudit(log: (s: string) => void): Promise<Round> {
     const idx = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "sampleIndices", args: [roundId] });
     log(`rows picked: ${idx.join(", ")}`);
     const rows = idx.map(i => ({ index: i, wallet: t.leaves[i].wallet, bits: t.leaves[i].bits, label: t.leaves[i].label === 1 }));
-    log("2/2 finalizeAudit: the contract checks each row's proof and runs the circuit on chain");
-    await L.mined(await wallet.writeContract({ account, address: CONFIG.audit, abi: L.auditAbi, functionName: "finalizeAudit",
-      args: [roundId, rows, idx.map(i => t.leaves[i].proof)] }));
+    // resume where an earlier (maybe interrupted) finalize left off; 4 rows per transaction (~11M gas)
+    let done = (await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "rounds", args: [roundId] }))[7];
+    while (done < rows.length) {
+      const end = Math.min(done + 4, rows.length);
+      log(`2/2 finalizeAudit rows ${done + 1}–${end} of ${rows.length}: proofs checked and the circuit run on chain`);
+      await L.mined(await wallet.writeContract({ account, address: CONFIG.audit, abi: L.auditAbi, functionName: "finalizeAudit",
+        args: [roundId, rows.slice(done, end), idx.slice(done, end).map(i => t.leaves[i].proof)] }));
+      done = end;
+    }
     const r = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "rounds", args: [roundId] });
     return { id: Number(roundId), status: "done", correct: r[5], total: r[6], requester: r[1] };
   } catch (e) { throw new Error(L.explain(e)); }

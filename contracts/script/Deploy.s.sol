@@ -9,8 +9,8 @@ import {CampaignCommit} from "../src/CampaignCommit.sol";
 /// Deploys the three contracts on X Layer mainnet, signing with a Foundry keystore (never a raw key):
 ///   cast wallet import cusity --interactive          # once; the key is stored encrypted
 ///   forge script script/Deploy.s.sol --rpc-url https://rpc.xlayer.tech --account cusity --broadcast
-/// AUDIT_K (default 16, 1..65535) = rows per audit round. K=16 finalizes in ~24M gas with the 646-gate
-/// circuit (measured on a fork), far below X Layer's 210M block gas limit.
+/// AUDIT_K (default 16, 1..64) = rows per audit round. Each row costs one eval (~2.7M gas at 1,194 gates);
+/// rounds can be finalized in batches, so no single transaction needs more than a few rows.
 contract Deploy is Script {
     /// TapeOut processor factory on X Layer (proxy; isCPU is true only for processors it created).
     address constant FACTORY = 0x1f09DAeFA827f02CBb40967cc91b259763760761;
@@ -21,7 +21,7 @@ contract Deploy is Script {
 
     function run() external returns (AccuracyAudit audit, CusityRegistry registry, CampaignCommit campaign) {
         uint256 kRaw = vm.envOr("AUDIT_K", uint256(16));
-        require(kRaw > 0 && kRaw <= type(uint16).max, "AUDIT_K must be 1..65535");
+        require(kRaw > 0 && kRaw <= 64, "AUDIT_K must be 1..64");
         bytes32[] memory code = new bytes32[](2);
         code[0] = PROXY_A; code[1] = PROXY_B;
         vm.startBroadcast();
