@@ -54,16 +54,23 @@ export function liveNeurons(): Set<number>[] {
   return keep;
 }
 
-/** Neurons of layer li whose single flip changes the verdict for this wallet. */
-export function decidingNeurons(bits: number[], li: number): number[] {
-  const base = runStages(bits), res: number[] = [];
+/** For every neuron of layer li: how far its single flip moves this wallet's margin (bot − human votes),
+ *  signed toward "bot" (+) or "human" (−), and whether that flip changes the verdict. Every wallet gets a
+ *  ranking even when no single neuron decides on its own. */
+export function neuronEffects(bits: number[], li: number): { delta: Int16Array; flips: Set<number> } {
+  const base = runStages(bits), delta = new Int16Array(L[li].out), flips = new Set<number>();
   for (let j = 0; j < L[li].out; j++) {
     const layers = base.layers.slice(); const x = Uint8Array.from(base.layers[li]); x[j] ^= 1; layers[li] = x;
     if (li + 1 < L.length) forward(x, li + 1, layers);
-    if (vote(layers[L.length - 1]).verdict !== base.verdict) res.push(j);
+    const v = vote(layers[L.length - 1]);
+    delta[j] = v.margin - base.margin;
+    if (v.verdict !== base.verdict) flips.add(j);
   }
-  return res;
+  return { delta, flips };
 }
+
+/** Neurons of layer li whose single flip changes the verdict for this wallet. */
+export const decidingNeurons = (bits: number[], li: number) => [...neuronEffects(bits, li).flips];
 
 /** Input bits that a set of neurons in layer li ultimately read. */
 export function inputsOf(li: number, neurons: number[]): Map<number, number> {

@@ -1,5 +1,5 @@
-@font-face { font-family: "Space Grotesk"; src: url("/fonts/SpaceGrotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url("/fonts/JetBrainsMono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Space Grotesk"; src: url("./fonts/SpaceGrotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("./fonts/JetBrainsMono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
 
 /* Cusity: dark shell, paper sheets, one lime accent. Layout language: left rail, chamfered sheets,
    numbered layers, hairline frames, mono labels. */
@@ -631,3 +631,62 @@ pre.call { margin: 0; padding: 14px 16px; background: var(--ink); color: var(--l
 .legend i.ink { background: var(--ink); }
 .pill.pend .dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--muted); }
 .note { font-size: 13px; margin: 14px 0 0; line-height: 1.5; }
+
+/* ================= audit fixes: accessibility, contrast, graph, landing ================= */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: fixed; left: 12px; top: -48px; z-index: 50; background: var(--lime); color: var(--ink); padding: 8px 12px; text-decoration: none; font-size: 12px; }
+.skip:focus { top: 12px; }
+:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.sheet :focus-visible { outline-color: var(--ink); }
+#page:focus { outline: none; }
+/* contrast: small labels on ink were 2.5:1, now above 4.5:1 */
+.rail-nav a span, .tk i, .layers ul li::before { color: #8A93A0; }
+.mode-note { margin: 14px 0 0; font-size: 12px; color: var(--muted-d); }
+.card.warn p { margin: 0 0 10px; } .card.warn .btn-dark { margin-top: 4px; }
+.small { font-size: 12px; }
+/* tap targets on phones: links in result headers and nav at least 40px tall */
+@media (max-width: 720px) {
+  .verdict .actions a, .stage-nav a, .samples button, .ghost { min-height: 40px; display: inline-flex; align-items: center; }
+  .bar-nav { display: flex; position: absolute; top: 100%; left: 0; right: 0; gap: 18px; padding: 10px clamp(16px, 3vw, 40px); overflow-x: auto;
+    background: rgba(11, 13, 16, .96); border-bottom: 1px solid var(--line-d); font-size: 13px; }
+}
+/* ticker pause control */
+.ticker { position: relative; }
+.ticker-track.paused { animation-play-state: paused; }
+.tk-pause { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; padding: 6px 10px; background: var(--ink); color: var(--paper);
+  border: 1px solid var(--line-d); cursor: pointer; }
+/* tables scroll inside their card on small screens instead of overflowing */
+.tbl-wrap { overflow-x: auto; }
+.tbl-wrap table a { color: inherit; }
+/* stage influence bars: toward bot (flag) or toward human (ink) */
+.op.infl.bot i { background: var(--flag); } .op.infl.hum i { background: var(--ink); }
+/* interactive cluster map */
+.graph-wrap { position: relative; touch-action: none; }
+.graph-wrap .graph { cursor: grab; user-select: none; } .graph-wrap .graph:active { cursor: grabbing; }
+.graph line { stroke: #6B7380; stroke-width: 1.2; }
+.graph line.e-funds { stroke: var(--lime); stroke-opacity: .75; }
+.graph line.e-sweeps { stroke: #8FBBFF; stroke-opacity: .85; stroke-dasharray: 4 3; }
+.graph line.e-direct { stroke: var(--paper); stroke-opacity: .75; }
+.graph line.hl { stroke-width: 2.6; stroke-opacity: 1; }
+.graph marker path { fill: #6B7380; } .graph .ar-funds path { fill: var(--lime); } .graph .ar-sweeps path { fill: #8FBBFF; }
+.graph .hit { fill: transparent; stroke: none; }
+.graph a.n-wallet .dot { stroke: var(--ink); stroke-width: 2; }
+.graph a.n-wallet.pass .dot { fill: var(--paper); } .graph a.n-wallet.flag .dot { fill: var(--flag); }
+.graph a.n-wallet.focus .dot { stroke: var(--lime); stroke-width: 3; }
+.graph a.n-wallet .lbl { fill: var(--ink); stroke: none; }
+.graph a.n-funder rect { fill: var(--lime); } .graph a.n-collector rect { fill: #8FBBFF; }
+.graph a.sel .dot, .graph a.sel rect, .graph a:focus-visible .dot, .graph a:focus-visible rect { stroke: var(--lime); stroke-width: 3; }
+.graph a:focus { outline: none; }
+.graph-ctl { position: absolute; right: 10px; top: 10px; display: flex; gap: 6px; }
+.graph-ctl button { background: var(--ink-2); color: var(--paper); border: 1px solid var(--line-d); min-width: 34px; height: 34px; cursor: pointer; font-size: 13px; }
+.legend i.lg-coll { background: #8FBBFF; }
+.legend i.lg-e { width: 18px; height: 2px; vertical-align: 3px; }
+.legend i.lg-e.funds { background: var(--lime); outline: 1px solid var(--ink); } .legend i.lg-e.sweeps { background: repeating-linear-gradient(90deg, #4E7FD0 0 4px, transparent 4px 7px); }
+.legend i.lg-e.direct { background: var(--ink); }
+.gsel-host:empty { display: none; }
+.gsel { margin-top: 14px; border-top: 1px solid var(--line-p); padding-top: 12px; display: grid; gap: 6px; font-size: 13px; }
+.gsel .k { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.gsel code { overflow-wrap: anywhere; font-size: 12px; }
+.gsel ul { margin: 4px 0 8px; padding-left: 18px; font-size: 12px; }
+.gsel .btn-dark { justify-self: start; }
+.op.infl { grid-template-columns: 64px 1fr 96px; } .op.infl span:last-child { text-align: right; white-space: nowrap; }

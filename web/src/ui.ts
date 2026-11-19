@@ -1,5 +1,4 @@
 // Small helpers shared by the landing page and the app pages.
-import { SLOTS } from "../../data/features";
 
 export const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 export const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
@@ -12,13 +11,6 @@ export function marginBar(margin: number, flagged: boolean) {
     <div class="mbar-legend"><span>human</span><span>${margin > 0 ? "+" : ""}${margin}</span><span>bot</span></div>`;
 }
 
-export function bitsGrid(bits: number[]) {
-  return `<div class="bits">${SLOTS.map(s => `
-    <div class="feat"><span class="name">${esc(s.kind === "flag" ? s.label : s.feature.label)}</span>
-      <span class="cells">${bits.slice(s.start, s.start + s.count).map((b, j) =>
-        `<span class="cell ${b ? "on" : ""}" title="bit ${s.start + j}">${b}</span>`).join("")}</span></div>`).join("")}</div>`;
-}
-
 /** The 64 input bits drawn on the hero's top plate (8 x 8, isometric). */
 export function drawPlate(bits: number[]) {
   const g = document.getElementById("plate-bits"); if (!g) return;
@@ -29,4 +21,14 @@ export function drawPlate(bits: number[]) {
     out += `<path d="M${x.toFixed(1)} ${(y - h / 2).toFixed(1)} l${h.toFixed(1)} ${(h / 2).toFixed(1)} l${(-h).toFixed(1)} ${(h / 2).toFixed(1)} l${(-h).toFixed(1)} ${(-h / 2).toFixed(1)} Z" class="${bits[i] ? "on" : ""}"/>`;
   }
   g.innerHTML = out;
+}
+
+/** Copy with visible feedback ("Copied" / "Copy failed"), never an unhandled rejection. */
+export function copyButton(btn: HTMLButtonElement, text: () => string) {
+  const label = btn.textContent ?? "Copy";
+  btn.onclick = async () => {
+    try { await navigator.clipboard.writeText(text()); btn.textContent = "Copied"; }
+    catch { btn.textContent = "Copy failed"; }
+    setTimeout(() => (btn.textContent = label), 1400);
+  };
 }

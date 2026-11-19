@@ -1,21 +1,22 @@
-// Fill in after deployment (scripts/onchain.md). While `campaign` is the zero address the site runs
-// in demo mode: the current circuit (build/cusity.netlist.json) is evaluated in the browser on the labelled wallets.
+// Fill in after deployment (docs/ONCHAIN.md, "Site"). Live mode switches on only when every on-chain field
+// is set; until then the site runs in demo mode: the current circuit (build/cusity.netlist.json) is
+// evaluated in the browser on the published snapshot.
 export const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
 export const CONFIG = {
-  rpc: ["https://rpc.xlayer.tech"],
+  rpc: ["https://rpc.xlayer.tech", "https://xlayerrpc.okx.com", "https://xlayer.drpc.org"],   // all allow browser CORS
   chainId: 196,
   explorer: "https://www.oklink.com/x-layer",
-  processor: ZERO as `0x${string}`,
-  circuitId: 0n,
-  modelId: 0n,
   registry: ZERO as `0x${string}`,
   campaign: ZERO as `0x${string}`,
   campaignId: 0n,
   audit: ZERO as `0x${string}`,
+  auditK: 16,                               // rows per round in demo mode (live mode reads K() from the contract)
   snapshotUrl: "./snapshot/",               // sharded snapshot (scripts/shard_snapshot.ts), shipped with the site
   testLeavesUrl: "./test_leaves.json",
-  containerId: "",                          // the model's Circuit Container, for TapeSend appeals
+  appealsUrl: "https://github.com/linoxbt/cusity/issues/new",   // public appeals: an issue with the wallet and its bits
 };
 
-export const LIVE = CONFIG.campaign !== ZERO;
+const set = (a: string) => a !== ZERO;
+/** Live only when all three contracts are configured: a half-filled config stays in demo mode. */
+export const LIVE = set(CONFIG.registry) && set(CONFIG.campaign) && set(CONFIG.audit);

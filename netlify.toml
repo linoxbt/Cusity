@@ -1,12 +1,41 @@
-# Netlify: build the web workspace (Vite) and publish its static output.
+# Netlify: build the web workspace (Vite) and publish its static output. Same headers as vercel.json.
 [build]
-  command = "npm run -w web build"
+  command = "npm ci && npm run -w web build"
   publish = "web/dist"
 
 [build.environment]
   NODE_VERSION = "22"
 
 [[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://rpc.xlayer.tech https://xlayerrpc.okx.com https://xlayer.drpc.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+
+[[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/snapshot/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/model/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/graph/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[redirects]]
+  from = "/:page/"
+  to = "/:page.html"
+  status = 301

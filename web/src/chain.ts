@@ -1,70 +1,33 @@
-// Two back ends behind one interface: LIVE reads X Layer (eth_call, no backend server), DEMO evaluates
-// the circuit in the browser. Both verify the snapshot Merkle proof locally before trusting bits.
-import { concat, toHex, createPublicClient, createWalletClient, custom, defineChain, encodePacked, fallback, getAddress,
-  http, keccak256, parseAbi, type Hex } from "viem";
+// One interface, two back ends. LIVE reads X Layer through live.ts (loaded on demand); DEMO evaluates the
+// shipped circuit in the browser on the published snapshot. Both verify every Merkle proof locally first.
+import { encodePacked, keccak256, concat, toHex, type Hex } from "viem";
 import { CONFIG, LIVE } from "./config";
 import { decide, parse, type Net } from "./tap02";
 import { unpack } from "../../data/features";
-import netlistJson from "../../build/cusity.netlist.json";   // demo mode evaluates the real circuit locally
+import { testLeaf, verify } from "../../data/merkle_core";
+import card from "../public/model/model_card.json";
+import netlistJson from "../../build/cusity.netlist.json";   // the circuit the model card describes
+import { checksum, inSnapshot, rebuildTestRoot, shardOf, snapshotIndex, testLeaves } from "./data";
 
-export const xlayer = defineChain({ id: 196, name: "X Layer", nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
-  rpcUrls: { default: { http: CONFIG.rpc } }, blockExplorers: { default: { name: "OKLink", url: CONFIG.explorer } } });
-export const client = createPublicClient({ chain: xlayer, transport: fallback(CONFIG.rpc.map(u => http(u))) });
+export const live = () => import("./live");
 
-const campaignAbi = parseAbi([
-  "function verdictOf(uint256 id, address wallet, bytes8 bits, bytes32[] proof) view returns (bool verdict, uint8 margin)",
-  "function campaign(uint256 id) view returns ((address owner, bytes32 netlistHash, bytes32 extractorHash, uint64 snapshotBlock, uint64 commitBlock, bytes32 vectorsRoot, string vectorsURI, uint256 modelId, bool bound))",
-]);
-const procAbi = parseAbi([
-  "function netlist(uint256 id) view returns (bytes)",
-  "function circuitInfo(uint256 id) view returns (uint32 nIn, uint32 nOut, uint32 nState, uint32 gateCount)",
-]);
-const registryAbi = parseAbi([
-  "function model(uint256 id) view returns ((address owner, address processor, uint256 circuitId, bytes32 netlistHash, bytes32 extractorHash, uint256 testCommitId, uint32 gateCount, uint64 registeredBlock, string cardURI))",
-]);
-const auditAbi = parseAbi([
-  "function K() view returns (uint16)",
-  "function testCommits(uint256) view returns (address owner, bytes32 root, uint32 size, uint64 blockNumber)",
-  "function roundCount() view returns (uint256)",
-  "function rounds(uint256) view returns (uint256 modelId, uint64 targetBlock, bool done, uint16 correct, uint16 total)",
-  "function status(uint256 roundId) view returns (uint8)",
-  "function sampleIndices(uint256 roundId) view returns (uint32[])",
-  "function requestAudit(uint256 modelId) returns (uint256)",
-  "function finalizeAudit(uint256 roundId, (uint32 index, bytes8 bits, bool label)[] rows, bytes32[][] proofs) returns (uint16, uint16)",
-  "event AuditRequested(uint256 indexed roundId, uint256 indexed modelId, uint64 targetBlock)",
-]);
+// ------------------------------------------------------------------ circuit
 
-type Snapshot = { campaignId: number; block: number; root: Hex; extractorHash: Hex; wallets: Record<string, { bits: Hex; proof: Hex[] }> };
-type TestLeaves = { root: Hex; size: number; leaves: { index: number; bits: Hex; label: number; leaf: Hex; proof: Hex[] }[] };
-
-// ------------------------------------------------------------------ helpers
-
-/** OpenZeppelin MerkleProof.processProof with sorted pairs. */
-export function merkleRoot(leaf: Hex, proof: Hex[]): Hex {
-  return proof.reduce<Hex>((h, p) => keccak256(h.toLowerCase() < p.toLowerCase() ? concat([h, p]) : concat([p, h])), leaf);
+let netP: Promise<{ net: Net; matchesCard: boolean }> | undefined;
+/** The circuit to evaluate. Live: the bound circuit from its processor, hash-checked; `matchesCard` says
+ *  whether it is the model this site's stage pages and card describe. */
+export function loadCircuit() {
+  if (!netP) {
+    netP = (async () => {
+      if (!LIVE) return { net: parse(netlistJson.netlist as Hex, netlistJson.nIn, netlistJson.nOut), matchesCard: true };
+      const n = await (await live()).boundNetlist();
+      return { net: parse(n.hex, n.nIn, n.nOut), matchesCard: n.hash.toLowerCase() === card.netlistSha256.toLowerCase() };
+    })();
+    netP.catch(() => { netP = undefined; });
+  }
+  return netP;
 }
-const snapshotLeaf = (w: Hex, bits: Hex) => keccak256(encodePacked(["address", "bytes8"], [w, bits]));
-
-// The snapshot is sharded by the address's first byte: one ~13 KB file per check instead of the whole set.
-type SnapIndex = { campaignId: number; block: number; root: Hex; extractorHash: Hex; count: number; samples: string[] };
-let index: Promise<SnapIndex> | undefined;
-export const snapshotIndex = (): Promise<SnapIndex> => (index ??= fetch(`${CONFIG.snapshotUrl}index.json`).then(r => r.json()));
-const shards = new Map<string, Promise<Snapshot["wallets"]>>();
-export const shard = (w: string) => {
-  const k = w.slice(2, 4).toLowerCase();
-  if (!shards.has(k)) shards.set(k, fetch(`${CONFIG.snapshotUrl}${k}.json`).then(r => r.json() as Promise<Snapshot["wallets"]>));
-  return shards.get(k)!;
-};
-export const sampleWallets = async () => (await snapshotIndex()).samples;
-
-let net: Net | undefined;
-export async function loadNet(): Promise<Net> {
-  if (net) return net;
-  if (!LIVE) return (net = parse(netlistJson.netlist as Hex, netlistJson.nIn, netlistJson.nOut));
-  const [nIn, nOut] = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "circuitInfo", args: [CONFIG.circuitId] });
-  const hex = await client.readContract({ address: CONFIG.processor, abi: procAbi, functionName: "netlist", args: [CONFIG.circuitId] });
-  return (net = parse(hex, nIn, nOut));
-}
+export const loadNet = async () => (await loadCircuit()).net;
 
 // ------------------------------------------------------------------ check
 
@@ -72,91 +35,98 @@ export type CheckResult =
   | { status: "invalid"; input: string }
   | { status: "not-in-snapshot"; wallet: Hex }
   | { status: "ok"; wallet: Hex; bits: number[]; bitsHex: Hex; verdict: boolean; margin: number; root: Hex;
-      localVerdict: boolean; source: "X Layer eth_call" | "in-browser (demo)" };
+      rootSource: "on chain" | "published file"; localVerdict: boolean; source: "X Layer eth_call" | "in-browser (demo)" };
 
 export async function checkWallet(input: string): Promise<CheckResult> {
-  let wallet: Hex;
-  try { wallet = getAddress(input.trim()); } catch { return { status: "invalid", input }; }
-  const [idx, ws] = await Promise.all([snapshotIndex(), shard(wallet)]), entry = ws[wallet.toLowerCase()];
+  const wallet = checksum(input);
+  if (!wallet) return { status: "invalid", input };
+  const [idx, sh] = await Promise.all([snapshotIndex(), shardOf(wallet)]);
+  const entry = sh.wallets[wallet.toLowerCase()];
   if (!entry) return { status: "not-in-snapshot", wallet };
-  let root = idx.root;
-  if (LIVE) root = (await client.readContract({ address: CONFIG.campaign, abi: campaignAbi, functionName: "campaign", args: [CONFIG.campaignId] })).vectorsRoot;
-  if (merkleRoot(snapshotLeaf(wallet, entry.bits), entry.proof).toLowerCase() !== root.toLowerCase())
-    throw new Error("Snapshot proof does not match the root on chain. Report this.");
-  const bits = unpack(entry.bits), n = await loadNet(), local = decide(n, bits);
-  if (!LIVE) return { status: "ok", wallet, bits, bitsHex: entry.bits, ...local, root, localVerdict: local.verdict, source: "in-browser (demo)" };
-  const [verdict, margin] = await client.readContract({ address: CONFIG.campaign, abi: campaignAbi,
-    functionName: "verdictOf", args: [CONFIG.campaignId, wallet, entry.bits, entry.proof] });
-  return { status: "ok", wallet, bits, bitsHex: entry.bits, verdict, margin: Number(margin) - 32, root, localVerdict: local.verdict, source: "X Layer eth_call" };
+  let { root, depth, count } = idx;
+  if (LIVE) {
+    const c = await (await live()).readCampaign();
+    if (c.invalid) throw new Error("This campaign was invalidated on chain: its snapshot lists a wallet twice.");
+    root = c.vectorsRoot; depth = c.vectorsDepth; count = c.vectorsCount;
+  }
+  if (!inSnapshot(wallet, entry, root, depth, count))
+    throw new Error(LIVE ? "This wallet's proof doesn't match the snapshot root stored on chain. Please report it."
+                         : "This wallet's proof doesn't match the published snapshot root. Reload the page; if it persists, please report it.");
+  const bits = unpack(entry.bits), local = decide(await loadNet(), bits);
+  const base = { status: "ok" as const, wallet, bits, bitsHex: entry.bits, root, localVerdict: local.verdict };
+  if (!LIVE) return { ...base, ...local, rootSource: "published file", source: "in-browser (demo)" };
+  const v = await (await live()).verdictOf(entry.index, wallet, entry.bits, entry.proof);
+  return { ...base, ...v, rootSource: "on chain", source: "X Layer eth_call" };
 }
 
 // ------------------------------------------------------------------ audit
 
-export const STATUS = ["none", "pending", "ready", "done", "expired"] as const;
-export type Round = { id: number; status: (typeof STATUS)[number]; correct: number; total: number };
-export type AuditInfo = { k: number; testRoot: Hex; testSize: number; netlistHash?: Hex; committedHash?: Hex; bound?: boolean;
-  snapshotBlock?: number; rounds: Round[] };
+export type Round = { id: number; status: "none" | "pending" | "ready" | "done" | "expired"; correct: number; total: number; requester?: Hex };
+export type AuditInfo = { k: number; testRoot: Hex; testSize: number; openRound: number; rounds: Round[];
+  netlistHash?: Hex; committedHash?: Hex; bound?: boolean; invalid?: boolean; leavesMatch: boolean };
 
-let demoRounds: Round[] = [];
-let leavesCache: TestLeaves | undefined;
-const testLeaves = async (): Promise<TestLeaves> =>
-  leavesCache ??= await (await fetch(CONFIG.testLeavesUrl)).json();
+const DEMO_KEY = "cusity:demo-rounds";
+const demoRounds = (): Round[] => { try { return JSON.parse(sessionStorage.getItem(DEMO_KEY) ?? "[]"); } catch { return []; } };
 
+/** Live: the test rows the site publishes must rebuild to the root committed on chain, or nobody can audit. */
 export async function auditInfo(): Promise<AuditInfo> {
-  if (!LIVE) { const t = await testLeaves(); return { k: 16, testRoot: t.root, testSize: t.size, rounds: demoRounds }; }
-  const m = await client.readContract({ address: CONFIG.registry, abi: registryAbi, functionName: "model", args: [CONFIG.modelId] });
-  const c = await client.readContract({ address: CONFIG.campaign, abi: campaignAbi, functionName: "campaign", args: [CONFIG.campaignId] });
-  const [, testRoot, testSize] = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "testCommits", args: [m.testCommitId] });
-  const k = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "K" });
-  const n = Number(await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "roundCount" }));
-  const rounds: Round[] = [];
-  for (let i = n - 1; i >= 0 && rounds.length < 50; i--) {
-    const [modelId, , , correct, total] = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "rounds", args: [BigInt(i)] });
-    if (modelId !== CONFIG.modelId) continue;
-    const st = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "status", args: [BigInt(i)] });
-    rounds.push({ id: i, status: STATUS[st], correct, total });
-  }
-  return { k, testRoot, testSize, netlistHash: m.netlistHash, committedHash: c.netlistHash, bound: c.bound, snapshotBlock: Number(c.snapshotBlock), rounds };
+  const t = await testLeaves(), rebuilt = rebuildTestRoot(t);
+  if (!LIVE) return { k: CONFIG.auditK, testRoot: t.root, testSize: t.size, openRound: -1, rounds: demoRounds(),
+    leavesMatch: rebuilt.toLowerCase() === card.testRoot.toLowerCase() };
+  const s = await (await live()).auditState();
+  return { ...s, k: s.k, rounds: s.rounds, leavesMatch: rebuilt.toLowerCase() === s.testRoot.toLowerCase() };
 }
 
-/** Demo: same rule as the contract (K rows picked by a block hash), but the "block hash" is random and
- *  the circuit runs in the browser. Live: two transactions from the visitor's wallet. */
+/** One audit round. Demo: K rows picked by a random seed, the shipped circuit scores them in the browser.
+ *  Live: request (or join the open round), wait for its block, finalize from the visitor's wallet. */
 export async function runAudit(log: (s: string) => void): Promise<Round> {
-  const t = await testLeaves(), n = await loadNet();
+  const t = await testLeaves();
   if (!LIVE) {
-    const seed = crypto.getRandomValues(new Uint8Array(32)), k = 16, id = demoRounds.length;
+    if (rebuildTestRoot(t).toLowerCase() !== card.testRoot.toLowerCase()) throw new Error("The published test rows don't rebuild to the committed root.");
+    const n = await loadNet(), seed = crypto.getRandomValues(new Uint8Array(32)), past = demoRounds(), id = past.length, k = CONFIG.auditK;
     let correct = 0;
     for (let j = 0; j < k; j++) {
       const h = keccak256(concat([toHex(seed), encodePacked(["uint256", "uint256"], [BigInt(id), BigInt(j)])]));
       const row = t.leaves[Number(BigInt(h) % BigInt(t.size))];
-      if (merkleRoot(row.leaf, row.proof) !== t.root) throw new Error("bad test proof");
+      // the leaf is rebuilt from the row itself, so the bits and label scored are the ones committed
+      if (!verify(row.proof, t.root, t.depth, row.index, testLeaf(row.index, row.wallet, row.bits, row.label === 1))) throw new Error(`test row ${row.index}: bad proof`);
       const ok = decide(n, unpack(row.bits)).verdict === (row.label === 1);
       correct += ok ? 1 : 0;
-      log(`row ${row.index}: label ${row.label}, model ${ok ? "agrees" : "disagrees"}`);
+      log(`row ${row.index}: labelled ${row.label ? "bot" : "human"}, circuit ${ok ? "agrees" : "disagrees"}`);
     }
     const r: Round = { id, status: "done", correct, total: k };
-    demoRounds = [r, ...demoRounds];
+    sessionStorage.setItem(DEMO_KEY, JSON.stringify([r, ...past]));
     return r;
   }
-  const eth = (window as any).ethereum;
-  if (!eth) throw new Error("No wallet found. Install a wallet (e.g. OKX Wallet) to run an audit.");
-  const wallet = createWalletClient({ chain: xlayer, transport: custom(eth) });
-  const [account] = await wallet.requestAddresses();
-  await wallet.switchChain({ id: 196 }).catch(() => wallet.addChain({ chain: xlayer }));
-  log("1/2 requestAudit: fixes the next block, whose hash picks the rows");
-  const h1 = await wallet.writeContract({ account, address: CONFIG.audit, abi: auditAbi, functionName: "requestAudit", args: [CONFIG.modelId] });
-  const rc = await client.waitForTransactionReceipt({ hash: h1 });
-  const ev = rc.logs.find(l => l.address.toLowerCase() === CONFIG.audit.toLowerCase());
-  const roundId = BigInt(ev!.topics[1]!);
-  while (await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "status", args: [roundId] }) === 1)
-    await new Promise(r => setTimeout(r, 1200));
-  const idx = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "sampleIndices", args: [roundId] });
-  log(`rows picked: ${idx.join(", ")}`);
-  const rows = idx.map(i => ({ index: i, bits: t.leaves[i].bits, label: t.leaves[i].label === 1 }));
-  log("2/2 finalizeAudit: the contract checks each proof and runs eval on chain (must land within ~4 minutes)");
-  const h2 = await wallet.writeContract({ account, address: CONFIG.audit, abi: auditAbi, functionName: "finalizeAudit",
-    args: [roundId, rows, idx.map(i => t.leaves[i].proof)] });
-  await client.waitForTransactionReceipt({ hash: h2 });
-  const [, , , correct, total] = await client.readContract({ address: CONFIG.audit, abi: auditAbi, functionName: "rounds", args: [roundId] });
-  return { id: Number(roundId), status: "done", correct, total };
+  const L = await live();
+  try {
+    const s = await L.auditState();
+    if (rebuildTestRoot(t).toLowerCase() !== s.testRoot.toLowerCase()) throw new Error("The published test rows don't rebuild to the root committed on chain.");
+    const { wallet, account } = await L.connect();
+    let roundId: bigint;
+    const open = s.rounds.find(r => r.id === s.openRound && (r.status === "pending" || r.status === "ready"));
+    if (open) { roundId = BigInt(open.id); log(`joining open round #${open.id}`); }
+    else {
+      log("1/2 requestAudit: the next block's hash will pick the rows");
+      const rc = await L.mined(await wallet.writeContract({ account, address: CONFIG.audit, abi: L.auditAbi, functionName: "requestAudit", args: [s.modelId] }));
+      const [ev] = L.parseEventLogs({ abi: L.auditAbi, logs: rc.logs, eventName: "AuditRequested" });
+      if (!ev) throw new Error("The audit request emitted no event.");
+      roundId = ev.args.roundId;
+    }
+    const deadline = Date.now() + 90_000;
+    let st = 1;
+    while ((st = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "status", args: [roundId] })) === 1) {
+      if (Date.now() > deadline) throw new Error("The round's block didn't arrive within 90 s. Try again in a minute.");
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    if (st !== 2) throw new Error(`Round #${roundId} is ${L.STATUS[st]}, not ready.`);
+    const idx = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "sampleIndices", args: [roundId] });
+    log(`rows picked: ${idx.join(", ")}`);
+    const rows = idx.map(i => ({ index: i, wallet: t.leaves[i].wallet, bits: t.leaves[i].bits, label: t.leaves[i].label === 1 }));
+    log("2/2 finalizeAudit: the contract checks each row's proof and runs the circuit on chain");
+    await L.mined(await wallet.writeContract({ account, address: CONFIG.audit, abi: L.auditAbi, functionName: "finalizeAudit",
+      args: [roundId, rows, idx.map(i => t.leaves[i].proof)] }));
+    const r = await L.client.readContract({ address: CONFIG.audit, abi: L.auditAbi, functionName: "rounds", args: [roundId] });
+    return { id: Number(roundId), status: "done", correct: r[5], total: r[6], requester: r[1] };
+  } catch (e) { throw new Error(L.explain(e)); }
 }

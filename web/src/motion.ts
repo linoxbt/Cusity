@@ -6,11 +6,13 @@ import Lenis from "lenis";
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 type Listener = (y: number) => void;
 const listeners: Listener[] = [];
-export const onScroll = (f: Listener) => { listeners.push(f); f(window.scrollY); };
+const onScroll = (f: Listener) => { listeners.push(f); f(window.scrollY); };
 
 export function startMotion() {
   if (!reduced) {
-    const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, anchors: { offset: -72 } });
+    // nested scroll areas (logs, code, wide tables, the cluster map) keep their own wheel scrolling
+    const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, anchors: { offset: -72 }, allowNestedScroll: true,
+      prevent: node => !!node.closest?.("[data-lenis-prevent], pre, .log, .graph-wrap, .tbl-wrap") });
     lenis.on("scroll", () => listeners.forEach(f => f(lenis.scroll)));
     const raf = (t: number) => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);

@@ -4,15 +4,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Check · Cusity</title>
+  <meta name="description" content="Check any wallet in the campaign snapshot: its 64 input bits, the circuit's verdict and margin." />
+  <link rel="canonical" href="https://cusity.vercel.app/check.html" />
+  <meta property="og:title" content="Check · Cusity" />
+  <meta property="og:description" content="Check any wallet in the campaign snapshot: its 64 input bits, the circuit's verdict and margin." />
+  <meta property="og:image" content="https://cusity.vercel.app/og-image-1200x630.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#0B0D10" />
-  <meta property="og:image" content="./og-image-1200x630.png" />
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="./apple-touch-icon-180.png" />
-  <link rel="preload" href="./fonts/SpaceGrotesk.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="./fonts/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin />
-  <script type="speculationrules">{"prerender":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}],"prefetch":[{"urls":["check.html","explain.html","audit.html","appeal.html","campaign.html","model.html"],"eagerness":"eager"}]}</script>
+  <link rel="preload" href="./src/fonts/SpaceGrotesk.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="./src/fonts/JetBrainsMono.woff2" as="font" type="font/woff2" crossorigin />
+  <script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body class="app" data-page="check">
+  <noscript><p style="padding:24px;font-family:sans-serif">Cusity needs JavaScript: every check runs in your browser.</p></noscript>
   <script type="module" src="./src/app.ts"></script>
 </body>
 </html>

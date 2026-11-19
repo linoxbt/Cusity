@@ -1,10 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "buildCommand": "npm run -w web build",
   "outputDirectory": "web/dist",
   "framework": null,
   "cleanUrls": false,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(check|explain|cluster|audit|appeal|campaign|model|feature|stage|step)",
@@ -13,7 +14,32 @@
   ],
   "headers": [
     {
-      "source": "/(fonts|assets)/(.*)",
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://rpc.xlayer.tech https://xlayerrpc.okx.com https://xlayer.drpc.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -22,11 +48,20 @@
       ]
     },
     {
-      "source": "/snapshot/(.*)",
+      "source": "/(snapshot|model|graph)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600"
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/test_leaves.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }

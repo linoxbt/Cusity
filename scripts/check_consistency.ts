@@ -16,6 +16,7 @@ eq("card vs build card", JSON.stringify(card), JSON.stringify(j("build/model_car
 eq("netlist sha256", "0x" + createHash("sha256").update(Buffer.from(nl.netlist.slice(2), "hex")).digest("hex"), card.netlistSha256);
 eq("netlist vs build", nl.netlist, j("build/cusity.netlist.json").netlist);
 eq("gates", card.gates, nl.gates);
+eq("measured gates (web/src/measured.json, from the fork test)", j("web/src/measured.json").gates, card.gates);
 const gv = `model/v${card.version}.gates.json`;
 if (existsSync(gv)) eq("site gates.json vs " + gv, readFileSync("web/public/model/gates.json", "utf8"), readFileSync(gv, "utf8"));
 else errs.push(`missing ${gv}`);
