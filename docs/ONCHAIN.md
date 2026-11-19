@@ -73,6 +73,37 @@ STEP=publish CAMPAIGN_ID=… VECTORS_URI=https://<site>/snapshot/list.json \
 STEP=bind CAMPAIGN_ID=… MODEL_ID=… forge script script/Campaign.s.sol --rpc-url $RPC --account cusity --broadcast
 ```
 
+## DeWEB (the site on chain)
+
+The site can also live in the model circuit's own **container** on TapeOut's DeWEB:
+- **Storage:** files are stored on chain through TapeOut's SiteRegistry, each pinned by its SHA-256.
+- **Address:** the site is served as `tape://<circuit>.2.<processor#>.tape`.
+- **Viewing:** open it through TapeKit, e.g. `https://<circuit>-2-419.tapekit.org/`. TapeKit re-hashes every file it serves.
+
+`scripts/deweb_build.sh` builds the site and leaves four files off chain, linked from GitHub at a pinned commit:
+- the 8.8 MB extractor inputs bundle (over DeWEB's 8.4 MB file limit; its SHA-256 *is* on chain);
+- `cusity.v`, `sitemap.xml` and `robots.txt` (no DeWEB content type).
+
+```bash
+scripts/deweb_build.sh                      # -> build/deweb: 395 files, 3.84 MB, 445 chunk transactions
+cd contracts
+# dry run: shows what will be written (no transactions)
+PROCESSOR=0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e PROCESSOR_NUMBER=419 CIRCUIT_ID=<circuit id from step 3> \
+  forge script script/Publish.s.sol --rpc-url https://rpc.xlayer.tech --account cusity
+# publish (the signer must hold the circuit, i.e. the wallet that taped it out)
+PROCESSOR=0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e PROCESSOR_NUMBER=419 CIRCUIT_ID=<id> \
+  forge script script/Publish.s.sol --rpc-url https://rpc.xlayer.tech --account cusity --broadcast --slow
+```
+
+**Cost (read on chain, Nov 19, 2026):**
+- **Container:** 0.08 OKB, one time (Opener `FEE`).
+- **Name:** free (DomainBinding `monthlyFee` is 0).
+- **Gas:** the uploads (measured on a fork, see below).
+
+**Re-publishing** writes only files whose SHA-256 changed and removes files that are gone, so a model update costs only its changed files.
+
+**Rehearsed on a mainnet fork:** `scripts/deweb_build.sh && FORK=1 forge test --match-contract DewebTest -vv`. It tapes out on #419, publishes every file, reads every file back from the registry, checks its SHA-256, and checks that the name is live.
+
 ## Site
 
 1. Set `registry`, `campaign`, `campaignId` and `audit` in `web/src/config.ts`.

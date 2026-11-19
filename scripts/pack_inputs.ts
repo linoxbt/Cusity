@@ -20,4 +20,6 @@ for (const f of readdirSync(`${stDir}/raw`).sort()) state[f] = JSON.parse(readFi
 const header = existsSync(`${stDir}/block.json`) ? JSON.parse(readFileSync(`${stDir}/block.json`, "utf8")) : null;
 const buf = gzipSync(Buffer.from(JSON.stringify({ block: Number(block), header, okx, state })), { level: 9 });
 writeFileSync(out, buf);
+// the digest travels with the snapshot, so a copy fetched from anywhere (GitHub, a mirror) can be checked
+writeFileSync(out.replace(/inputs\.json\.gz$/, "inputs.sha256.txt"), createHash("sha256").update(buf).digest("hex") + "  inputs.json.gz\n");
 console.log(`${Object.keys(okx).length} history files + ${Object.keys(state).length} state reads -> ${out} (${(buf.length / 1e6).toFixed(1)} MB, sha256 ${createHash("sha256").update(buf).digest("hex").slice(0, 16)}…)`);

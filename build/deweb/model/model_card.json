@@ -1,0 +1,73 @@
+{
+ "name": "Cusity bot filter v4",
+ "version": 4,
+ "processor": "",
+ "circuitId": 0,
+ "netlistSha256": "0x72b4e1bc35cbcf53815fa80182613ee8e6ec4b25751d2f72b65682cc3465a44b",
+ "nIn": 64,
+ "nOut": 7,
+ "gates": 1194,
+ "outputs": {
+  "verdict": 0,
+  "marginBits": [
+   1,
+   6
+  ],
+  "marginOffset": 32
+ },
+ "architecture": {
+  "widths": [
+   512,
+   256,
+   128,
+   64
+  ],
+  "group": 16,
+  "library": "difflogic 0.1.0"
+ },
+ "features": "data/features.ts",
+ "extractorSha256": "0x646ed623011d6ec9b50c7746bfb88cc40a5980e7cc004d428ef311802427eda7",
+ "testRoot": "0x2d54c546236c055dad9acaaf10121e1810a110ec1315f8fcc24f759758dbaffa",
+ "testSize": 364,
+ "testDepth": 9,
+ "testCommittedInGit": "d9bb8e3169c11ad8412fb8f373b55d1eb21a9a39",
+ "selection": "mean balanced validation accuracy over seeds; ties -> fewer gates",
+ "test": {
+  "n": 364,
+  "accuracy": 0.7005494505494505,
+  "balanced_accuracy": 0.7019230769230769,
+  "balanced_accuracy_ci95": [
+   0.6550694897864006,
+   0.7490903577926016
+  ],
+  "bot_recall": 0.6923076923076923,
+  "human_specificity": 0.7115384615384616,
+  "human_false_positive_rate": 0.28846153846153844,
+  "bot_precision": 0.7619047619047619,
+  "bot_precision_at_prevalence": {
+   "10%": 0.21052631578947373,
+   "30%": 0.5070422535211268
+  },
+  "flag_rate": 0.5192307692307693,
+  "by_source": {
+   "hop-sybil": {
+    "n": 24,
+    "flagged": 0.75
+   },
+   "hop-user": {
+    "n": 156,
+    "flagged": 0.2885
+   },
+   "layerzero-sybil": {
+    "n": 184,
+    "flagged": 0.6848
+   }
+  },
+  "unseen_vectors": {
+   "n": 215,
+   "balanced_accuracy": 0.6756029845566545
+  }
+ },
+ "trainedOn": "Hop airdrop Sybil list (ISC) and LayerZero initial Sybil list as bots, Hop bridge users as humans; wallets active on X Layer, snapshot block 76,254,000",
+ "limits": "Only as honest as its inputs. Labels describe behaviour on other chains in 2022-2024, and the sources differ in era (every human is a 2022 Hop user; most bots are 2023-24 LayerZero), so some signal may be cohort, not behaviour: see test.by_source. Feature design and thresholds were chosen with the whole (unlabelled) feature distribution in view. Precision depends on how many bots a campaign really has: see test.bot_precision_at_prevalence. A filter result, not an accusation, and not a ban list. TapeOut's X Layer contracts are test-phase and unaudited."
+}

@@ -15,6 +15,9 @@ export const CONFIG = {
   snapshotUrl: "./snapshot/",               // sharded snapshot (scripts/shard_snapshot.ts), shipped with the site
   testLeavesUrl: "./test_leaves.json",
   appealsUrl: "https://github.com/linoxbt/cusity/issues/new",   // public appeals: an issue with the wallet and its bits
+  // Files that don't go on chain with the DeWEB build (too big, or no DeWEB content type) are linked from GitHub
+  // there; the inputs bundle's sha256 ships with the site (snapshot/inputs.sha256.txt) so the copy can be checked.
+  offchainBase: (import.meta.env.VITE_OFFCHAIN_BASE as string | undefined) ?? "./",
 };
 
 const set = (a: string) => a !== ZERO;

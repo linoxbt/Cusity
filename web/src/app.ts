@@ -736,7 +736,7 @@ async function stepPage() {
           ${verifyCard("Verify the whole snapshot", "Rebuild from list.json")}
           <div class="card"><h2>Recompute every wallet's bits <span class="count mono">offline, no API keys</span></h2>
             <p class="small">Every input the extractor read (public X Layer transactions and state at the snapshot block) is published:
-            <a href="./snapshot/inputs.json.gz" download>inputs.json.gz</a>. In a clone of the repository,
+            <a href="${CONFIG.offchainBase}snapshot/inputs.json.gz" download>inputs.json.gz</a> (<a href="./snapshot/inputs.sha256.txt">sha256</a>). In a clone of the repository,
             <code class="mono">scripts/verify_snapshot.sh inputs.json.gz list.json</code> recomputes all ${idx.count.toLocaleString("en-US")} rows with the committed extractor and compares them.</p></div>
           <div class="card"><h2>Verify one wallet</h2>
             <form class="row" id="pf"><label class="sr-only" for="pw">Wallet</label><input class="mono" id="pw" value="${esc(w0)}" spellcheck="false" /><button class="btn-dark mono">Prove</button></form>
@@ -850,11 +850,11 @@ function modelPage() {
       <h2>Download</h2>
       <div class="dl mono">
         <a href="./model/cusity.netlist.json" download>netlist.json</a>
-        <a href="./model/cusity.v" download>cusity.v</a>
+        <a href="${CONFIG.offchainBase}model/cusity.v" download>cusity.v</a>
         <a href="./model/model_card.json" download>model_card.json</a>
         <a href="./test_leaves.json" download>test_leaves.json</a>
         <a href="./snapshot/list.json" download>snapshot list.json</a>
-        <a href="./snapshot/inputs.json.gz" download>extractor inputs</a>
+        <a href="${CONFIG.offchainBase}snapshot/inputs.json.gz" download>extractor inputs</a>
       </div>
     </div>`;
   wireCopy();
