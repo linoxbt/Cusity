@@ -95,14 +95,15 @@ PROCESSOR=0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e PROCESSOR_NUMBER=419 CIRCUI
   forge script script/Publish.s.sol --rpc-url https://rpc.xlayer.tech --account cusity --broadcast --slow
 ```
 
-**Cost (read on chain, Nov 19, 2026):**
+**Cost (read on chain and measured on a fork, Nov 19, 2026):**
 - **Container:** 0.08 OKB, one time (Opener `FEE`).
 - **Name:** free (DomainBinding `monthlyFee` is 0).
-- **Gas:** the uploads (measured on a fork, see below).
+- **Uploads:** 2.18 billion gas over 445 transactions ≈ **0.044 OKB** at 0.02 gwei.
+- **Total:** ≈ **0.125 OKB**, on top of the tape-out. An unchanged re-publish writes nothing.
 
 **Re-publishing** writes only files whose SHA-256 changed and removes files that are gone, so a model update costs only its changed files.
 
-**Rehearsed on a mainnet fork:** `scripts/deweb_build.sh && FORK=1 forge test --match-contract DewebTest -vv`. It tapes out on #419, publishes every file, reads every file back from the registry, checks its SHA-256, and checks that the name is live.
+**Rehearsed on a mainnet fork** (it published `tape://24.2.419.tape/` on the fork and verified all 395 files): `scripts/deweb_build.sh && FORK=1 forge test --match-contract DewebTest -vv`. It tapes out on #419, publishes every file, reads every file back from the registry, checks its SHA-256, and checks that the name is live.
 
 ## Site
 

@@ -15,6 +15,7 @@ contract DewebTest is Test {
     function setUp() public {
         if (vm.envOr("FORK", uint256(0)) == 0) { vm.skip(true); return; }
         vm.createSelectFork(vm.envOr("XLAYER_RPC", string("https://rpc.xlayer.tech")));
+        if (!vm.exists("../build/deweb/.manifest.json")) { console.log("run scripts/deweb_build.sh first"); vm.skip(true); }
     }
 
     function test_publishSiteOnFork() public {
