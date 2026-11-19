@@ -17,25 +17,25 @@ wallet ──extractor──▶ 64 bits ──▶ [ NAND circuit on X Layer ] �
 
 | Stage | State |
 |---|---|
-| Toy model → Verilog → TAP-02 NAND netlist (251 gates) | ✅ trained, **0 mismatches** vs PyTorch |
-| TAP-02 evaluator vs live X Layer `eval` | ✅ matches the chain (`scripts/phase0_check.sh`) |
-| Extractor on live X Layer data | ✅ deterministic, byte-identical reruns |
-| Contracts: Registry, CampaignCommit, AccuracyAudit | ✅ 20 Foundry tests incl. fuzz, real netlist, TS↔Solidity Merkle |
-| Web: Check, Explain, Audit, Appeal | ✅ builds, runs in demo mode, desktop and mobile |
-| Tape-out on a live processor | ✅ on an X Layer mainnet fork: netlist, hash and `eval` match; real cost 0.33 OKB for 251 gates |
-| Site | ✅ live at https://cusity.vercel.app (demo mode until contracts are deployed) |
-| Tape-out, deploy, campaign on mainnet | ⏳ needs your key and OKB: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
-| Plan A labels | ✅ 2,425 X Layer wallets (1,337 bot, 1,088 human), `data/labels_public.csv` |
-| Real model v2 | ✅ 646 NAND gates. Adds LayerZero-style 24 h funding bursts, Hop-style shared collectors and an exchange-scale funder flag. Held-out test (same wallets): **67.8% balanced accuracy** (precision 67.7%, recall 77.2%). Over 5 seeds: 67.1% vs v1's 65.9% at the same size. Parity 0 mismatches on 2,425; tapes out on a mainnet fork (#419/#422: 0.0013 OKB + 0.01 BEM; eval 1.49M gas) |
-| Real model v1 (kept in `build/v1/`) | ✅ 807 NAND gates, trained on real X Layer histories (OKX Data API, snapshot block 76,254,000). Held-out test: **65.6% balanced accuracy** (bot precision 67.7%, recall 67.4%). Parity 0 mismatches on 2,061 wallets. Tapes out on a live processor (fork) for 1.07 OKB |
+| Model **v3**: 993 NAND gates | ✅ held-out test (365 wallets, frozen in git before training, scored once): **70.0% balanced accuracy** (95% CI 65.4–74.5), **22.2% of humans flagged**, bot precision 76.9% here (24% if only 10% of a campaign are bots). Hop sybils flagged 82% vs Hop users 22%. Selected on validation only |
+| Circuit = model | ✅ 0 mismatches on all 2,425 wallets + 20,000 random inputs (`compiler/parity_gates.py`) |
+| Extractor | ✅ deterministic from the history cache; backend, sources, config and viem version in `extractorHash` |
+| Contracts | ✅ 37 unit tests (23 of 23 code mutations caught), mainnet-fork suite, full runbook rehearsed on a fork |
+| Site | ✅ https://cusity.vercel.app · https://cusity.netlify.app, demo mode until the contracts are deployed |
+| Tape-out, deploy, campaign on mainnet | ⏳ needs your keystore, ≈0.02 OKB and 0.01 BEM: [`docs/ONCHAIN.md`](docs/ONCHAIN.md) |
+| Labels | 2,425 X Layer wallets: 1,337 bots (137 Hop sybils, 1,200 LayerZero sybils), 1,088 Hop bridge users |
+
+Earlier versions (v1, v2) are in `build/v1/` and the git history; their test sets differ from v3's, so their
+numbers are not comparable.
 
 ## Layout
 
 ```
-data/        features.ts (64-bit layout), indexer.ts, history.ts, extract.ts, extractor_hash.ts, merkle.ts
-model/       train.py (tapered difflogic), toy_data.py, split.py, vendored difflogic/ (CPU)
-compiler/    export_verilog.py, local_synth.py (Yosys → TAP-02), tap02.py, parity.py, make_fixture.py
-contracts/   Foundry: CusityRegistry, CampaignCommit, AccuracyAudit, Deploy script, tests
+data/        features.ts (64-bit layout), history*.ts, extract.ts, extractor_hash.ts, merkle*.ts (positional trees), clusters.py
+model/       train.py (tapered difflogic), sweep.py, split.py (grouped by funder), vendored difflogic/ (CPU)
+compiler/    export_verilog.py, local_synth.py (Yosys → TAP-02), tap02.py, parity.py, parity_gates.py, model_card.py
+contracts/   Foundry: CusityRegistry, CampaignCommit, AccuracyAudit, PositionalMerkle; Deploy/TapeOut/Campaign scripts; tests
+scripts/     build_model.sh (two-phase), campaign_snapshot.sh, test_all.sh, check_consistency.ts, setup_contracts.sh
 web/         Vite + TypeScript + viem static site for DeWEB
 build/       netlists, fixture, Merkle trees, demo snapshot
 brand/       logo and social assets
@@ -45,14 +45,19 @@ docs/        build spec, review, on-chain runbook, submission answers
 ## Reproduce
 
 ```bash
-# Python 3.10+, Node 22, Foundry
-python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-npm install
-(cd contracts && forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts@v5.1.0 --no-git)
+# Python 3.13, Node 22, Foundry (versions pinned in requirements.txt, .nvmrc, scripts/setup_contracts.sh)
+python -m venv .venv && source .venv/bin/activate
+pip install --index-url https://download.pytorch.org/whl/cpu torch==2.15.0 && pip install -r requirements.txt
+npm ci
+scripts/setup_contracts.sh
 
-scripts/toy_pipeline.sh     # toy data → train → Verilog → NAND netlist → parity → fixture
-scripts/test_all.sh         # parity, data tests, contract tests, web build
-npm run -w web dev          # site in demo mode at http://localhost:5173
+scripts/test_all.sh                      # every offline check, from a fresh clone
+(cd contracts && FORK=1 forge test -vv)  # mainnet-fork suite incl. the runbook rehearsal
+npm run -w web dev                       # site in demo mode at http://localhost:5173
+
+# rebuild the model (needs OKX_* keys in .env for uncached histories)
+scripts/build_model.sh data 76254000     # extract → split → test root; then commit data/
+scripts/build_model.sh train 3           # refuses to train on an uncommitted test set
 ```
 
 `model/difflogic/` is difflogic 0.1.0 (MIT) with its CUDA import made optional, so training runs on
@@ -60,14 +65,15 @@ CPU. Recreate it with `python model/vendor_difflogic.py`.
 
 ## How the trust works
 
-- **The model can't change after the snapshot.** `CampaignCommit.commit` stores the netlist's sha256 before the snapshot. `bind` only succeeds if the taped-out circuit, hashed on chain by the registry, matches.
-- **Inputs can't change either.** Every entrant's 64 bits go into a Merkle root published after the snapshot. The page verifies the proof before it shows a result.
-- **Accuracy is checked on chain.** A future block hash picks test rows, and the contract runs `eval` on each one. A model has at most one open round at a time, and abandoned rounds stay on record as expired.
-- **The extractor is pinned.** `extractorHash` covers the extractor's source files and its config: thresholds, window, OKB price and exchange list.
+- **Only a genuine TapeOut circuit can be registered.** The registry checks the processor against TapeOut's factory and a pinned code hash (its evaluator cannot be upgraded), then hashes the processor's own netlist bytes.
+- **The model can't change after the snapshot.** `CampaignCommit.commit` stores the netlist and extractor hashes before the snapshot; `bind` only succeeds if the registered model matches both.
+- **Inputs are fixed within 7 days of the snapshot.** Every entrant's 64 bits go into a positional Merkle tree, sorted by wallet; a wallet listed twice can be proven on chain by anyone, which voids the campaign. The site rebuilds the whole tree from the published list.
+- **Accuracy is scored on chain.** A future block hash picks test rows; anyone can seal and finalize. Each test row names its wallet, so its label can be checked against the public Sybil lists. Unsealed rounds count as 0.
+- **What it can't prove:** the model owner chooses the test labels (they come from public lists, so they are checkable), and the sequencer could influence a block hash.
 
 A result is a **filter result**, not an accusation. The circuit is only as honest as its inputs.
 
 ## Docs
 
 - [Build spec](docs/BUILD_SPEC.md) · [Spec review](docs/SPEC_REVIEW.md) · [On-chain runbook](docs/ONCHAIN.md)
-- [Hackathon submission answers](docs/SUBMISSION.md) · [Brand kit](brand/README.md)
+- [Hackathon submission answers](docs/SUBMISSION.md) · [Data plan and results](docs/DATA_PLAN.md) · [Brand kit](brand/README.md) · [Third-party notices](NOTICE.md)

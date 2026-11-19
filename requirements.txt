@@ -1,4 +1,8 @@
-torch>=1.13
-numpy
-scikit-learn
-yowasp-yosys    # local NAND synthesis for tests (TapeSynth does the real tape-out)
+# Exact versions used to build model v3 (Python 3.13). The Yosys version decides the synthesized netlist,
+# whose sha256 is committed on chain, so it is pinned exactly. CPU torch:
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch==2.15.0 && pip install -r requirements.txt
+torch==2.15.0
+numpy==2.5.3
+scikit-learn==1.9.1      # toy dataset only (model/toy_data.py)
+networkx==3.7            # data/clusters.py
+yowasp-yosys==0.71.0.0.post1285

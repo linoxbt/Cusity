@@ -41,7 +41,47 @@ boosting). The labels carry real but weak signal on X Layer without history. Thi
 the full 64-bit model has to beat; the history features (funder clusters, timing, repeated amounts,
 gas sameness) are the ones expected to carry most of the signal.
 
-## v2 model (Nov 19)
+## v3 model (Nov 19): audit fixes, fresh split, test set frozen first
+
+**Extractor fixes** (each one changed bits; all are tested in `data/data.test.ts`):
+- **Amounts.** The OKX API switched amount format at block 10,438,885: OKB before, integer wei after. v2 parsed the wei values as OKB, inflating them 10¹⁸×, which corrupted the main-recipient / collector choice.
+- **Failed transactions** move no value.
+- **Repeated amounts** counts value transfers only. Before, zero-value calls all "repeated" 0.
+- **Identical gas** needs 3+ transactions.
+- **Hubs** are decided per address, in the role it plays (a funder by its own outgoing list, a collector by its incoming list), so one wallet's bits never depend on the rest of the input.
+- **EIP-7702 delegated wallets** are no longer "contracts".
+- **Thresholds** now sit at quantiles of the unlabelled feature distribution: no constant bits (was 2), and 1,493 distinct vectors (was 1,009).
+- **Reproducibility.**
+  - The history backend is part of the hashed config.
+  - The hash normalises line endings and includes the viem version.
+  - The OKX cache is keyed by snapshot block.
+
+**Process:**
+1. The split is grouped by non-exchange first funder (seed 3), so siblings from one farm stay on one side.
+2. The test split and its root were committed to git (`7d091fd`) before any training. `scripts/build_model.sh` now refuses to train otherwise.
+3. Architecture and seed were chosen on balanced validation accuracy (mean of 3 seeds).
+4. The test set was scored once.
+
+**Held-out test, 365 wallets:**
+
+| | v3 |
+|---|---|
+| Balanced accuracy | **70.0%** (95% bootstrap CI 65.4–74.5) |
+| Humans flagged (false-positive rate) | **22.2%** |
+| Bots caught (recall) | 62.1% |
+| Bot precision on this set (54% bots) | 76.9% |
+| Bot precision if 30% / 10% of a campaign are bots | 55% / 24% |
+| Flagged: Hop sybils / LayerZero sybils / Hop users | 82% / 60% / 22% |
+| Balanced accuracy on vectors never seen in training (205 wallets) | 64.2% |
+| NAND gates | 993 |
+
+**Honest read:**
+- **Cohort.** Hop sybils and Hop users come from the same campaign and era, yet the circuit flags 82% vs 22% of them. So the signal is mostly behaviour, not label source, but the Hop sybil sample is small (22 wallets).
+- **Precision.** At realistic bot rates precision falls, so a flag is a reason to look closer, not a verdict.
+- **Feature design.** Features and thresholds were designed with the whole (unlabelled) feature distribution in view, and v2's ideas came from looking at all labelled wallets. A truly fresh test needs new labels.
+- **Clusters.** Labelled bots are 66.7% of clustered wallets (95% CI 61.1–71.8) vs 53.5% of the rest (51.4–55.7).
+
+## v2 model (Nov 19), superseded
 
 Two inputs from past Sybil hunts, in bits freed from near-constant ones (the empty name flag, thinner gas and campaign-window bands):
 
@@ -58,7 +98,7 @@ in the input list. Distributions: funderBurst > 3 in 8% of bots vs 3% of humans;
 | Balanced accuracy | 65.6% | **67.8%** |
 | Bot recall | 67.4% | **77.2%** |
 | Bot precision | 67.7% | 67.7% |
-| 5 seeds, (128, 64) widths | 65.9% ± 2.2 | **67.1% ± 1.1** |
+| 5 seeds, (128, 64) widths (scored on the test set: a mistake, fixed in v3) | 65.9% ± 2.2 | **67.1% ± 1.1** |
 | 5 seeds, (256, 256, 128, 64) | 65.8% ± 0.8 | 65.8% ± 1.2 |
 
 Honest read: a modest gain. The new inputs fire on only 5–13% of wallets because X Layer histories are thin; where they fire they

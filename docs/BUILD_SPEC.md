@@ -668,6 +668,8 @@ Fill in the brackets with your real numbers after the campaign. Every field belo
 
 ## Appendix: source code
 
+> **Superseded.** These listings are the original plan. The code in the repository is the source of truth and differs after the Nov 19 audit fixes: positional Merkle trees, processor allowlist, `seal()`, publish window, duplicate-wallet proofs, a 993-gate model v3, and keystore-signed scripts. See `docs/ONCHAIN.md` and `docs/DATA_PLAN.md`.
+
 These are starting implementations for every file in the build guide. Lines marked **VERIFY** depend on something not yet confirmed from a live source. Check each one before relying on it.
 
 Install for the TypeScript parts: `npm i viem @openzeppelin/merkle-tree && npm i -D tsx typescript`.

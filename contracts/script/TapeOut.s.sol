@@ -25,7 +25,7 @@ interface IERC20 { function approve(address, uint256) external returns (bool); f
 contract TapeOut is Script {
     address constant BEM = 0x60e62Efa9405d6873C5deaBD4E6CC91c25363952;   // protocol-fee token on newer processors
 
-    function run() external {
+    function run() external returns (uint256 id) {
         IProc proc = IProc(vm.envOr("PROCESSOR", address(0xf70d324Da8C1C4Cb0dE3FF147E53E7E9db543c4e)));
         string memory j = vm.readFile("../build/cusity.netlist.json");
         bytes memory nl = vm.parseJsonBytes(j, ".netlist");
@@ -38,14 +38,15 @@ contract TapeOut is Script {
         console.log("processor", address(proc), "gates", gates);
         console.log("mint price per gate (wei)", price, "tape-out fee (wei)", fee);
         vm.startBroadcast();
-        address me = msg.sender;
-        // newer processors (#419, #422) take a 0.01 BEM protocol fee (8 decimals) on mint
-        require(IERC20(BEM).balanceOf(me) >= 1e6, "needs 0.01 BEM on X Layer for the protocol fee (bridge BEM from BNB Chain)");
+        (, address me,) = vm.readCallers();   // the account that signs (msg.sender of the broadcast calls)
+        // newer processors (#419, #422) take a 0.01 BEM protocol fee (8 decimals) on mint; set BEM_FEE=false for #180/#300
+        if (vm.envOr("BEM_FEE", true))
+            require(IERC20(BEM).balanceOf(me) >= 1e6, "needs 0.01 BEM on X Layer for the protocol fee (bridge BEM from BNB Chain)");
         require(me.balance >= gates * price + fee, "not enough OKB for mint + tape-out fee");
-        if (IERC20(BEM).allowance(me, address(t)) == 0) IERC20(BEM).approve(address(t), type(uint256).max);
+        if (vm.envOr("BEM_FEE", true) && IERC20(BEM).allowance(me, address(t)) == 0) IERC20(BEM).approve(address(t), type(uint256).max);
         uint256 have = t.balanceOf(me, 0);
         if (have < gates) t.mint{value: (gates - have) * price}(0, gates - have);
-        uint256 id = proc.tapeout{value: fee}(nl, 64, 7);
+        id = proc.tapeout{value: fee}(nl, 64, 7);
         vm.stopBroadcast();
         require(sha256(proc.netlist(id)) == want, "processor stores different bytes");
         console.log("taped out circuit id", id);

@@ -19,16 +19,16 @@ contract Deploy is Script {
     bytes32 constant PROXY_A = 0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5; // e.g. #180, #300
     bytes32 constant PROXY_B = 0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545; // e.g. #419, #422
 
-    function run() external {
+    function run() external returns (AccuracyAudit audit, CusityRegistry registry, CampaignCommit campaign) {
         uint256 kRaw = vm.envOr("AUDIT_K", uint256(16));
         require(kRaw > 0 && kRaw <= type(uint16).max, "AUDIT_K must be 1..65535");
         bytes32[] memory code = new bytes32[](2);
         code[0] = PROXY_A; code[1] = PROXY_B;
         vm.startBroadcast();
-        AccuracyAudit audit = new AccuracyAudit(uint16(kRaw));
-        CusityRegistry registry = new CusityRegistry(address(audit), FACTORY, code);
+        audit = new AccuracyAudit(uint16(kRaw));
+        registry = new CusityRegistry(address(audit), FACTORY, code);
         audit.setRegistry(address(registry));
-        CampaignCommit campaign = new CampaignCommit(address(registry));
+        campaign = new CampaignCommit(address(registry));
         vm.stopBroadcast();
         console.log("AUDIT", address(audit));
         console.log("REGISTRY", address(registry));

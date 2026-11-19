@@ -24,3 +24,8 @@ contracts/lib/
 
 # netlify link state
 .netlify/
+.vercel/
+*.log
+.DS_Store
+*.tsbuildinfo
+__pycache__/
